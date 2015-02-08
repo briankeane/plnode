@@ -8,7 +8,7 @@ var Song = require('../song/song.model');
 var Station = require('../station/station.model');
 var expect = require('chai').expect;
 var async = require('async');
-var specHelper = require('../../utilities/specHelper');
+var SpecHelper = require('../../utilities/specHelper');
 
 
 describe('GET /api/v1/stations', function() {
@@ -32,7 +32,7 @@ describe('a station', function () {
   var station;
 
   beforeEach(function (done) {
-    specHelper.clearDatabase(function() {
+    SpecHelper.clearDatabase(function() {
 
       user = new User({ twitter: 'BrianKeaneTunes',
                           twitterUID: '756',
@@ -46,7 +46,7 @@ describe('a station', function () {
                                secsOfCommercialPerHour: 3 }) 
 
 
-      specHelper.saveAll([user, station], function (err, objects) {
+      SpecHelper.saveAll([user, station], function (err, objects) {
         done();
       });
     });
