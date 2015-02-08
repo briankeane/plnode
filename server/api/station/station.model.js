@@ -1,7 +1,7 @@
 'use strict';
 
 
-//var User = require('./user');
+var User = require('../user/user.model');
 var timestamps = require('mongoose-timestamp');
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;

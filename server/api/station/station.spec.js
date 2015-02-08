@@ -1,8 +1,14 @@
-'use strict';
+//'use strict';
 
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
+var User = require('../user/user.model');
+var Song = require('../song/song.model');
+var Station = require('../station/station.model');
+var expect = require('chai').expect;
+var async = require('async');
+var specHelper = require('../../utilities/specHelper');
 
 
 describe('GET /api/v1/stations', function() {

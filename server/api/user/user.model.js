@@ -4,19 +4,24 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
 var authTypes = ['github', 'twitter', 'facebook', 'google'];
+var timestamps = require('mongoose-timestamp');
 
 var UserSchema = new Schema({
-  name: String,
-  email: { type: String, lowercase: true },
-  role: {
-    type: String,
-    default: 'user'
-  },
-  hashedPassword: String,
-  provider: String,
-  salt: String,
-  twitter: {},
-  github: {}
+  twitterHandle:      { type: String },
+  twitterUID:         { type: String },
+  email:              { type: String },
+  birthYear:          { type: Number },
+  gender:             { type: String },
+  zipcode:            { type: String },
+  profileImageUrl:    { type: String },
+  _station:           { type: Schema.ObjectId, ref: 'Station' },
+  name:               { type: String },
+  role:               { type: String, default: 'user'},
+  hashedPassword:     { type: String },
+  provider:           { type: String },
+  salt:               { type: String },
+  twitter:                  {},
+  github:                   {}
 });
 
 /**
@@ -144,4 +149,6 @@ UserSchema.methods = {
   }
 };
 
-module.exports = mongoose.model('User', UserSchema);
+UserSchema.plugin(timestamps);
+var User = mongoose.model('User', UserSchema);
+module.exports = User;

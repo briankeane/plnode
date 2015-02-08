@@ -2,11 +2,11 @@
 
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
+var extend = require('mongoose-schema-extend');
+var AudioBlockSchema = require('../audioBlock/audioBlock.schema');
 
-var CommercialBlockSchema = new Schema({
-  name: String,
-  info: String,
-  active: Boolean
+var commercialBlockSchema = AudioBlockSchema.extend({
 });
 
-module.exports = mongoose.model('CommercialBlock', CommercialBlockSchema);
+var CommercialBlock = mongoose.model('CommercialBlock', commercialBlockSchema);
+module.exports = CommercialBlock;
