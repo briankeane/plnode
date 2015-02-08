@@ -10,7 +10,7 @@ var Song = require('../song/song.model');
 var Spin = require('../spin/spin.model');
 var expect = require('chai').expect;
 var async = require('async');
-var SpecHelper = require('../../utilities/specHelper');
+var SpecHelper = require('../../utilities/helpers/specHelper');
 
 describe('GET /api/v1/logEntries', function() {
 

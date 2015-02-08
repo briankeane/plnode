@@ -7,7 +7,7 @@ var User = require('../user/user.model');
 var Song = require('./song.model');
 var expect = require('chai').expect;
 var async = require('async');
-var SpecHelper = require('../../utilities/specHelper');
+var SpecHelper = require('../../utilities/helpers/specHelper');
 
 describe('GET /api/v1/songs', function() {
 

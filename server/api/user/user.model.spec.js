@@ -6,7 +6,7 @@ var User = require('./user.model');
 var Station = require('../station/station.model');
 var expect = require('chai').expect;
 var async = require('async');
-var specHelper = require('../../utilities/specHelper');
+var specHelper = require('../../utilities/helpers/specHelper');
 
 
 var user = new User({

@@ -8,5 +8,5 @@ module.exports = {
     uri: 'mongodb://localhost/pl2nodeyo-dev'
   },
 
-  seedDB: true
+  seedDB: false
 };

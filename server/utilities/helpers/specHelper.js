@@ -1,13 +1,13 @@
 var async = require('async');
 
-var AudioBlock = require('../api/audioBlock/audioBlock.model');
-var LogEntry = require('../api/logEntry/logEntry.model');
-var Commentary = require('../api/commentary/commentary.model');
-var RotationItem = require('../api/rotationItem/rotationItem.model');
-var Song = require('../api/song/song.model');
-var Spin = require('../api/spin/spin.model');
-var Station = require('../api/station/station.model');
-var User = require('../api/user/user.model');
+var AudioBlock = require('../../api/audioBlock/audioBlock.model');
+var LogEntry = require('../../api/logEntry/logEntry.model');
+var Commentary = require('../../api/commentary/commentary.model');
+var RotationItem = require('../../api/rotationItem/rotationItem.model');
+var Song = require('../../api/song/song.model');
+var Spin = require('../../api/spin/spin.model');
+var Station = require('../../api/station/station.model');
+var User = require('../../api/user/user.model');
 var _ = require('lodash');
 
 function Helper() {

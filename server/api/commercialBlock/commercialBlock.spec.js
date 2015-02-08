@@ -5,7 +5,7 @@ var app = require('../../app');
 var request = require('supertest');
 var CommercialBlock = require('./commercialBlock.model');
 var expect = require('chai').expect;
-var SpecHelper = require('../../utilities/specHelper');
+var SpecHelper = require('../../utilities/helpers/specHelper');
 
 describe('GET /api/v1/commercialBlocks', function() {
 

@@ -8,7 +8,7 @@ var Commentary = require('../commentary/commentary.model');
 var Song = require('../song/song.model');
 var Spin = require('./spin.model');
 var expect = require('chai').expect;
-var SpecHelper = require('../../utilities/specHelper');
+var SpecHelper = require('../../utilities/helpers/specHelper');
 
 describe('GET /api/v1/spins', function() {
 

@@ -7,7 +7,7 @@ var Station = require('../station/station.model');
 var Commentary = require('./commentary.model');
 var expect = require('chai').expect;
 var async = require('async');
-var specHelper = require('../../utilities/specHelper');
+var specHelper = require('../../utilities/helpers/specHelper');
 
 describe('GET /api/v1/commentaries', function() {
 
