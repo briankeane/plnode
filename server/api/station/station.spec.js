@@ -34,7 +34,7 @@ describe('a station', function () {
   beforeEach(function (done) {
     SpecHelper.clearDatabase(function() {
 
-      user = new User({ twitter: 'BrianKeaneTunes',
+      user = new User({ twitterHandle: 'BrianKeaneTunes',
                           twitterUID: '756',
                           email: 'lonesomewhistle@gmail.com',
                           birthYear: 1977,
@@ -61,7 +61,7 @@ describe('a station', function () {
   });
 
   it ('can be updated', function (done) {
-    user2 = new User ({ twitter: 'bla' });
+    user2 = new User ({ twitterHandle: 'bla' });
     user2.save(function (err, savedUser) {
       Station.findByIdAndUpdate(station.id, { $set: { _user: user2.id, 
                                                     secsOfCommercialPerHour: 10,

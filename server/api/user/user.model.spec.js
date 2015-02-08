@@ -52,7 +52,7 @@ describe('a user', function () {
   
   beforeEach(function (done) {
     specHelper.clearDatabase(function() {
-      user = new User({ twitter: 'BrianKeaneTunes',
+      user = new User({ twitterHandle: 'BrianKeaneTunes',
                         twitterUID: '756',
                         email: 'lonesomewhistle@gmail.com',
                         birthYear: 1977,
@@ -72,7 +72,7 @@ describe('a user', function () {
 
   it ('is created with an id, twitter_uid, email, birth_year, gender, ' + 
         'and profile_image_url', function (done) {
-    expect(user.twitter).to.equal('BrianKeaneTunes');
+    expect(user.twitterHandle).to.equal('BrianKeaneTunes');
     expect(user.twitterUID).to.equal('756');
     expect(user.email).to.equal('lonesomewhistle@gmail.com');
     expect(user.birthYear).to.equal(1977);
@@ -85,9 +85,9 @@ describe('a user', function () {
   it ('persists a user', function (done) {
     user.save(function (err, user) {
       expect(err).to.equal(null);
-      User.findOne({ twitter: 'BrianKeaneTunes' }, function (err, gottenUser) {
+      User.findOne({ twitterHandle: 'BrianKeaneTunes' }, function (err, gottenUser) {
         expect(err).to.equal(null);
-        expect(gottenUser.twitter).to.equal('BrianKeaneTunes');
+        expect(gottenUser.twitterHandle).to.equal('BrianKeaneTunes');
         expect(gottenUser.twitterUID).to.equal('756');
         expect(gottenUser.email).to.equal('lonesomewhistle@gmail.com');
         expect(gottenUser.birthYear).to.equal(1977);
@@ -102,17 +102,17 @@ describe('a user', function () {
     user.save(function (err, savedUser) {
       User.findById(savedUser.id, function (err, gottenUser) {
         expect(err).to.equal(null);
-        expect(gottenUser.twitter).to.equal('BrianKeaneTunes');
+        expect(gottenUser.twitterHandle).to.equal('BrianKeaneTunes');
         done();
       });
     });
   });
 
-  it ('can be gotten by its twitter', function (done) {
+  it ('can be gotten by its twitterHandle', function (done) {
     user.save(function (err, savedUser) {
-      User.findOne({ twitter: 'BrianKeaneTunes' }, function (err, gottenUser) {
+      User.findOne({ twitterHandle: 'BrianKeaneTunes' }, function (err, gottenUser) {
         expect(err).to.equal(null);
-        expect(savedUser.twitter).to.equal('BrianKeaneTunes');
+        expect(savedUser.twitterHandle).to.equal('BrianKeaneTunes');
         expect(gottenUser.email).to.equal('lonesomewhistle@gmail.com');
         expect(gottenUser.twitterUID).to.equal('756');
         done();
@@ -135,7 +135,7 @@ describe('a user', function () {
 
   it ('can be updated', function (done) {
     user.save(function (err, savedUser) {
-      User.findByIdAndUpdate(savedUser.id, { $set: { twitter: 'newTwitter',
+      User.findByIdAndUpdate(savedUser.id, { $set: { twitterHandle: 'newTwitter',
                                                 twitterUID: '999',
                                                 email: 'new@gmail.com',
                                                 birthYear: 1990,
@@ -143,7 +143,7 @@ describe('a user', function () {
                                                 zipcode: '37217',
                                                 profileImageUrl: 'http://dumbass.jpg' } }, function (err, updatedUser) {
         expect(err).to.equal(null);
-        expect(updatedUser.twitter).to.equal('newTwitter');
+        expect(updatedUser.twitterHandle).to.equal('newTwitter');
         expect(updatedUser.twitterUID).to.equal('999');
         expect(updatedUser.email).to.equal('new@gmail.com');
         expect(updatedUser.birthYear).to.equal(1990);
@@ -181,8 +181,8 @@ describe('more user CRUD', function () {
   });
 
   it ('gets all users', function (done) {
-    expect(users[0].twitter).to.equal('bob0');
-    expect(users[4].twitter).to.equal('bob4');
+    expect(users[0].twitterHandle).to.equal('bob0');
+    expect(users[4].twitterHandle).to.equal('bob4');
     expect(users.length).to.equal(10);
     done();
   });
@@ -211,7 +211,7 @@ function loadUsers (desiredLength, callback) {
 
   // make 10 users and store their 'save' functions
   for (var i=0; i<desiredLength; i++) {
-    newUsers.push(new User({twitter: 'bob' + i }));
+    newUsers.push(new User({twitterHandle: 'bob' + i }));
     newUserFunctions.push((function (user) {
       return function (callback) {
         user.save(callback);
@@ -223,7 +223,7 @@ function loadUsers (desiredLength, callback) {
   async.parallel(newUserFunctions, function (err, results) {
     User.count({}, function (err, count) {
       User.find()
-      .sort('twitter')
+      .sort('twitterHandle')
       .exec(callback);
     });
   });

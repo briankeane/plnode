@@ -6,7 +6,7 @@
 ### User
 | Property                | Type                        | Description                     |
 | --------                | :---:                       | :-------:                       |
-| **twitter**             | *String*                    | user's twitter handle           |
+| **twitterHandle**       | *String*                    | user's twitter handle           |
 | **twitterUID**          | *String*                    | user's twitter user id          |
 | **email**               | *String*                    | users email                     |
 | **birthYear**           | *Number*                    | users birthyear                 |
