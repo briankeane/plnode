@@ -8,5 +8,12 @@ module.exports = {
     uri: 'mongodb://localhost/pl2nodeyo-dev'
   },
 
-  seedDB: false
+  seedDB: false,
+
+  s3Buckets: { 
+    SONGS_BUCKET: 'playolasongs',
+    COMMERCIALS_BUCKET: 'playolacommercials',
+    COMMENTARIES_BUCKET: 'playolacommentaries',
+    UNPROCESSED_SONGS: 'playolaunprocessedsongs'
+  }
 };

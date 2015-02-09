@@ -19,5 +19,12 @@ module.exports = {
             process.env.MONGOHQ_URL ||
             process.env.OPENSHIFT_MONGODB_DB_URL+process.env.OPENSHIFT_APP_NAME ||
             'mongodb://localhost/pl2nodeyo'
+  },
+
+  s3Buckets: { 
+    SONGS_BUCKET: 'playolasongs',
+    COMMERCIALS_BUCKET: 'playolacommercials',
+    COMMENTARIES_BUCKET: 'playolacommentaries',
+    UNPROCESSED_SONGS: 'playolaunprocessedsongs'
   }
 };
