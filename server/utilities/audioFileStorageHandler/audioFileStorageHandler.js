@@ -102,6 +102,7 @@ function Handler() {
                                               s3Params: { 
                                                 Bucket: config["s3Buckets"].SONGS_BUCKET,
                                                 Key: key,
+                                                ContentType: 'audio/mpeg',
                                                 Metadata: metadata
                                               }
                                             });
@@ -154,6 +155,20 @@ function Handler() {
       });
     });    
   };
+  this.getUnprocessedSong = function (key, callback) {
+    var filepath = process.cwd() + '/server/data/' + key
+    var downloader = s3HighLevel.downloadFile({   localFile: filepath,
+                                                  s3Params: { Bucket: config["s3Buckets"].UNPROCESSED_SONGS,
+                                                               Key: key } });
+    downloader.on('end', function () {
+      console.log(filepath);
+      callback(null, filepath);
+    });
+  }
+
+  this.getAllSongs = function (callback) {
+
+  }
 }
 
 module.exports = new Handler();
