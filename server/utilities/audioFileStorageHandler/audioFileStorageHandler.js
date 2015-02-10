@@ -166,8 +166,62 @@ function Handler() {
     });
   }
 
-  this.getAllSongs = function (callback) {
+  this.deleteUnprocessedSong = function (key, callback) {
+    s3.deleteObject({ Bucket: config["s3Buckets"].UNPROCESSED_SONGS,
+                      Key: key }, function (err, data) {
+      callback(err, data);
+    });
+  }
 
+  this.getAllSongs = function (callback) {
+    var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].SONGS_BUCKET } });
+
+    listGetter.on('data', function (data) {
+      var objects = data.Contents;
+      var formattedObjects = [];
+
+      getHeadFunction(objects.length-1);
+
+      function getHeadFunction(index) {
+        if (index < 0) {
+          return;
+        }
+
+        var params = {
+          Bucket: config["s3Buckets"].SONGS_BUCKET,
+          Key: objects[index].Key
+        };
+
+        s3.headObject(params, function (err, data) {
+          if (err) {
+            callback(err, null);
+          } else {
+            formattedObjects.push({
+              title:      data.Metadata.pl_title,
+              artist:     data.Metadata.pl_artist,
+              album:      data.Metadata.pl_album,
+              duration:   parseInt(data.Metadata.pl_duration, 10),
+              echonestId: data.Metadata.pl_echonest_id
+            });
+            
+            if (formattedObjects.length == objects.length) {
+              continueFunction();
+            } else {
+              getHeadFunction(index - 1);
+            }
+          }
+        });
+      }
+
+      function continueFunction() {
+
+        formattedObjects = _.sortBy(formattedObjects, function(song) {
+          return [song.artist, song.title];
+        });
+
+        callback(null, formattedObjects);
+      }
+    });
   }
 }
 
