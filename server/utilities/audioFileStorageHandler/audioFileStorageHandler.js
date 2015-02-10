@@ -173,6 +173,13 @@ function Handler() {
     });
   }
 
+  this.deleteSong = function (key, callback) {
+    s3.deleteObject({ Bucket: config['s3Buckets'].SONGS_BUCKET,
+                      Key: key }, function (err, data) {
+      callback(err, data);
+    });
+  }
+
   this.getAllSongs = function (callback) {
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].SONGS_BUCKET } });
 

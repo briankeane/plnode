@@ -257,15 +257,29 @@ describe('audioFileStorageHandler', function (done) {
     }
   });
 
-  xit('deletes a song', function (done) {
+  it('deletes a song', function (done) {
+    var uploader = s3HighLevel.uploadFile({ localFile: process.cwd() + '/server/data/testFiles/test.txt',
+                                      s3Params: {
+                                        Bucket: 'playolasongstest',
+                                        Key: 'test.txt',
+                                        Metadata: {
+                                          pl_title       : "Stepladder",
+                                          pl_artist      : "Rachel Loy",
+                                          pl_album       : "Broken Machine",
+                                          pl_duration    : "55",
+                                          pl_echonest_id : 'SOOWAAV13CF6D1B3FA'
+                                        }
+                                      }
+    });
+    uploader.on('end', function () {
+      audioSH.deleteUnprocessedSong('test.txt', function (err, deleteData) {
 
-  });
-
-  xit('checks to see if a song exists', function (done) {
-
-  });
-
-  xit('checks to see if an unprocessed song exists', function (done) {
-
+        s3.getObject({ Bucket: 'playolaunprocessedsongstest',
+                        Key: 'test.txt'}, function (err, data) {
+          expect(err.code).to.equal('NoSuchKey');
+          done();
+        });
+      });
+    });
   });
 });
