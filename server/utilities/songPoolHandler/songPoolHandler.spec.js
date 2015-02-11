@@ -31,17 +31,20 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  xit('adds a song to the song pool', function (done) {
+  it('adds a song to the song pool', function (done) {
+    this.timeout(10000);
     SongPool.clearAllSongs(function () {
-      SongPool.addSong(songs[0], function (err) {
-        SongPool.allSongs(function (err, allSongs) {
+      SongPool.addSong(songs[0], function (err, ticket) {
+        console.log("err: ");
+        console.log(err);
+        waitAndGetSongs(ticket, function (err, allSongs) {
           expect(allSongs.length).to.equal(1);
           expect(allSongs[0].artist).to.equal('Rachel Loy');
           expect(allSongs[0].title).to.equal('Stepladder');
           expect(allSongs[0].album).to.equal('Broken Machine');
           expect(allSongs[0].duration).to.equal(999);
           expect(allSongs[0].key).to.equal('test_key.mp3');
-          expect(allSongs[0].echonestId).to.equal('SOTWSLV13CF6D275AF');
+          expect(allSongs[0].echonestId).to.equal('SOOWAAV13CF6D1B3FA');
           done();
         });
       });
@@ -56,46 +59,25 @@ describe('songPoolHandler', function (done) {
 
   });
 
-  it('retrieves an array of all songs in the song pool', function (done) {
-    SongPool.addSongs(songs, function (err, json) {
-      var ticket = json.response["ticket"]
-      console.log(ticket);
-
-      function waitAndGetSongs(ticket) {
-        echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
-          console.log(json.response);
-          if (json.response["ticket_status"] != 'complete') {
-            setTimeout(function (ticket) {
-              waitAndGetSongs(ticket);
-            }, 1000);
-          } else {
-            SongPool.getAllSongs(function (err, allSongs) {
-              expect(allSongs.length).to.equal(2)
-              console.log(allSongs[0]);
-              expect(allSongs[0].title).to.equal(songs[0].title);
-              expect(allSongs[1].title).to.equal(songs[1].title);
-              done();
-            });
-          }
-        });
-      }
-
-      waitAndGetSongs(ticket);
-
-      // SongPool.getAllSongs(function (err, allSongs) {
-      //   expect(allSongs.length).to.equal(2);
-      //   done();
-      // })
+  xit('retrieves an array of all songs in the song pool', function (done) {
+    SongPool.addSongs(songs, function (err, ticket) {
+      waitAndGetSongs(ticket, function (err, allSongs) {
+        expect(allSongs.length).to.equal(2)
+        console.log(allSongs[0]);
+        expect(allSongs[0].title).to.equal(songs[0].title);
+        expect(allSongs[1].title).to.equal(songs[1].title);
+        done();
+      });
     });
   });
 
   xit('clears all songs from the song pool', function (done) {
-    SongPool.addSongs(songs, function (err) {
-      SongPool.allSongs(function (err, allSongs) {
+    SongPool.addSongs(songs, function (err, ticket) {
+      waitAndGetSongs(ticket, function (err, allSongs) {
         expect(allSongs.length).to.equal(2);
-        SongPool.clearAllSongs(function (err) {
-          SongPool.allSongs(function (err, allSongsWereDeleted) {
-            expect(allSongsWereDeleted.lentgh).to.equal(0);
+        SongPool.clearAllSongs(function (err, newTicket) {
+          waitAndGetSongs(newTicket, function (err, allSongsWereDeleted) {
+            expect(allSongsWereDeleted.length).to.equal(0);
             done();
           });
         });
@@ -113,7 +95,22 @@ describe('songPoolHandler', function (done) {
 
 
   xit('can tell if a song is included in the pool', function (done) {
-
   });
-
 });
+      
+
+function waitAndGetSongs(ticket, callback) {
+  console.log("ticket: " + ticket);
+  echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
+    console.log(json.response);
+    if (json.response["ticket_status"] != 'complete') {
+      setTimeout(function (ticket) {
+        waitAndGetSongs(ticket, callback);
+      }, 1000);
+    } else {
+      SongPool.getAllSongs(function (err, allSongs) {
+        callback(err, allSongs);
+      });
+    }
+  });
+}

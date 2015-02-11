@@ -6,15 +6,15 @@ var _ = require('lodash');
 function Handler() {
   var self = this;
 
-  this.addSong = function (song) {
+  this.addSong = function (song, callback) {
     return this.addSongs([song], callback);
   }
 
   this.addSongs = function (songsToAdd, callback) {
-    self.getAllSongs(function (err, allSongsJson) {
+    self.getAllSongs(function (err, allSongs) {
       
       // check for duplicates
-      var duplicateSongs = allSongsJson.filter(function (song) { 
+      var duplicateSongs = allSongs.filter(function (song) { 
         var included = false;
         for (var i=0; i<songsToAdd.length; i++) {
           if (song.echonestId === songsToAdd.echonestId) {
@@ -56,7 +56,8 @@ function Handler() {
       console.log('data: ');
       console.log(data);
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
-        callback(err, json);
+        console.log(json.response["ticket"]);
+        callback(err, json.response["ticket"]);
       });
 
     });
@@ -122,12 +123,14 @@ function Handler() {
                           title: items[i]["item_keyvalues"]["pl_title"],
                           album: items[i]["item_keyvalues"]["pl_album"] || null,
                           key: items[i]["item_keyvalues"]["pl_key"],
+                          duration: parseInt(items[i]["item_keyvalues"]["pl_duration"]),
                           echonestId: items[i]["song_id"] 
                         });
         }
         if (allSongs.length < json.response["catalog"]["total"]) {
           grabChunk(startingIndex + 1000);
         } else {
+          allSongs = _.sortBy(allSongs, function(song) { return [song.artist, song.title]; });
           console.log(allSongs);
           callback(null, allSongs);
         }
