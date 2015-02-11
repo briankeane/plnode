@@ -101,7 +101,8 @@ describe('audioFileStorageHandler', function (done) {
     });
   });
 
-  xit('updates the metadata on a song', function (done) {
+  it('updates the metadata on a song', function (done) {
+    this.timeout(10000);
     var uploader = s3HighLevel.uploadFile({ localFile: process.cwd() + '/server/data/testFiles/test.txt',
                                     s3Params: {
                                       Bucket: 'playolasongstest',
@@ -116,20 +117,19 @@ describe('audioFileStorageHandler', function (done) {
                                     }
     });
     uploader.on('end', function () {
-      audioSH.updateStoredSongMetadata({ key: 'test.txt',
+      audioSH.updateMetadata({ key: 'test.txt',
                                           title: 'FAKEtitle',
                                           artist: 'FAKEartist',
-                                          album: 'FAKEalbum',
                                           duration: 1,
                                           echonestId: 'FAKEid'
                                         }, function (err) {
-        s3.headObject({ Bucket: 'playolasongstest', Key: key}, function (err, data) {
-          expect(data.ContentLength).to.equal('4961086');
-          expect(data.Metadata.pl_title).to.equal('Look At That Girl');
-          expect(data.Metadata.pl_artist).to.equal('Rachel Loy');
+        s3.headObject({ Bucket: 'playolasongstest', Key: 'test.txt'}, function (err, data) {
+          expect(data.ContentLength).to.equal('14');
+          expect(data.Metadata.pl_title).to.equal('FAKEtitle');
+          expect(data.Metadata.pl_artist).to.equal('FAKEartist');
           expect(data.Metadata.pl_album).to.equal('Broken Machine');
-          expect(data.Metadata.pl_duration).to.equal('9999');
-          expect(data.Metadata.pl_echonest_id).to.equal('test_echonest_id');
+          expect(data.Metadata.pl_duration).to.equal('1');
+          expect(data.Metadata.pl_echonest_id).to.equal('FAKEid');
           done();
         });
       });

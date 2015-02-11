@@ -180,6 +180,37 @@ function Handler() {
     });
   }
 
+  this.updateMetadata = function (attrs, callback) {
+    self.getStoredSongMetadata(attrs.key, function (err, oldMetadata) {
+
+      // format duration if it's been given
+      if (attrs.duration) {
+        attrs.duration = attrs.duration.toString();
+      }
+
+      var metadata = {
+        pl_title:      attrs.title || oldMetadata.title,
+        pl_artist:     attrs.artist || oldMetadata.artist,
+        pl_album:      attrs.album || oldMetadata.album,
+        pl_duration:   attrs.duration || oldMetadata.duration,
+        pl_echonest_id: attrs.echonestId || oldMetadata.echonestId
+      }
+      console.log('oldMetadata: ');
+      console.log(oldMetadata);
+      console.log('metadata: ');
+      console.log(metadata);
+
+      s3.copyObject({ Bucket: config["s3Buckets"].SONGS_BUCKET,
+                      CopySource: config["s3Buckets"].SONGS_BUCKET + '/' + attrs.key,
+                      Key: attrs.key,
+                      MetadataDirective: 'REPLACE',
+                      Metadata: metadata,
+                      ContentType: 'audio/mpeg'
+        }, callback
+      );
+    });
+  };
+
   this.getAllSongs = function (callback) {
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].SONGS_BUCKET } });
 
