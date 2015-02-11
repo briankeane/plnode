@@ -142,7 +142,6 @@ function Handler() {
                         pl_station_id: attrs.stationId,
                         pl_duration: (attrs.duration.toString() || ''),
                       };
-                      console.log('localFile: ' + attrs.songFilepath);
       var uploader = s3HighLevel.uploadFile({ localFile: attrs.filepath,
                                               s3Params: { 
                                                 Bucket: config["s3Buckets"].COMMENTARIES_BUCKET,
@@ -161,7 +160,6 @@ function Handler() {
                                                   s3Params: { Bucket: config["s3Buckets"].UNPROCESSED_SONGS,
                                                                Key: key } });
     downloader.on('end', function () {
-      console.log(filepath);
       callback(null, filepath);
     });
   }
@@ -195,10 +193,6 @@ function Handler() {
         pl_duration:   attrs.duration || oldMetadata.duration,
         pl_echonest_id: attrs.echonestId || oldMetadata.echonestId
       }
-      console.log('oldMetadata: ');
-      console.log(oldMetadata);
-      console.log('metadata: ');
-      console.log(metadata);
 
       s3.copyObject({ Bucket: config["s3Buckets"].SONGS_BUCKET,
                       CopySource: config["s3Buckets"].SONGS_BUCKET + '/' + attrs.key,

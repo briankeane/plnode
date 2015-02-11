@@ -13,5 +13,8 @@ module.exports = {
     COMMERCIALS_BUCKET: 'playolacommercialstest',
     COMMENTARIES_BUCKET: 'playolacommentariestest',
     UNPROCESSED_SONGS: 'playolaunprocessedsongstest'
-  }
+  },
+
+  ECHONEST_TASTE_PROFILE_ID: 'CAIQEUO1473A654C51'
+
 };

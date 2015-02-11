@@ -32,7 +32,7 @@ describe('audioFileStorageHandler', function (done) {
     });
   });
 
-  xit('gets metadata from a stored song', function (done) {
+  it('gets metadata from a stored song', function (done) {
     var uploader = s3HighLevel.uploadFile({ localFile: process.cwd() + '/server/data/testFiles/test.txt',
                                     s3Params: {
                                       Bucket: 'playolasongstest',
@@ -58,7 +58,7 @@ describe('audioFileStorageHandler', function (done) {
     });
   });
 
-  xit('stores a song', function (done) {
+  it('stores a song', function (done) {
     this.timeout(100000);
     audioSH.storeSong({ title: 'Look At That Girl',
                         artist: 'Rachel Loy',
@@ -81,7 +81,7 @@ describe('audioFileStorageHandler', function (done) {
     });
   });
 
-  xit('stores a commentary', function (done) {
+  it('stores a commentary', function (done) {
     this.timeout(100000);
     station = new Station({ secsOfCommercialsPerHour: 360 });
     station.save(function (err, savedStation) {
@@ -168,7 +168,7 @@ describe('audioFileStorageHandler', function (done) {
     });
   });
 
-  xit('deletes unprocessed song', function (done) {
+  it('deletes unprocessed song', function (done) {
     var uploader = s3HighLevel.uploadFile({ localFile: process.cwd() + '/server/data/testFiles/test.txt',
                                       s3Params: {
                                         Bucket: 'playolaunprocessedsongstest',
