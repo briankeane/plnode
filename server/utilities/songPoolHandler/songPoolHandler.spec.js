@@ -3,6 +3,7 @@ var echojs = require('echojs');
 var echo = echojs({ key: process.env.ECHONEST_KEY });
 var SongPool = require('./songPoolHandler');
 var Song = require('../../api/song/song.model');
+var expect = require('chai').expect;
 
 describe('songPoolHandler', function (done) {
 
@@ -24,14 +25,18 @@ describe('songPoolHandler', function (done) {
                           key: 'test_key2.mp3',
                           echonestId: 'SOTWSLV13CF6D275AF' }));
     SpecHelper.saveAll(songs, function (err, savedSongs) {
-      SongPool.clearAllSongs();
-      done();
+      SongPool.clearAllSongs(function () {
+        done();
+      });
     });
   });
 
   it('adds a song to the song pool', function (done) {
-    expect(true).to.equal(true);
-    //done();
+    SongPool.clearAllSongs(function () {
+
+      expect(true).to.equal(true);
+      done();
+    });
   });
 
   xit('adds multiple songs to the song pool', function (done) {
