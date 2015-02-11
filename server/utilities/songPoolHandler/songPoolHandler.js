@@ -52,11 +52,11 @@ function Handler() {
         
       });
 
+      // create a string json array
       var data = "[" + addSongsJson.join(", ") + "]";
-      console.log('data: ');
-      console.log(data);
+      
+      // make the call and pass it the callback
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
-        console.log(json.response["ticket"]);
         callback(err, json.response["ticket"]);
       });
 
@@ -68,12 +68,8 @@ function Handler() {
     function deleteChunk() {
 
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
-        // if (!json.response["catalog"]["items"].length) {
-        //   callback();
-        //   return;
-        // }
 
-        console.log(json.response["catalog"]["items"]);
+        // map array of strings
         var deleteObjectArray = _.map(json.response["catalog"]["items"], function (item) {
           var deleteItem = '{' +
                               '"action": "delete",' + 
@@ -84,20 +80,20 @@ function Handler() {
           return deleteItem;
         });
 
+        // create string json-array
         var data = '[' + deleteObjectArray.join(', ') + ']';
-        console.log(data);
 
         echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
-          callback(); 
-          // echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
-          //   if (err) { console.log(err); }
-          //   console.log(json.response);
-          //   if (!json.response["catalog"]["items"].length) {
-          //     callback();
-          //   } else {
-          //     deleteChunk();
-          //   }
-          // });
+          console.log(json.response);
+          waitForCompletedTicket(json.response["ticket"], function () {
+            echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
+              if (json.response["catalog"]["items"].length) {
+                deleteChunk();
+              } else {
+                callback();
+              }
+            }); 
+          });
         });
       });
     }
@@ -138,6 +134,19 @@ function Handler() {
     }
 
     grabChunk(0);
+  }
+
+  function waitForCompletedTicket(ticket, callback) {
+    echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
+    console.log(json.response);
+    if (json.response["ticket_status"] != 'complete') {
+      setTimeout(function (ticket) {
+        waitForCompletedTicket(ticket, callback);
+      }, 1000);
+    } else {
+      callback();
+    }
+  });
   }
 }
 
