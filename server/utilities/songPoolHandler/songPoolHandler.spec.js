@@ -31,11 +31,20 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  it('adds a song to the song pool', function (done) {
+  xit('adds a song to the song pool', function (done) {
     SongPool.clearAllSongs(function () {
-
-      expect(true).to.equal(true);
-      done();
+      SongPool.addSong(songs[0], function (err) {
+        SongPool.allSongs(function (err, allSongs) {
+          expect(allSongs.length).to.equal(1);
+          expect(allSongs[0].artist).to.equal('Rachel Loy');
+          expect(allSongs[0].title).to.equal('Stepladder');
+          expect(allSongs[0].album).to.equal('Broken Machine');
+          expect(allSongs[0].duration).to.equal(999);
+          expect(allSongs[0].key).to.equal('test_key.mp3');
+          expect(allSongs[0].echonestId).to.equal('SOTWSLV13CF6D275AF');
+          done();
+        });
+      });
     });
   });
 
@@ -47,13 +56,61 @@ describe('songPoolHandler', function (done) {
 
   });
 
-  xit('retrieves an array of all songs in the song pool', function (done) {
+  it('retrieves an array of all songs in the song pool', function (done) {
+    SongPool.addSongs(songs, function (err, json) {
+      var ticket = json.response["ticket"]
+      console.log(ticket);
 
+      function waitAndGetSongs(ticket) {
+        echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
+          console.log(json.response);
+          if (json.response["ticket_status"] != 'complete') {
+            setTimeout(function (ticket) {
+              waitAndGetSongs(ticket);
+            }, 1000);
+          } else {
+            SongPool.getAllSongs(function (err, allSongs) {
+              expect(allSongs.length).to.equal(2)
+              console.log(allSongs[0]);
+              expect(allSongs[0].title).to.equal(songs[0].title);
+              expect(allSongs[1].title).to.equal(songs[1].title);
+              done();
+            });
+          }
+        });
+      }
+
+      waitAndGetSongs(ticket);
+
+      // SongPool.getAllSongs(function (err, allSongs) {
+      //   expect(allSongs.length).to.equal(2);
+      //   done();
+      // })
+    });
   });
 
   xit('clears all songs from the song pool', function (done) {
-
+    SongPool.addSongs(songs, function (err) {
+      SongPool.allSongs(function (err, allSongs) {
+        expect(allSongs.length).to.equal(2);
+        SongPool.clearAllSongs(function (err) {
+          SongPool.allSongs(function (err, allSongsWereDeleted) {
+            expect(allSongsWereDeleted.lentgh).to.equal(0);
+            done();
+          });
+        });
+      });
+    });
   });
+
+  xit('test grabJson', function (done) {
+    SongPool.grabJson(function (err, json) {
+      console.log(json);
+      console.log(json.response["catalog"]["items"]);
+      done();
+    });
+  });
+
 
   xit('can tell if a song is included in the pool', function (done) {
 
