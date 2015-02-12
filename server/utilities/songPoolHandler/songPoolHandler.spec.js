@@ -31,7 +31,7 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  it('adds a song to the song pool', function (done) {
+  xit('adds a song to the song pool', function (done) {
     this.timeout(10000);
     SongPool.clearAllSongs(function () {
       SongPool.addSong(songs[0], function (err, ticket) {
@@ -59,7 +59,7 @@ describe('songPoolHandler', function (done) {
 
   });
 
-  it('retrieves an array of all songs in the song pool', function (done) {
+  xit('retrieves an array of all songs in the song pool', function (done) {
     this.timeout(5000);
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
@@ -72,7 +72,8 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  xit('clears all songs from the song pool', function (done) {
+  it('clears all songs from the song pool', function (done) {
+  this.timeout(5000); 
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
         expect(allSongs.length).to.equal(2);

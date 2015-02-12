@@ -85,13 +85,14 @@ function Handler() {
         var data = '[' + deleteObjectArray.join(', ') + ']';
 
         echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
+          console.log('json.reponse: ');
           console.log(json.response);
           waitForCompletedTicket(json.response["ticket"], function () {
-            echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
-              if (json.response["catalog"]["items"].length) {
+            echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, newJson) {
+              if (newJson.response["catalog"]["items"].length) {
                 deleteChunk();
               } else {
-                callback();
+                callback(null, json.response["ticket"]);
               }
             }); 
           });
@@ -113,7 +114,6 @@ function Handler() {
 
     function grabChunk(startingIndex) {
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000, start: startingIndex }, function (err, json) {
-        console.log(json.response);
         var items = json.response["catalog"]["items"];
         for (var i=0; i<items.length; i++) {
           allSongs.push({ artist: items[i]["item_keyvalues"]["pl_artist"],
@@ -128,7 +128,6 @@ function Handler() {
           grabChunk(startingIndex + 1000);
         } else {
           allSongs = _.sortBy(allSongs, function(song) { return [song.artist, song.title]; });
-          console.log(allSongs);
           callback(null, allSongs);
         }
       });
@@ -141,7 +140,7 @@ function Handler() {
     echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
     console.log(json.response);
     if (json.response["ticket_status"] != 'complete') {
-      setTimeout(function (ticket) {
+      setTimeout(function () {
         waitForCompletedTicket(ticket, callback);
       }, 1000);
     } else {
