@@ -57,6 +57,7 @@ function Handler() {
       
       // make the call and pass it the callback
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
+        console.log(json.response["ticket"]);
         callback(err, json.response["ticket"]);
       });
 

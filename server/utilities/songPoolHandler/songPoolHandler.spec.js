@@ -59,13 +59,14 @@ describe('songPoolHandler', function (done) {
 
   });
 
-  xit('retrieves an array of all songs in the song pool', function (done) {
+  it('retrieves an array of all songs in the song pool', function (done) {
+    this.timeout(5000);
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
         expect(allSongs.length).to.equal(2)
         console.log(allSongs[0]);
-        expect(allSongs[0].title).to.equal(songs[0].title);
-        expect(allSongs[1].title).to.equal(songs[1].title);
+        expect(allSongs[0].title).to.equal('Cheater');
+        expect(allSongs[1].title).to.equal('Stepladder');
         done();
       });
     });
