@@ -62,6 +62,18 @@ function Handler() {
 
     });
   }
+  this.deleteSong = function (itemId, callback) {
+
+    // build string
+    data = '[{ "action": "delete", "item": {' + 
+                                  '"item_id": "' + itemId + '"' + 
+                                  '}' +
+            '}]'
+
+     echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
+      callback(null, json.response["ticket"]);
+     });
+  }
 
   this.clearAllSongs = function (callback) {
 
