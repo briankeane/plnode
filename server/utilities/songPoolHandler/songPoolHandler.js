@@ -2,6 +2,8 @@ var config = require('../../config/environment');
 var echojs = require('echojs');
 var echo = echojs({ key: process.env.ECHONEST_KEY });
 var _ = require('lodash');
+var async = require('async');
+var Song = require('../../api/song/song.model');
 
 function Handler() {
   var self = this;
@@ -101,7 +103,7 @@ function Handler() {
               if (newJson.response["catalog"]["items"].length) {
                 deleteChunk();
               } else {
-                callback(null, json.response["ticket"]);
+                callback(null, newJson.response["ticket"]);
               }
             }); 
           });
@@ -142,19 +144,60 @@ function Handler() {
       });
     }
 
+
     grabChunk(0);
+  }
+
+
+  this.getSongSuggestions = function (artists, callback) {
+    
+    var suggestedSongs = [];
+
+    var getSuggestionFunctions = [];
+
+    // grab 4 songs by each artist if they're there
+    for (i=0;i<artists.length;i++) {
+      Song.findAllMatchingArtist(artists[i], function (err, matches) {
+        for (j=0;(j<=4) && (j<matches.length);j++) {
+          suggestedSongs.push(matches[j]);
+        }
+      });
+    }
+
+    // get suggestsions from echonest
+
+    echo('playlist/basic').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
+                                bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
+      var songsJson = json.response["songs"];
+
+      var count = 0;
+
+      for (i=0;(i<songsJson.length) && (i<45);i++) {
+        Song.find({ echonestId: songsJson[i]["id"] }, function (err, song) {
+          count++;
+          if (err) { 
+            console.log(err); 
+          } else {
+            suggestedSongs.push(song[0]);
+            if ((count >= songsJson.length) || (count >= 45)) {
+              callback(null, suggestedSongs);
+            }
+          }
+        });
+      }
+    });
   }
 
   function waitForCompletedTicket(ticket, callback) {
     echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
-    if (json.response["ticket_status"] != 'complete') {
-      setTimeout(function () {
-        waitForCompletedTicket(ticket, callback);
-      }, 1000);
-    } else {
-      callback();
-    }
-  });
+      if (json.response["ticket_status"] != 'complete') {
+        setTimeout(function () {
+          waitForCompletedTicket(ticket, callback);
+        }, 1000);
+      } else {
+        callback();
+      }
+    });
   }
 }
 

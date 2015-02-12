@@ -1,9 +1,12 @@
+var config = require('../../config/environment');
 var SpecHelper = require('../helpers/specHelper');
 var echojs = require('echojs');
 var echo = echojs({ key: process.env.ECHONEST_KEY });
 var SongPool = require('./songPoolHandler');
 var Song = require('../../api/song/song.model');
 var expect = require('chai').expect;
+var fs = require('fs');
+var _ = require('lodash');
 
 describe('songPoolHandler', function (done) {
 
@@ -31,7 +34,7 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  it('adds a song to the song pool', function (done) {
+  xit('adds a song to the song pool', function (done) {
     this.timeout(10000);
     SongPool.clearAllSongs(function () {
       SongPool.addSong(songs[0], function (err, ticket) {
@@ -50,7 +53,7 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  it('deletes a song from the song pool', function (done) {
+  xit('deletes a song from the song pool', function (done) {
     this.timeout(5000);
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
@@ -66,7 +69,7 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  it('adds and retrieves an array of all songs in the song pool', function (done) {
+  xit('adds and retrieves an array of all songs in the song pool', function (done) {
     this.timeout(5000);
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
@@ -78,7 +81,7 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  it('clears all songs from the song pool', function (done) {
+  xit('clears all songs from the song pool', function (done) {
   this.timeout(5000); 
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
@@ -101,23 +104,78 @@ describe('songPoolHandler', function (done) {
     });
   });
 
+  describe('songPoolHandler - getSuggestions', function (done) {
+    before(function (done) {
+      this.timeout(5000);
+      var data = fs.readFileSync(process.cwd() + '/server/data/testFiles/echonest_cat.json', 'utf8');
+      SongPool.clearAllSongs(function (err, ticket) {
+        echo('tasteprofile/update').post({ id: 'CAIQEUO1473A654C51', data: data }, function (err, json) {
+          console.log(json);
+          waitAndGetSongs(json.response["ticket"], function (err, allSongsAsObjects) {
+            // seed the db
+            var allSongs = _.map(allSongsAsObjects, function(attrs) { return new Song(attrs); });
+              SpecHelper.saveAll(allSongs, function(err, songs) {
+                console.log(songs.length);
+                done();
+            });
+          });
+        });
+      });
+    });
 
-  xit('can tell if a song is included in the pool', function (done) {
+    it('suggests a playlist based on an artist', function (done) {
+      this.timeout(5000);
+      SongPool.getSongSuggestions(['Rachel Loy'], function (err, playlist) {
+        expect(playlist.length > 30);
+        expect(playlist[0].artist).to.be.a('String');
+        expect(playlist[0].title).to.be.a('String');
+        done();
+      });
+    });
+
+    it('suggests a playlist based on multiple artists', function (done) {
+      this.timeout(5000);
+      SongPool.getSongSuggestions(['Rachel Loy', 'Lily Allen', 'Miranda Lambert'], function (err, playlist) {
+        expect(playlist.length > 30).to.equal(true);
+        expect(playlist[0].artist).to.be.a('String');
+        expect(playlist[0].title).to.be.a('String');
+        done();
+      });
+    });
+
+    after(function (done) {
+      SongPool.clearAllSongs(function (err, ticket) {
+        done();
+      });
+    });
   });
 });
-      
 
 function waitAndGetSongs(ticket, callback) {
   console.log("ticket: " + ticket);
   echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
     if (json.response["ticket_status"] != 'complete') {
-      setTimeout(function (ticket) {
+      console.log("ticket status: " + json.response["ticket_status"]);
+      setTimeout(function () {
         waitAndGetSongs(ticket, callback);
       }, 1000);
     } else {
       SongPool.getAllSongs(function (err, allSongs) {
         callback(err, allSongs);
       });
+    }
+  });
+}
+
+function waitUntilFinished(ticket, callback) {
+  console.log("ticket: " + ticket);
+  echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
+    if (json.response["ticket_status"] != 'complete') {
+      setTimeout(function () {
+        waitUntilFinished(ticket, callback);
+      }, 1000);
+    } else {
+      callback(err, allSongs);
     }
   });
 }
