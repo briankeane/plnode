@@ -31,11 +31,10 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  xit('adds a song to the song pool', function (done) {
+  it('adds a song to the song pool', function (done) {
     this.timeout(10000);
     SongPool.clearAllSongs(function () {
       SongPool.addSong(songs[0], function (err, ticket) {
-        console.log("err: ");
         console.log(err);
         waitAndGetSongs(ticket, function (err, allSongs) {
           expect(allSongs.length).to.equal(1);
@@ -59,12 +58,11 @@ describe('songPoolHandler', function (done) {
 
   });
 
-  xit('retrieves an array of all songs in the song pool', function (done) {
+  it('retrieves an array of all songs in the song pool', function (done) {
     this.timeout(5000);
     SongPool.addSongs(songs, function (err, ticket) {
       waitAndGetSongs(ticket, function (err, allSongs) {
         expect(allSongs.length).to.equal(2)
-        console.log(allSongs[0]);
         expect(allSongs[0].title).to.equal('Cheater');
         expect(allSongs[1].title).to.equal('Stepladder');
         done();
@@ -104,7 +102,6 @@ describe('songPoolHandler', function (done) {
 function waitAndGetSongs(ticket, callback) {
   console.log("ticket: " + ticket);
   echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
-    console.log(json.response);
     if (json.response["ticket_status"] != 'complete') {
       setTimeout(function (ticket) {
         waitAndGetSongs(ticket, callback);

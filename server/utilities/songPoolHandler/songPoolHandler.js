@@ -7,7 +7,7 @@ function Handler() {
   var self = this;
 
   this.addSong = function (song, callback) {
-    return this.addSongs([song], callback);
+    this.addSongs([song], callback);
   }
 
   this.addSongs = function (songsToAdd, callback) {
@@ -57,7 +57,6 @@ function Handler() {
       
       // make the call and pass it the callback
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
-        console.log(json.response["ticket"]);
         callback(err, json.response["ticket"]);
       });
 
@@ -85,8 +84,6 @@ function Handler() {
         var data = '[' + deleteObjectArray.join(', ') + ']';
 
         echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
-          console.log('json.reponse: ');
-          console.log(json.response);
           waitForCompletedTicket(json.response["ticket"], function () {
             echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, newJson) {
               if (newJson.response["catalog"]["items"].length) {
@@ -138,7 +135,6 @@ function Handler() {
 
   function waitForCompletedTicket(ticket, callback) {
     echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
-    console.log(json.response);
     if (json.response["ticket_status"] != 'complete') {
       setTimeout(function () {
         waitForCompletedTicket(ticket, callback);
