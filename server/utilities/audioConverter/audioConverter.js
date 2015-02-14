@@ -10,6 +10,7 @@ function AudioConverter() {
     // fix the extension
     newFilepath = newFilepath.replace('.m4a','.mp3');
     newFilepath = newFilepath.replace('.wav', '.mp3');
+    newFilepath = newFilepath.replace('.m4p', '.mp3');
 
 
     console.log('hi');
@@ -19,13 +20,12 @@ function AudioConverter() {
     .audioCodec('libmp3lame')
     .output(newFilepath)
     .on('error', function (err) {
-      callback(err, null)
-    })
-    .on('progress', function (progress) {
-      console.log(progress.percent + '% done');
+      if (err.message.substr('Operation not permitted')) {
+        var error = new Error('File is CopyProtected');  
+        callback(error, null)
+      }
     })
     .on('end', function () {
-      console.log('done');
       callback(null, newFilepath);
     })
     .outputOptions('-write_xing 0')

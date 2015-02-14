@@ -30,17 +30,25 @@ describe('AudioConverter', function (done) {
       finishedOperation();
     });
 
+    var read3 = fs.createReadStream(__dirname + '/../../data/testFiles/downtown.m4p')
+    var write3 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/downtown.m4p');
+    testFilesArray.push(__dirname + '/../../data/unprocessedAudio/downtown.m4p');
+    read3.pipe(write3)
+    .on('finish', function () {
+      finishedOperation();
+    });
+
 
     function finishedOperation () {
       finishedCount++;
 
-      if (finishedCount >= 2) {
+      if (finishedCount >= 3) {
         done();
       }
     }
   });
 
-  it('converts an m4a file', function (done) {
+  xit('converts an m4a file', function (done) {
     this.timeout(15000);
 
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/lonestar.m4a', function (err, filepath) {
@@ -55,7 +63,7 @@ describe('AudioConverter', function (done) {
     });
   });
 
-  it('converts a wav file', function (done) {
+  xit('converts a wav file', function (done) {
     this.timeout(15000);
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/stepladder.wav', function (err, filepath) {
       console.log(filepath);
@@ -70,9 +78,17 @@ describe('AudioConverter', function (done) {
     });
   });
 
+  it('does not convert a protected file', function (done) {
+    this.timeout(5000);
+    converter.convertFile(__dirname + '/../../data/unprocessedAudio/downtown.m4p', function (err, filepath) {
+      expect(err.message).to.equal('File is CopyProtected');
+      done();
+    });
+  });
+
   after(function (done) {
     for (var i=0;i<testFilesArray.length;i++) {
-      fs.unlinkSync(testFilesArray[i]);
+      if (fs.exists(testFilesArray[i])) fs.unlinkSync(testFilesArray[i]);
     }
     done();
   });
