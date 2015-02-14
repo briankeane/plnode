@@ -3,17 +3,17 @@
 1 verbose cli   '/usr/local/bin/npm',
 1 verbose cli   'install',
 1 verbose cli   '--save',
-1 verbose cli   'node-s3-client' ]
+1 verbose cli   'fluent--ffmpeg' ]
 2 info using npm@1.4.28
 3 info using node@v0.10.35
-4 warn package.json karma-chrome-launcher@0.1.7 No README data
-5 warn package.json karma-coffee-preprocessor@0.2.1 No README data
-6 warn package.json karma-firefox-launcher@0.1.4 No README data
+4 warn package.json karma-firefox-launcher@0.1.4 No README data
+5 warn package.json karma-chrome-launcher@0.1.7 No README data
+6 warn package.json karma-coffee-preprocessor@0.2.1 No README data
 7 warn package.json karma-phantomjs-launcher@0.1.4 No README data
 8 warn package.json passport-local@0.1.6 No README data
 9 verbose readDependencies using package.json deps
-10 verbose cache add [ 'node-s3-client', null ]
-11 verbose cache add name=undefined spec="node-s3-client" args=["node-s3-client",null]
+10 verbose cache add [ 'fluent--ffmpeg', null ]
+11 verbose cache add name=undefined spec="fluent--ffmpeg" args=["fluent--ffmpeg",null]
 12 verbose parsed url { protocol: null,
 12 verbose parsed url   slashes: null,
 12 verbose parsed url   auth: null,
@@ -23,29 +23,29 @@
 12 verbose parsed url   hash: null,
 12 verbose parsed url   search: null,
 12 verbose parsed url   query: null,
-12 verbose parsed url   pathname: 'node-s3-client',
-12 verbose parsed url   path: 'node-s3-client',
-12 verbose parsed url   href: 'node-s3-client' }
-13 silly lockFile 5c815a9d-node-s3-client node-s3-client
-14 verbose lock node-s3-client /Users/briankeane/.npm/5c815a9d-node-s3-client.lock
-15 silly lockFile 5c815a9d-node-s3-client node-s3-client
-16 silly lockFile 5c815a9d-node-s3-client node-s3-client
-17 verbose addNamed [ 'node-s3-client', '' ]
+12 verbose parsed url   pathname: 'fluent--ffmpeg',
+12 verbose parsed url   path: 'fluent--ffmpeg',
+12 verbose parsed url   href: 'fluent--ffmpeg' }
+13 silly lockFile 98722451-fluent-ffmpeg fluent--ffmpeg
+14 verbose lock fluent--ffmpeg /Users/briankeane/.npm/98722451-fluent-ffmpeg.lock
+15 silly lockFile 98722451-fluent-ffmpeg fluent--ffmpeg
+16 silly lockFile 98722451-fluent-ffmpeg fluent--ffmpeg
+17 verbose addNamed [ 'fluent--ffmpeg', '' ]
 18 verbose addNamed [ null, '*' ]
-19 silly lockFile 8bbb94e1-node-s3-client node-s3-client@
-20 verbose lock node-s3-client@ /Users/briankeane/.npm/8bbb94e1-node-s3-client.lock
-21 silly addNameRange { name: 'node-s3-client', range: '*', hasData: false }
-22 verbose request where is /node-s3-client
+19 silly lockFile 972adad7-fluent-ffmpeg fluent--ffmpeg@
+20 verbose lock fluent--ffmpeg@ /Users/briankeane/.npm/972adad7-fluent-ffmpeg.lock
+21 silly addNameRange { name: 'fluent--ffmpeg', range: '*', hasData: false }
+22 verbose request where is /fluent--ffmpeg
 23 verbose request registry https://registry.npmjs.org/
-24 verbose request id 6662dbb9f2a97173
-25 verbose url raw /node-s3-client
-26 verbose url resolving [ 'https://registry.npmjs.org/', './node-s3-client' ]
-27 verbose url resolved https://registry.npmjs.org/node-s3-client
-28 verbose request where is https://registry.npmjs.org/node-s3-client
-29 info trying registry request attempt 1 at 18:09:07
-30 http GET https://registry.npmjs.org/node-s3-client
-31 http 404 https://registry.npmjs.org/node-s3-client
-32 verbose headers { date: 'Mon, 09 Feb 2015 00:09:08 GMT',
+24 verbose request id 5eb39a5b7c95666f
+25 verbose url raw /fluent--ffmpeg
+26 verbose url resolving [ 'https://registry.npmjs.org/', './fluent--ffmpeg' ]
+27 verbose url resolved https://registry.npmjs.org/fluent--ffmpeg
+28 verbose request where is https://registry.npmjs.org/fluent--ffmpeg
+29 info trying registry request attempt 1 at 11:25:47
+30 http GET https://registry.npmjs.org/fluent--ffmpeg
+31 http 404 https://registry.npmjs.org/fluent--ffmpeg
+32 verbose headers { date: 'Sat, 14 Feb 2015 17:25:48 GMT',
 32 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
 32 verbose headers   'content-type': 'application/json',
 32 verbose headers   'cache-control': 'max-age=0',
@@ -53,14 +53,14 @@
 32 verbose headers   'accept-ranges': 'bytes',
 32 verbose headers   via: '1.1 varnish',
 32 verbose headers   age: '0',
-32 verbose headers   'x-served-by': 'cache-ord1721-ORD',
+32 verbose headers   'x-served-by': 'cache-ord1724-ORD',
 32 verbose headers   'x-cache': 'MISS',
 32 verbose headers   'x-cache-hits': '0',
-32 verbose headers   'x-timer': 'S1423440548.134524,VS0,VE138',
+32 verbose headers   'x-timer': 'S1423934747.788243,VS0,VE281',
 32 verbose headers   'keep-alive': 'timeout=10, max=50',
 32 verbose headers   connection: 'Keep-Alive' }
 33 silly registry.get cb [ 404,
-33 silly registry.get   { date: 'Mon, 09 Feb 2015 00:09:08 GMT',
+33 silly registry.get   { date: 'Sat, 14 Feb 2015 17:25:48 GMT',
 33 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
 33 silly registry.get     'content-type': 'application/json',
 33 silly registry.get     'cache-control': 'max-age=0',
@@ -68,26 +68,24 @@
 33 silly registry.get     'accept-ranges': 'bytes',
 33 silly registry.get     via: '1.1 varnish',
 33 silly registry.get     age: '0',
-33 silly registry.get     'x-served-by': 'cache-ord1721-ORD',
+33 silly registry.get     'x-served-by': 'cache-ord1724-ORD',
 33 silly registry.get     'x-cache': 'MISS',
 33 silly registry.get     'x-cache-hits': '0',
-33 silly registry.get     'x-timer': 'S1423440548.134524,VS0,VE138',
+33 silly registry.get     'x-timer': 'S1423934747.788243,VS0,VE281',
 33 silly registry.get     'keep-alive': 'timeout=10, max=50',
 33 silly registry.get     connection: 'Keep-Alive' } ]
-34 silly lockFile 8bbb94e1-node-s3-client node-s3-client@
-35 silly lockFile 8bbb94e1-node-s3-client node-s3-client@
-36 error 404 404 Not Found: node-s3-client
+34 silly lockFile 972adad7-fluent-ffmpeg fluent--ffmpeg@
+35 silly lockFile 972adad7-fluent-ffmpeg fluent--ffmpeg@
+36 error 404 404 Not Found: fluent--ffmpeg
 36 error 404
-36 error 404 'node-s3-client' is not in the npm registry.
+36 error 404 'fluent--ffmpeg' is not in the npm registry.
 36 error 404 You should bug the author to publish it
 36 error 404 It was specified as a dependency of 'pl2-node-yo'
-36 error 404
-36 error 404 Maybe try 'npm search s3 client'
 36 error 404
 36 error 404 Note that you can also install from a
 36 error 404 tarball, folder, or http url, or git url.
 37 error System Darwin 14.1.0
-38 error command "node" "/usr/local/bin/npm" "install" "--save" "node-s3-client"
+38 error command "node" "/usr/local/bin/npm" "install" "--save" "fluent--ffmpeg"
 39 error cwd /Users/briankeane/code/plNode
 40 error node -v v0.10.35
 41 error npm -v 1.4.28
