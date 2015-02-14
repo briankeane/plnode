@@ -6,7 +6,12 @@ function AudioConverter() {
 
   this.convertFile = function (filepath, callback) {
     var newFilepath = __dirname + '/../../data/processedAudio/' + path.basename(filepath)
+    
+    // fix the extension
     newFilepath = newFilepath.replace('.m4a','.mp3');
+    newFilepath = newFilepath.replace('.wav', '.mp3');
+
+
     console.log('hi');
     console.log(newFilepath);
 
