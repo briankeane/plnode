@@ -5,6 +5,7 @@ var request = require('supertest');
 var SpecHelper = require('../helpers/specHelper');
 var expect = require('chai').expect;
 var converter = require('./audioConverter');
+var taglib = require('taglib');
 
 describe('AudioConverter', function (done) {
   var testFilesArray = [];
@@ -44,7 +45,12 @@ describe('AudioConverter', function (done) {
 
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/lonestar.m4a', function (err, filepath) {
       if (err) { console.log(err); }
-      expect(fs.statSync(filepath)["size"]).to.equal(4529111);
+      expect(fs.existsSync(filepath)).to.equal(true);
+      var tag = taglib.tagSync(filepath);
+      console.log(tag);
+      expect(tag.artist).to.equal('Delbert McClinton');
+      expect(tag.album).to.equal('Room to Breathe');
+      expect(tag.title).to.equal('Lone Star Blues');
       done();
     });
   });
@@ -52,8 +58,14 @@ describe('AudioConverter', function (done) {
   it('converts a wav file', function (done) {
     this.timeout(15000);
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/stepladder.wav', function (err, filepath) {
+      console.log(filepath);
       if (err) { console.log(err); }
-      expect(fs.statSync(filepath)["size"]).to.equal(3555264);
+      var tag = taglib.tagSync(filepath);
+      console.log(tag);
+      console.log(tag)
+      expect(tag.artist).to.equal('Rachel Loy');
+      expect(tag.album).to.equal('Broken Machine');
+      expect(tag.title).to.equal('Stepladder');
       done();
     });
   });
