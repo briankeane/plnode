@@ -78,7 +78,7 @@ describe('AudioConverter', function (done) {
     });
   });
 
-  it('does not convert a protected file', function (done) {
+  xit('does not convert a protected file', function (done) {
     this.timeout(5000);
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/downtown.m4p', function (err, filepath) {
       expect(err.message).to.equal('File is CopyProtected');
