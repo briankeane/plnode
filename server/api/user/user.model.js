@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
-var authTypes = ['github', 'twitter', 'facebook', 'google'];
+var authTypes = ['twitter'];
 var timestamps = require('mongoose-timestamp');
 
 var UserSchema = new Schema({
@@ -20,8 +20,7 @@ var UserSchema = new Schema({
   hashedPassword:     { type: String },
   provider:           { type: String },
   salt:               { type: String },
-  twitter:                  {},
-  github:                   {}
+  twitter:                  {}
 });
 
 /**
@@ -62,36 +61,44 @@ UserSchema
  * Validations
  */
 
-// Validate empty email
-// UserSchema
-//   .path('email')
-//   .validate(function(email) {
-//     if (authTypes.indexOf(this.provider) !== -1) return true;
-//     return email.length;
-//   }, 'Email cannot be blank');
+//Validate empty birthYear
+UserSchema
+  .path('birthYear')
+  .validate(function(birthYear) {
+    if (authTypes.indexOf(this.provider) !== -1) return true;
+    return birthYear.length;
+  }, 'Birthyear cannot be blank');
 
-// // Validate empty password
-// UserSchema
-//   .path('hashedPassword')
-//   .validate(function(hashedPassword) {
-//     if (authTypes.indexOf(this.provider) !== -1) return true;
-//     return hashedPassword.length;
-//   }, 'Password cannot be blank');
+// Validate empty gender
+UserSchema
+  .path('gender')
+  .validate(function(gender) {
+    if (authTypes.indexOf(this.provider) !== -1) return true;
+    return gender.length;
+  }, 'Gender cannot be blank');
 
-// // Validate email is not taken
-// UserSchema
-//   .path('email')
-//   .validate(function(value, respond) {
-//     var self = this;
-//     this.constructor.findOne({email: value}, function(err, user) {
-//       if(err) throw err;
-//       if(user) {
-//         if(self.id === user.id) return respond(true);
-//         return respond(false);
-//       }
-//       respond(true);
-//     });
-// }, 'The specified email address is already in use.');
+// Validate empty zipcode
+UserSchema
+  .path('zipcode')
+  .validate(function(zipcode) {
+    if (authTypes.indexOf(this.provider) !== -1) return true;
+    return zipcode.length;
+  }, 'Zipcode cannot be blank');
+
+// Validate twitterHandle is not taken
+UserSchema
+  .path('twitterHandle')
+  .validate(function(value, respond) {
+    var self = this;
+    this.constructor.findOne({twitterHandle: value}, function(err, user) {
+      if(err) throw err;
+      if(user) {
+        if(self.id === user.id) return respond(true);
+        return respond(false);
+      }
+      respond(true);
+    });
+}, 'The specified twitter Handle is already in use.');
 
 var validatePresenceOf = function(value) {
   return value && value.length;

@@ -10,9 +10,13 @@ var specHelper = require('../../utilities/helpers/specHelper');
 
 
 var user = new User({
-  provider: 'local',
-  name: 'Fake User',
+  twitterHandle: 'local',
+  twitterUID: 'Fake User',
   email: 'test@test.com',
+  birthYear: 'password',
+  gender: 'male',
+  zipcode: '78748',
+  profileImageUrl: 'http://badass.jpg',
   password: 'password'
 });
 

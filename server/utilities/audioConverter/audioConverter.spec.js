@@ -48,7 +48,7 @@ describe('AudioConverter', function (done) {
     }
   });
 
-  xit('converts an m4a file', function (done) {
+  it('converts an m4a file', function (done) {
     this.timeout(15000);
 
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/lonestar.m4a', function (err, filepath) {
@@ -63,7 +63,7 @@ describe('AudioConverter', function (done) {
     });
   });
 
-  xit('converts a wav file', function (done) {
+  it('converts a wav file', function (done) {
     this.timeout(15000);
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/stepladder.wav', function (err, filepath) {
       console.log(filepath);
@@ -78,12 +78,16 @@ describe('AudioConverter', function (done) {
     });
   });
 
-  xit('does not convert a protected file', function (done) {
+  it('does not convert a protected file', function (done) {
     this.timeout(5000);
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/downtown.m4p', function (err, filepath) {
       expect(err.message).to.equal('File is CopyProtected');
       done();
     });
+  });
+
+  xit('converts an aac file', function (done) {
+
   });
 
   after(function (done) {
