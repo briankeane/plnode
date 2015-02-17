@@ -13,6 +13,7 @@ var UserSchema = new Schema({
   birthYear:          { type: Number },
   gender:             { type: String },
   zipcode:            { type: String },
+  timezone:           { type: String }, 
   profileImageUrl:    { type: String },
   _station:           { type: Schema.ObjectId, ref: 'Station' },
   name:               { type: String },

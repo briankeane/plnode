@@ -102,12 +102,11 @@ exports.setZipcode = function(req, res, next) {
   TimezoneFinder.findByZip(req.body.zipcode, function (err, timezone) {
     if(err) return next(err);
     User.findById(userId, function (err, user) {
-      if (err) { return handleError(res, err); }
+      if (err) { return err; }
       if(!user) { return res.send(404); }
-      var updated = _.merge(user, { zipcode: req.zipcode, timezone: timezone });
-      updated.save(function(err) {
-        if (err) { return handleError(res, err); }
-        return res.json(200, user);
+      User.findByIdAndUpdate(userId, { zipcode: req.body.zipcode, timezone: timezone }, function (err, updatedUser) {
+        if (err) { return err; }
+        return res.json(200, updatedUser);
       });
     });
   });
