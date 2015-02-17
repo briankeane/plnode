@@ -94,6 +94,22 @@ angular.module('pl2NodeYoApp')
       },
 
       /**
+       * Update User
+       *
+       * @param  {}       updatesObject
+       * @param  {Function} callback    - optional
+       * @return {Promise}
+       */
+      updateUser: function (updatesObject, callback) { 
+        var cb = callback || angular.noop;
+
+        return User.update({ id: currentUser._id }, updatesObject, function (user) {
+          return cb(user);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+      /**
        * Gets all available info on authenticated user
        *
        * @return {Object} user

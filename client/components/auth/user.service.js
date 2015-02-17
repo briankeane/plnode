@@ -12,6 +12,12 @@ angular.module('pl2NodeYoApp')
           controller:'password'
         }
       },
+      update: {
+        method: 'PUT',
+        params: {
+          controller:'update'
+        }
+      },
       get: {
         method: 'GET',
         params: {

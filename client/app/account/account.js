@@ -18,5 +18,11 @@ angular.module('pl2NodeYoApp')
         templateUrl: 'app/account/settings/settings.html',
         controller: 'SettingsCtrl',
         authenticate: true
+      })
+      .state('getUserInfo', {
+        url: '/getUserInfo',
+        templateUrl: 'app/account/getUserInfo/getUserInfo.html',
+        controller: 'GetUserInfoCtrl',
+        authenticate: true
       });
   });

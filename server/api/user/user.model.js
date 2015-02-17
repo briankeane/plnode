@@ -53,8 +53,7 @@ UserSchema
   .get(function() {
     return {
       '_id': this._id,
-      'role': this.role,
-      'isComplete': (this.birthYear && this.gender.length && this.zipcode.length) ? true : false
+      'role': this.role
     };
   });
 
@@ -62,13 +61,13 @@ UserSchema
  * Validations
  */
 
-// //Validate empty birthYear
-// UserSchema
-//   .path('birthYear')
-//   .validate(function(birthYear) {
-//     if (authTypes.indexOf(this.provider) !== -1) return true;
-//     return birthYear.length;
-//   }, 'Birthyear cannot be blank');
+//Validate empty birthYear
+UserSchema
+  .path('birthYear')
+  .validate(function(birthYear) {
+    if (authTypes.indexOf(this.provider) !== -1) return true;
+    return birthYear.length;
+  }, 'Birthyear cannot be blank');
 
 // // Validate empty gender
 // UserSchema
