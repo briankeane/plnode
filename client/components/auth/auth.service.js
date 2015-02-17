@@ -16,6 +16,7 @@ angular.module('pl2NodeYoApp')
        * @param  {Function} callback - optional
        * @return {Promise}
        */
+       
       login: function(user, callback) {
         var cb = callback || angular.noop;
         var deferred = $q.defer();

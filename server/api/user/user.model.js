@@ -53,7 +53,8 @@ UserSchema
   .get(function() {
     return {
       '_id': this._id,
-      'role': this.role
+      'role': this.role,
+      'isComplete': (this.birthYear && this.gender.length && this.zipcode.length) ? true : false
     };
   });
 
@@ -61,44 +62,44 @@ UserSchema
  * Validations
  */
 
-//Validate empty birthYear
-UserSchema
-  .path('birthYear')
-  .validate(function(birthYear) {
-    if (authTypes.indexOf(this.provider) !== -1) return true;
-    return birthYear.length;
-  }, 'Birthyear cannot be blank');
+// //Validate empty birthYear
+// UserSchema
+//   .path('birthYear')
+//   .validate(function(birthYear) {
+//     if (authTypes.indexOf(this.provider) !== -1) return true;
+//     return birthYear.length;
+//   }, 'Birthyear cannot be blank');
 
-// Validate empty gender
-UserSchema
-  .path('gender')
-  .validate(function(gender) {
-    if (authTypes.indexOf(this.provider) !== -1) return true;
-    return gender.length;
-  }, 'Gender cannot be blank');
+// // Validate empty gender
+// UserSchema
+//   .path('gender')
+//   .validate(function(gender) {
+//     if (authTypes.indexOf(this.provider) !== -1) return true;
+//     return gender.length;
+//   }, 'Gender cannot be blank');
 
-// Validate empty zipcode
-UserSchema
-  .path('zipcode')
-  .validate(function(zipcode) {
-    if (authTypes.indexOf(this.provider) !== -1) return true;
-    return zipcode.length;
-  }, 'Zipcode cannot be blank');
+// // Validate empty zipcode
+// UserSchema
+//   .path('zipcode')
+//   .validate(function(zipcode) {
+//     if (authTypes.indexOf(this.provider) !== -1) return true;
+//     return zipcode.length;
+//   }, 'Zipcode cannot be blank');
 
-// Validate twitterHandle is not taken
-UserSchema
-  .path('twitterHandle')
-  .validate(function(value, respond) {
-    var self = this;
-    this.constructor.findOne({twitterHandle: value}, function(err, user) {
-      if(err) throw err;
-      if(user) {
-        if(self.id === user.id) return respond(true);
-        return respond(false);
-      }
-      respond(true);
-    });
-}, 'The specified twitter Handle is already in use.');
+// // Validate twitterHandle is not taken
+// UserSchema
+//   .path('twitterHandle')
+//   .validate(function(value, respond) {
+//     var self = this;
+//     this.constructor.findOne({twitterHandle: value}, function(err, user) {
+//       if(err) throw err;
+//       if(user) {
+//         if(self.id === user.id) return respond(true);
+//         return respond(false);
+//       }
+//       respond(true);
+//     });
+// }, 'The specified twitter Handle is already in use.');
 
 var validatePresenceOf = function(value) {
   return value && value.length;
@@ -107,15 +108,15 @@ var validatePresenceOf = function(value) {
 /**
  * Pre-save hook
  */
-UserSchema
-  // .pre('save', function(next) {
-  //   if (!this.isNew) return next();
+// UserSchema
+//   .pre('save', function(next) {
+//     if (!this.isNew) return next();
 
-  //   if (!validatePresenceOf(this.hashedPassword) && authTypes.indexOf(this.provider) === -1)
-  //     next(new Error('Invalid password'));
-  //   else
-  //     next();
-  // });
+//     if (!validatePresenceOf(this.hashedPassword) && authTypes.indexOf(this.provider) === -1)
+//       next(new Error('Invalid password'));
+//     else
+//       next();
+//   });
 
 /**
  * Methods
