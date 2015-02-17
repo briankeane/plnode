@@ -110,10 +110,27 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
       /**
-       * Gets all available info on authenticated user
+       * Set User Zipcode
+       *
+       * @param  String     newZipcode
+       * @param  {Function} callback    - optional
+       * @return {Promise}
+       *
+       * Looks up timezone and sets it and zipcode for the user
        *
        * @return {Object} user
        */
+      setZipcode: function(newZipcode, callback) {
+        var cb = callback || angular.noop;
+
+        return User.setZipcode({ id: currentUser._id }, { zipcode: newZipcode }, function (user) {
+          return cb(user);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+
       getCurrentUser: function() {
         return currentUser;
       },

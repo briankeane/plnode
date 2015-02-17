@@ -18,7 +18,7 @@ module.exports = function(app) {
   app.use('/api/v1/rotationItems', require('./api/rotationItem'));
   app.use('/api/v1/stations', require('./api/station'));
   app.use('/api/things', require('./api/thing'));
-  app.use('/api/users', require('./api/user'));
+  app.use('/api/v1/users', require('./api/user'));
 
   app.use('/auth', require('./auth'));
   

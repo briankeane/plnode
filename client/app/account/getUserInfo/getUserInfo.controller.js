@@ -9,14 +9,17 @@ angular.module('pl2NodeYoApp')
       $scope.submitted = true;
 
       if(form.$valid) {
+        
         Auth.updateUser({
-          name: $scope.user.name,
-          email: $scope.user.email,
-          password: $scope.user.password
+          birthYear: $scope.user.birthYear,
+          gender: $scope.user.gender
         })
         .then( function() {
-          // Account created, redirect to home
-          $location.path('/');
+          Auth.setZipcode($scope.user.zipcode)
+          .then( function () {
+            // All updated, redirect home
+            $location.path('/');
+          })
         })
         .catch( function(err) {
           err = err.data;

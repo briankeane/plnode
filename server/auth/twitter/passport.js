@@ -32,7 +32,7 @@ exports.setup = function (User, config) {
         });
       } else {
         getFriends(token, tokenSecret, profile, function (err, friends) {
-          user.friends = friends;
+          user.twitter.friends = friends;
           user.save(function (err) {
             return done(err, user);
           });

@@ -4,6 +4,8 @@ var User = require('./user.model');
 var passport = require('passport');
 var config = require('../../config/environment');
 var jwt = require('jsonwebtoken');
+var TimezoneFinder = require('../../utilities/timezoneFinder/timezoneFinder');
+var _ = require('lodash');
 
 var validationError = function(res, err) {
   return res.json(422, err);
@@ -92,10 +94,25 @@ exports.changePassword = function(req, res, next) {
     }
   });
 };
-
 /**
- * Get my info
+ * Sets the zipcode
  */
+exports.setZipcode = function(req, res, next) {
+  var userId = req.user._id;
+  TimezoneFinder.findByZip(req.body.zipcode, function (err, timezone) {
+    if(err) return next(err);
+    User.findById(userId, function (err, user) {
+      if (err) { return handleError(res, err); }
+      if(!user) { return res.send(404); }
+      var updated = _.merge(user, { zipcode: req.zipcode, timezone: timezone });
+      updated.save(function(err) {
+        if (err) { return handleError(res, err); }
+        return res.json(200, user);
+      });
+    });
+  });
+};
+
 exports.me = function(req, res, next) {
   var userId = req.user._id;
   User.findOne({
