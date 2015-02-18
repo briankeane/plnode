@@ -54,6 +54,17 @@ exports.destroy = function(req, res) {
   });
 };
 
+exports.me = function(req, res, next) {
+  var userId = req.user._id;
+  Station.findOne({
+    _user: userId
+  }, function(err, station) { // don't ever give out the password or salt
+    if (err) return next(err);
+    if (!station) return res.json(401);
+    res.json(station);
+  });
+};
+
 function handleError(res, err) {
   return res.send(500, err);
 }

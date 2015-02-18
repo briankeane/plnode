@@ -1,10 +1,12 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, $cookieStore, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, $cookieStore, $q) {
     var currentUser = {};
+    var currentStation = {};
     if($cookieStore.get('token')) {
       currentUser = User.get();
+      currentStation = Station.get();
     }
 
     return {
@@ -130,6 +132,9 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      getCurrentStation: function() {
+        return currentStation;
+      },
 
       getCurrentUser: function() {
         return currentUser;
