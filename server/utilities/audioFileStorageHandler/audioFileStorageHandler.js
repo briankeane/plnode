@@ -1,11 +1,10 @@
-var config = require('../../config/environment');
+var config = require('../../config/environment/');
 var s3HighLevel = require('s3').createClient(config.s3Options);
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
 var s3 = new AWS.S3();
 var _ = require('lodash');
 var unidecode = require('unidecode');
-
 
 function Handler() {
   var self = this;
@@ -206,19 +205,28 @@ function Handler() {
   };
 
   this.getAllSongs = function (callback) {
+
+    console.log(process.env.NODE_ENV);
+    console.log(config["s3Buckets"].SONGS_BUCKET);
+
+    var objects = [];
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].SONGS_BUCKET } });
 
     listGetter.on('data', function (data) {
-      var objects = data.Contents;
-      var formattedObjects = [];
+      objects = objects.concat(data.Contents);
+    });
 
+    listGetter.on('end', function () {
+      var formattedObjects = [];
       getHeadFunction(objects.length-1);
 
       function getHeadFunction(index) {
         if (index < 0) {
+          continueFunction();
           return;
         }
 
+        console.log('getHeadFunction');
         var params = {
           Bucket: config["s3Buckets"].SONGS_BUCKET,
           Key: objects[index].Key
@@ -239,6 +247,7 @@ function Handler() {
             if (formattedObjects.length == objects.length) {
               continueFunction();
             } else {
+              console.log('requesting song: ' + index);
               getHeadFunction(index - 1);
             }
           }
@@ -246,7 +255,7 @@ function Handler() {
       }
 
       function continueFunction() {
-
+        console.log('in continue function');
         formattedObjects = _.sortBy(formattedObjects, function(song) {
           return [song.artist, song.title];
         });

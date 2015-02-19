@@ -14,17 +14,17 @@ describe('AudioConverter', function (done) {
     
 
     // copy the file from test folder to unprocessedAudio folder
-    var read = fs.createReadStream(__dirname + '/../../data/testFiles/lonestar.m4a');
-    var write = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/lonestar.m4a');
-    testFilesArray.push(__dirname + '/../../data/unprocessedAudio/lonestar.m4a');
+    var read = fs.createReadStream(__dirname + '/../../data/testFiles/lonestarTest.m4a');
+    var write = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a');
+    testFilesArray.push(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a');
     read.pipe(write)
     .on('finish', function () {
       finishedOperation();
     });
 
-    var read2 = fs.createReadStream(__dirname + '/../../data/testFiles/stepladder.wav')
-    var write2 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/stepladder.wav');
-    testFilesArray.push(__dirname + '/../../data/unprocessedAudio/stepladder.wav');
+    var read2 = fs.createReadStream(__dirname + '/../../data/testFiles/stepladderTest.wav')
+    var write2 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/stepladderTest.wav');
+    testFilesArray.push(__dirname + '/../../data/unprocessedAudio/stepladderTest.wav');
     read2.pipe(write2)
     .on('finish', function () {
       finishedOperation();
@@ -51,7 +51,7 @@ describe('AudioConverter', function (done) {
   it('converts an m4a file', function (done) {
     this.timeout(15000);
 
-    converter.convertFile(__dirname + '/../../data/unprocessedAudio/lonestar.m4a', function (err, filepath) {
+    converter.convertFile(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a', function (err, filepath) {
       if (err) { console.log(err); }
       expect(fs.existsSync(filepath)).to.equal(true);
       var tag = taglib.tagSync(filepath);
@@ -65,7 +65,7 @@ describe('AudioConverter', function (done) {
 
   it('converts a wav file', function (done) {
     this.timeout(15000);
-    converter.convertFile(__dirname + '/../../data/unprocessedAudio/stepladder.wav', function (err, filepath) {
+    converter.convertFile(__dirname + '/../../data/unprocessedAudio/stepladderTest.wav', function (err, filepath) {
       console.log(filepath);
       if (err) { console.log(err); }
       var tag = taglib.tagSync(filepath);

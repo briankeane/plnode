@@ -53,8 +53,6 @@ angular.module('pl2NodeYoApp', [
           var user = Auth.getCurrentUser();
           if (next.authenticate && !(user.zipcode && user.birthYear && user.gender)) {
             $location.path('/getUserInfo');
-          } else if (next.authenticate && !user._station) {
-            $location.path('/station/songManager');
           }
         }
       });

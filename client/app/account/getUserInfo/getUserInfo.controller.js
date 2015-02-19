@@ -4,6 +4,7 @@ angular.module('pl2NodeYoApp')
   .controller('GetUserInfoCtrl', function ($scope, Auth, $location, $window) {
     $scope.user = {};
     $scope.errors = {};
+    $scope.artist1 = '';
 
     $scope.updateInitialUserInfo = function(form) {
       $scope.submitted = true;

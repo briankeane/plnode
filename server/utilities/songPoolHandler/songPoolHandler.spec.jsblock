@@ -8,6 +8,19 @@ var expect = require('chai').expect;
 var fs = require('fs');
 var _ = require('lodash');
 
+
+
+describe('basic echonest functionality', function (done) {
+
+  it('test grabJson', function (done) {
+    SongPool.grabJson(function (err, json) {
+      console.log(json);
+      console.log(json.response["catalog"]["items"]);
+      done();
+    });
+  });
+});
+
 describe('songPoolHandler', function (done) {
 
   var songs;
@@ -96,13 +109,6 @@ describe('songPoolHandler', function (done) {
     });
   });
 
-  xit('test grabJson', function (done) {
-    SongPool.grabJson(function (err, json) {
-      console.log(json);
-      console.log(json.response["catalog"]["items"]);
-      done();
-    });
-  });
 
   describe('songPoolHandler - getSuggestions', function (done) {
     before(function (done) {

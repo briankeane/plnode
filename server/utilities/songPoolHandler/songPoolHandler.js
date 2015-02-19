@@ -1,6 +1,7 @@
 var config = require('../../config/environment');
 var echojs = require('echojs');
 var echo = echojs({ key: process.env.ECHONEST_KEY });
+var EARLY_KEY = process.env.ECHONEST_KEY;
 var _ = require('lodash');
 var async = require('async');
 var Song = require('../../api/song/song.model');
@@ -78,11 +79,21 @@ function Handler() {
   }
 
   this.clearAllSongs = function (callback) {
-
+    var echo = echojs({ key: process.env.ECHONEST_KEY });
     function deleteChunk() {
 
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
 
+        if (!json.response["catalog"]["items"].length) {
+          callback(null, null);
+          return;
+        }
+
+        console.log("profile_id: "+ config.ECHONEST_TASTE_PROFILE_ID);
+        console.log("key: " + process.env.ECHONEST_KEY);
+        console.log("early key " + EARLY_KEY);
+
+        if (err) { console.log(err); }
         // map array of strings
         var deleteObjectArray = _.map(json.response["catalog"]["items"], function (item) {
           var deleteItem = '{' +
@@ -189,6 +200,10 @@ function Handler() {
   }
 
   function waitForCompletedTicket(ticket, callback) {
+    if (!ticket) {
+      callback();
+      return;
+    }
     echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
       if (json.response["ticket_status"] != 'complete') {
         setTimeout(function () {

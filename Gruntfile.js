@@ -460,6 +460,9 @@ module.exports = function (grunt) {
       prod: {
         NODE_ENV: 'production'
       },
+      dev: {
+        NODE_ENV: 'development'
+      },
       all: localConfig
     },
 
@@ -663,4 +666,22 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+  grunt.loadTasks('gruntTasks');
+
+  grunt.registerTask('loadDB', function() {
+    return grunt.task.run([
+      'env:all',
+      'env:dev',
+      'loadDatabase'
+    ]);
+  })
+  grunt.registerTask('loadDBTest', function() {
+    return grunt.task.run([
+      'env:all',
+      'env:test',
+      'loadDatabase'
+    ]);
+  })
+
 };
+
