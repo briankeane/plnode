@@ -77,7 +77,7 @@ Song.findAllByTitleAndArtist({ artist: 'Randy Rogers Band',
   // array of matching Songs
 }); 
 
-Song.all(function (songArray) {
+Song.all(function (err, songArray) {
   // all Songs ordered by title, artist
 });
 ```

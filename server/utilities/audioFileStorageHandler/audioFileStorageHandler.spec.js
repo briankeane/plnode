@@ -251,7 +251,13 @@ describe('audioFileStorageHandler', function (done) {
       audioSH.getAllSongs(function (err, allSongsArray) {
         expect(allSongsArray.length).to.equal(3);
         expect(allSongsArray[0].artist).to.equal('Rachel Loy');
+        expect(allSongsArray[0].title).to.equal('Stepladder');
+        expect(allSongsArray[0].echonestId).to.equal('SOOWAAV13CF6D1B3FA');
+        expect(allSongsArray[0].duration).to.equal(55);
+        expect(allSongsArray[0].key).to.equal('test.txt');
+        expect(allSongsArray[0].album).to.equal('Broken Machine');
         expect(allSongsArray[2].title).to.equal('Stepladder3');
+
         done();
       });
     }

@@ -1,12 +1,13 @@
 var config = require('../../config/environment');
 var echojs = require('echojs');
-var echo = echojs({ key: process.env.ECHONEST_KEY });
+console.log('THE NODE_ENV is: '+ process.env.ECHONEST_KEY);
 var _ = require('lodash');
 var Song = require('../../api/song/song.model');
 var events = require('events');
 
 function Handler() {
   var self = this;
+  var echo = echojs({ key: process.env.ECHONEST_KEY });
 
   this.addSong = function (song) {
     return this.addSongs([song]);
@@ -18,6 +19,7 @@ function Handler() {
 
     function getChunkOfSongs(startingIndex) {
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000, start: startingIndex }, function (err, json) {
+
         if (err) { 
           emitter.emit('finish', err, null);
           return;
@@ -48,9 +50,11 @@ function Handler() {
   };
 
   this.clearAllSongs = function () {
+    echo = echojs({ key: process.env.ECHONEST_KEY })
     var emitter = new events.EventEmitter();
 
     function deleteChunkOfSongs() {
+
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
         // if there's an error, exit with error
         if (err) { 
@@ -103,7 +107,6 @@ function Handler() {
     self.getAllSongs()
     .on('finish', function (err, allSongs) {
       if (err) { emitter.emit('finish', err); }
-
       // check for duplicates
       var duplicateSongs = allSongs.filter(function (song) {
         var included = false;
@@ -146,11 +149,18 @@ function Handler() {
 
       // create a string json array
       var data = "[" + addSongsJson.join(", ") + "]";
+      console.log('songsToAdd: ');
+      console.log(songsToAdd);
+      console.log('data: ');
+      console.log(data);
+
 
       // make the call
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
         if (err) { 
           emitter.emit('finish', err); 
+          console.log(err);
+          console.log(json);
           return;
         }
         waitForCompletedTicket(json.response["ticket"], function() {  
@@ -204,7 +214,7 @@ function Handler() {
         Song.find({ echonestId: songsJson[i]["id"] }, function (err, song) {
           count++;
           if (err) { 
-            console.log(err); 
+            callback(err, null); 
           } else {
             suggestedSongs.push(song[0]);
             if ((count >= songsJson.length) || (count >= 45)) {

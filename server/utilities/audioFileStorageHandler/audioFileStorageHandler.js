@@ -226,7 +226,6 @@ function Handler() {
           return;
         }
 
-        console.log('getHeadFunction');
         var params = {
           Bucket: config["s3Buckets"].SONGS_BUCKET,
           Key: objects[index].Key
@@ -241,13 +240,16 @@ function Handler() {
               artist:     data.Metadata.pl_artist,
               album:      data.Metadata.pl_album,
               duration:   parseInt(data.Metadata.pl_duration, 10),
-              echonestId: data.Metadata.pl_echonest_id
+              echonestId: data.Metadata.pl_echonest_id,
+              key:        objects[index].Key 
             });
             
             if (formattedObjects.length == objects.length) {
               continueFunction();
             } else {
-              console.log('requesting song: ' + index);
+              process.stdout.clearLine();
+              process.stdout.cursorTo(0);
+              process.stdout.write(index + ' songs to go');
               getHeadFunction(index - 1);
             }
           }

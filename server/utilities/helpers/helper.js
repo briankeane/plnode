@@ -25,6 +25,7 @@ function Helper() {
     }
 
     async.parallel(functions, function (err, results) {
+      if (err) { console.log(err); }
       // format results
       results = _.map(results, function(result) { return result[0]; });
       callback(err, results);
