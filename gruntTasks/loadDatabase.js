@@ -47,22 +47,7 @@ module.exports = function(grunt) {
         console.log(songs[0]);
         console.log('songObject1: ');
         console.log(songObjects[0]);
-        console.log('Adding Songs to Song Pool');
-        SongPool.clearAllSongs()
-        .on('finish', function (err) {
-          if (err) { console.log(err); }
-          SongPool.addSongs(songs)
-          .on('finish', function (err) {
-            if (err) { console.log(err); }
-            console.log('All Done.');
-            console.log('messedUpSongs Count: ' + messedUpSongs.length);
-            console.log('messedUpSongs: ');
-            messedUpSongs.forEach(function (song) {
-              console.log(song.key);  
-            })
-            done();
-          });
-        });
+        done();
       });
     });
   });
@@ -74,15 +59,47 @@ module.exports = function(grunt) {
     mongoose.connect(config.mongo.uri, config.mongo.options);
 
     Song.all(function (err, songs) {
-      console.log(songs.length);  
+      console.log(songs.length);
+      console.log(songs[827])
+      var songArrays = [];
+      
+      // break it up into chunks of 300
+      while(songs.length) {
+        songArrays.push(songs.splice(0,300));
+      }
+      songArrays.forEach(function (array) {
+        console.log(array[0]);
+      });
+
       SongPool.clearAllSongs()
       .on('finish', function (err) {
         if (err) { console.log(err); }
-        SongPool.addSongs(songs)
-        .on('finish', function (err) {
-          if (err) { console.log(err); }
-          done();
-        });
+
+        var totalChunks = songArrays.length;
+        var totalChunksReturned = 0;
+
+        function addChunk() {
+          SongPool.addSongs(songArrays[totalChunksReturned])
+          .on('finish', function (err) {
+            if (err) { 
+              console.log(err);
+              done();
+            }
+            totalChunksReturned++;
+            console.log('chunk ' + totalChunksReturned + ' returned');
+            SongPool.getAllSongs()
+            .on('finish', function(err, allSongs) {
+              console.log('count: ' + allSongs.length);
+              if (err) { console.log(err); }
+              if (totalChunksReturned == totalChunks) {
+                done();
+              } else {
+                addChunk();
+              }
+            });
+          });
+        }
+        addChunk();
       });
     });
   });

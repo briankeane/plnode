@@ -10,6 +10,7 @@ var User = require('../../api/user/user.model');
 var moment = require('moment-timezone');
 var _ = require('lodash');
 var async = require('async')
+var unidecode = require('unidecode');
 
 
 function Helper() {  
@@ -49,6 +50,13 @@ function Helper() {
       callback(err, results);
     });
   };
+
+  this.cleanString = function (inputString) {
+    var cleanedString = unidecode(inputString
+                            .replace(/_/g, '-')
+                            .replace(/[^a-zA-Z0-9\-\.]/g, ''));
+    return cleanedString;
+  }
 }
 
 module.exports = new Helper();

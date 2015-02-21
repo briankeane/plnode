@@ -4,6 +4,7 @@ console.log('THE NODE_ENV is: '+ process.env.ECHONEST_KEY);
 var _ = require('lodash');
 var Song = require('../../api/song/song.model');
 var events = require('events');
+var Helper = require('../helpers/helper');
 
 function Handler() {
   var self = this;
@@ -18,9 +19,11 @@ function Handler() {
     var allSongs = [];
 
     function getChunkOfSongs(startingIndex) {
-      echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000, start: startingIndex }, function (err, json) {
+      echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 300, start: startingIndex }, function (err, json) {
 
         if (err) { 
+          console.log(err);
+          console.log(json);
           emitter.emit('finish', err, null);
           return;
         }
@@ -35,9 +38,9 @@ function Handler() {
                           echonestId: items[i]["song_id"] 
                         });
         }
-
+        console.log('json.response["catalog"]["total"]: ' + json.response["catalog"]["total"]);
         if (allSongs.length < json.response["catalog"]["total"]) {
-          grabChunk(startingIndex + 1000);
+          getChunkOfSongs(startingIndex + 300);
         } else {
           allSongs = _.sortBy(allSongs, function (song) { return [song.artist, song.title] });
           emitter.emit('finish', null, allSongs);
@@ -107,19 +110,35 @@ function Handler() {
     self.getAllSongs()
     .on('finish', function (err, allSongs) {
       if (err) { emitter.emit('finish', err); }
+
+      // remove songs without echonestId
+      var count=0;
+      var total = songsToAdd.length;
+      for(var i=songsToAdd.length-1;i>=0;i--) {
+        if (!songsToAdd[i].echonestId) {
+          console.log('removing... ');
+          console.log(songsToAdd[i]);
+          songsToAdd.splice(i,1);
+          count++;
+        }
+      }
+      console.log(count + ' of ' + total  + ' songs without EchonestID removed');
+      
       // check for duplicates
+      var totalDupes = 0;
       var duplicateSongs = allSongs.filter(function (song) {
         var included = false;
         for (var i=0; i<songsToAdd.length; i++) {
-          if (song.echonestId === songsToAdd.echonestId) {
+          if (song.echonestId === songsToAdd[i].echonestId) {
+            totalDupes++;
             return true;
           }
         }
         return false;
       });
+      console.log(totalDupes + ' duplicates removed');
 
       // remove the duplicates from songsToAdd
-            // remove duplicates from songsToAdd
       for (i=duplicateSongs.length-1;i>=0;i--) {
         for(j=songsToAdd.length-1;j>=0;j--) {
           if (duplicateSongs[i]["song_id"] === songsToAdd.echonestId) {
@@ -136,10 +155,10 @@ function Handler() {
                     '"item_id": "' + song.key + '", ' +
                     '"song_id" : "' + song.echonestId + '", ' +
                     '"item_keyvalues" : { ' + 
-                      '"pl_artist" :"' + song.artist + '", ' + 
+                      '"pl_artist" :"' + Helper.cleanString(song.artist) + '", ' + 
                       '"pl_key" : "' + song.key + '", ' + 
-                      '"pl_title" : "' + song.title + '", ' + 
-                      '"pl_album" : "' + song.album + '", ' + 
+                      '"pl_title" : "' + Helper.cleanString(song.title) + '", ' + 
+                      '"pl_album" : "' + Helper.cleanString(song.album || '') + '", ' + 
                       '"pl_duration" : "' + song.duration + '" ' +
                     '}' +
                   '}' +
@@ -149,11 +168,6 @@ function Handler() {
 
       // create a string json array
       var data = "[" + addSongsJson.join(", ") + "]";
-      console.log('songsToAdd: ');
-      console.log(songsToAdd);
-      console.log('data: ');
-      console.log(data);
-
 
       // make the call
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
@@ -161,6 +175,7 @@ function Handler() {
           emitter.emit('finish', err); 
           console.log(err);
           console.log(json);
+          console.log(data);
           return;
         }
         waitForCompletedTicket(json.response["ticket"], function() {  
