@@ -11,7 +11,7 @@
                                             'has-error': form.birthYear.$invalid && submitted }">
           <label>Birth Year</label>
 
-          <input type="number" name="birthYear" class="form-control" ng-model="user.birthYear" ng-min="1890" ng-max="2014" ng-model-options="{ debounce: 1000 }" ng-minlength="4" required/>
+          <input type="number" name="birthYear" class="form-control" ng-model="user.birthYear" ng-min="1890" ng-max="2014" ng-model-options="{ debounce: 1000 }" ng-minlength="4" required value="{{ user.birthYear || ''}}"/>
           <p class="help-block" ng-show="(form.birthYear.$error.required || form.birthYear.$error.minlength) && submitted">
             Please Enter Your Birth Year
           </p>

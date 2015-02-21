@@ -155,10 +155,10 @@ function Handler() {
                     '"item_id": "' + song.key + '", ' +
                     '"song_id" : "' + song.echonestId + '", ' +
                     '"item_keyvalues" : { ' + 
-                      '"pl_artist" :"' + Helper.cleanString(song.artist) + '", ' + 
+                      '"pl_artist" :"' + Helper.cleanTitleString(song.artist) + '", ' + 
                       '"pl_key" : "' + song.key + '", ' + 
-                      '"pl_title" : "' + Helper.cleanString(song.title) + '", ' + 
-                      '"pl_album" : "' + Helper.cleanString(song.album || '') + '", ' + 
+                      '"pl_title" : "' + Helper.cleanTitleString(song.title) + '", ' + 
+                      '"pl_album" : "' + Helper.cleanTitleString(song.album || '') + '", ' + 
                       '"pl_duration" : "' + song.duration + '" ' +
                     '}' +
                   '}' +

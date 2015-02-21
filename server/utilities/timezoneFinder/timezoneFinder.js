@@ -57,6 +57,11 @@ function TimezoneFinder() {
         req.on('error', function (err) {
           callback(err, null);
         });
+        req.on('end', function() {
+          if (!foundZip) {
+            callback(new Error('Timezone not found'), null);
+          }
+        });
       }
     });
   }

@@ -12,10 +12,6 @@ function AudioConverter() {
     newFilepath = newFilepath.replace('.wav', '.mp3');
     newFilepath = newFilepath.replace('.m4p', '.mp3');
 
-
-    console.log('hi');
-    console.log(newFilepath);
-
     ffmpeg(filepath)
     .audioCodec('libmp3lame')
     .output(newFilepath)

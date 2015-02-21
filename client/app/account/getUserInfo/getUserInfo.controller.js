@@ -2,7 +2,7 @@
 
 angular.module('pl2NodeYoApp')
   .controller('GetUserInfoCtrl', function ($scope, Auth, $location, $window) {
-    $scope.user = {};
+    $scope.user = Auth.getCurrentUser();
     $scope.errors = {};
     $scope.artist1 = '';
 

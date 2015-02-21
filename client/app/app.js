@@ -51,7 +51,7 @@ angular.module('pl2NodeYoApp', [
           $location.path('/login');
         } else {
           var user = Auth.getCurrentUser();
-          if (next.authenticate && !(user.zipcode && user.birthYear && user.gender)) {
+          if (next.authenticate && !(user.zipcode && user.birthYear && user.gender && user._station)) {
             $location.path('/getUserInfo');
           }
         }
