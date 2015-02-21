@@ -52,10 +52,9 @@ describe('AudioConverter', function (done) {
     this.timeout(15000);
 
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a', function (err, filepath) {
-      if (err) { console.log(err); }
+    if (err) { console.log(err); }
       expect(fs.existsSync(filepath)).to.equal(true);
       var tag = taglib.tagSync(filepath);
-      console.log(tag);
       expect(tag.artist).to.equal('Delbert McClinton');
       expect(tag.album).to.equal('Room to Breathe');
       expect(tag.title).to.equal('Lone Star Blues');
@@ -66,11 +65,8 @@ describe('AudioConverter', function (done) {
   it('converts a wav file', function (done) {
     this.timeout(15000);
     converter.convertFile(__dirname + '/../../data/unprocessedAudio/stepladderTest.wav', function (err, filepath) {
-      console.log(filepath);
       if (err) { console.log(err); }
       var tag = taglib.tagSync(filepath);
-      console.log(tag);
-      console.log(tag)
       expect(tag.artist).to.equal('Rachel Loy');
       expect(tag.album).to.equal('Broken Machine');
       expect(tag.title).to.equal('Stepladder');

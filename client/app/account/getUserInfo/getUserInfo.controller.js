@@ -9,6 +9,10 @@ angular.module('pl2NodeYoApp')
     $scope.updateInitialUserInfo = function(form) {
       $scope.submitted = true;
 
+      // remove notFound error
+      form["zipcode"].$setValidity('notFound', true);
+      
+
       if(form.$valid) {
         
         Auth.updateUser({
@@ -16,10 +20,19 @@ angular.module('pl2NodeYoApp')
           gender: $scope.user.gender
         })
         .then( function() {
-          Auth.setZipcode($scope.user.zipcode)
+          Auth.setZipcode($scope.user.zipcode, function(err, zipcode) {
+            if (err) {
+              var error = err.data;
+              form["zipcode"].$setValidity('notFound', false);
+              $scope.errors["zipcode"] = error.message;
+            }
+          })
           .then( function () {
+            
+
+
             // All updated, redirect home
-            $location.path('/');
+            // $location.path('/');
           })
         })
         .catch( function(err) {

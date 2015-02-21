@@ -126,7 +126,7 @@ angular.module('pl2NodeYoApp')
         var cb = callback || angular.noop;
 
         return User.setZipcode({ id: currentUser._id }, { zipcode: newZipcode }, function (user) {
-          return cb(user);
+          return cb(null, user);
         }, function (err) {
           return cb(err);
         }).$promise;

@@ -32,11 +32,11 @@
           <p class="help-block" ng-show="form.zipcode.$error.minlength && submitted">
             Doesn't look like a valid zipcode.
           </p>
-          <p class="help-block" ng-show="form.email.$error.required && submitted">
+          <p class="help-block" ng-show="form.zipcode.$error.required && submitted">
             What's your zipcode?
           </p>
-          <p class="help-block" ng-show="form.email.$error.zipcode">
-            {{ errors.email }}
+          <p class="help-block" ng-show="form.zipcode.$error.notFound && submitted">
+            {{ errors.zipcode }}
           </p>
         </div>
 

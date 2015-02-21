@@ -1,6 +1,5 @@
 var config = require('../../config/environment');
 var echojs = require('echojs');
-console.log('THE NODE_ENV is: '+ process.env.ECHONEST_KEY);
 var _ = require('lodash');
 var Song = require('../../api/song/song.model');
 var events = require('events');
@@ -22,8 +21,6 @@ function Handler() {
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 300, start: startingIndex }, function (err, json) {
 
         if (err) { 
-          console.log(err);
-          console.log(json);
           emitter.emit('finish', err, null);
           return;
         }
@@ -38,7 +35,6 @@ function Handler() {
                           echonestId: items[i]["song_id"] 
                         });
         }
-        console.log('json.response["catalog"]["total"]: ' + json.response["catalog"]["total"]);
         if (allSongs.length < json.response["catalog"]["total"]) {
           getChunkOfSongs(startingIndex + 300);
         } else {
@@ -116,34 +112,26 @@ function Handler() {
       var total = songsToAdd.length;
       for(var i=songsToAdd.length-1;i>=0;i--) {
         if (!songsToAdd[i].echonestId) {
-          console.log('removing... ');
-          console.log(songsToAdd[i]);
           songsToAdd.splice(i,1);
           count++;
         }
       }
-      console.log(count + ' of ' + total  + ' songs without EchonestID removed');
       
       // check for duplicates
-      var totalDupes = 0;
       var duplicateSongs = allSongs.filter(function (song) {
         var included = false;
         for (var i=0; i<songsToAdd.length; i++) {
           if (song.echonestId === songsToAdd[i].echonestId) {
-            totalDupes++;
             return true;
           }
         }
         return false;
       });
-      console.log(totalDupes + ' duplicates removed');
 
       // remove the duplicates from songsToAdd
       for (i=duplicateSongs.length-1;i>=0;i--) {
         for(j=songsToAdd.length-1;j>=0;j--) {
           if (duplicateSongs[i]["song_id"] === songsToAdd.echonestId) {
-            console.log('removing duplicate: ');
-            console.log(songsToAdd[j]);
             songsToAdd.splice(j,1);
           }
         }
@@ -173,9 +161,6 @@ function Handler() {
       echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
         if (err) { 
           emitter.emit('finish', err); 
-          console.log(err);
-          console.log(json);
-          console.log(data);
           return;
         }
         waitForCompletedTicket(json.response["ticket"], function() {  

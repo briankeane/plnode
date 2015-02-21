@@ -12,7 +12,7 @@ describe('songPoolHandler', function (done) {
 
   var songs;
   
-  before(function (done) { 
+  beforeEach(function (done) { 
     this.timeout(10000);
     songs = [];
     songs.push(new Song({ artist: 'Rachel Loy',
@@ -37,42 +37,48 @@ describe('songPoolHandler', function (done) {
 
   it('adds a song to the song pool', function (done) {
     this.timeout(10000);
-    SongPool.addSong(songs[0])
-    .on('finish', function() {
-      SongPool.getAllSongs()
-      .on('finish', function (err, allSongs) {
-        expect(err).to.eq(null);
-        expect(allSongs.length).to.equal(1);
-        expect(allSongs[0].artist).to.equal('Rachel Loy');
-        expect(allSongs[0].title).to.equal('Stepladder');
-        expect(allSongs[0].album).to.equal('Broken Machine');
-        expect(allSongs[0].duration).to.equal(999);
-        expect(allSongs[0].key).to.equal('test_key.mp3');
-        expect(allSongs[0].echonestId).to.equal('SOOWAAV13CF6D1B3FA');
-        done();
+    //SongPool.clearAllSongs()
+    //.on('finish', function () {
+      SongPool.addSong(songs[0])
+      .on('finish', function() {
+        SongPool.getAllSongs()
+        .on('finish', function (err, allSongs) {
+          expect(err).to.eq(null);
+          expect(allSongs.length).to.equal(1);
+          expect(allSongs[0].artist).to.equal('Rachel Loy');
+          expect(allSongs[0].title).to.equal('Stepladder');
+          expect(allSongs[0].album).to.equal('Broken Machine');
+          expect(allSongs[0].duration).to.equal(999);
+          expect(allSongs[0].key).to.equal('test_key.mp3');
+          expect(allSongs[0].echonestId).to.equal('SOOWAAV13CF6D1B3FA');
+          done();
+        });
       });
-    });
+    //});
   });
 
   it('deletes a song from the song pool', function (done) {
     this.timeout(5000);
-    SongPool.addSongs(songs)
-    .on('finish', function (err, ticket) {
-      SongPool.getAllSongs()
-      .on('finish', function (err, allSongs) {
-        expect(allSongs.length).to.equal(2);
-        SongPool.deleteSong(songs[0].key)
-        .on('finish', function (err, ticket) {
-          SongPool.getAllSongs()
-          .on('finish', function (err, newAllSongs) {
-            expect(err).to.equal(null);
-            expect(newAllSongs.length).to.equal(1);
-            expect(newAllSongs[0].title).to.equal('Cheater');
-            done();
-          })
+    //SongPool.clearAllSongs()
+    //.on('finish', function() {
+      SongPool.addSongs(songs)
+      .on('finish', function (err, ticket) {
+        SongPool.getAllSongs()
+        .on('finish', function (err, allSongs) {
+          expect(allSongs.length).to.equal(2);
+          SongPool.deleteSong(songs[0].key)
+          .on('finish', function (err, ticket) {
+            SongPool.getAllSongs()
+            .on('finish', function (err, newAllSongs) {
+              expect(err).to.equal(null);
+              expect(newAllSongs.length).to.equal(1);
+              expect(newAllSongs[0].title).to.equal('Cheater');
+              done();
+            })
+          });
         });
       });
-    });
+    //});
   });
 
   it('adds and retrieves an array of all songs in the song pool', function (done) {
@@ -123,7 +129,6 @@ describe('songPoolHandler', function (done) {
             // seed the db
             var allSongs = _.map(allSongsAsObjects, function(attrs) { return new Song(attrs); });
               SpecHelper.saveAll(allSongs, function(err, songs) {
-                console.log(songs.length + ' songs saved');
                 done();
             });
           });
@@ -162,10 +167,8 @@ describe('songPoolHandler', function (done) {
 });
 
 function waitAndGetSongs(ticket, callback) {
-  console.log("ticket: " + ticket);
   echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
     if (json.response["ticket_status"] != 'complete') {
-      console.log("ticket status: " + json.response["ticket_status"]);
       setTimeout(function () {
         waitAndGetSongs(ticket, callback);
       }, 1000);
@@ -179,7 +182,6 @@ function waitAndGetSongs(ticket, callback) {
 }
 
 function waitUntilFinished(ticket, callback) {
-  console.log("ticket: " + ticket);
   echo('tasteprofile/status').get({ ticket: ticket }, function (err, json) {
     if (err) { console.log(err); }
     if (json.response["ticket_status"] != 'complete') {

@@ -100,9 +100,9 @@ exports.changePassword = function(req, res, next) {
 exports.setZipcode = function(req, res, next) {
   var userId = req.user._id;
   TimezoneFinder.findByZip(req.body.zipcode, function (err, timezone) {
-    if(err) { return res.send(400); }
+    if(err) { console.log(err); return res.send(422, { message: err.message }); }
     User.findById(userId, function (err, user) {
-      if (err) { return res.send(400, err) }
+      if (err) { return res.json(400); }
       if(!user) { return res.send(404); }
       User.findByIdAndUpdate(userId, { zipcode: req.body.zipcode, timezone: timezone }, function (err, updatedUser) {
         if (err) { return err; }

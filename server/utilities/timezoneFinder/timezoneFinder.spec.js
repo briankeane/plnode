@@ -27,6 +27,7 @@ describe('timezoneFinder', function (done) {
     TimezoneFinder.findByZip('99999', function(err, timezone) {
       expect(timezone).to.equal(null);
       expect(err.message).to.equal('Timezone not found');
+      done();
     })
   })
 });
