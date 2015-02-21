@@ -62,7 +62,7 @@ function TimezoneFinder() {
     .on('end', function() {
       if (!foundZip) {
         console.log('NOTFOUND!')
-        callback(new Error('Timezone not found'), null);
+        callback(new Error('Zipcode not found'), null);
       }
     });
   }
