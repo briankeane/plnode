@@ -26,7 +26,7 @@ describe('timezoneFinder', function (done) {
   it('calls bullshit if timezone does not exist', function (done) {
     TimezoneFinder.findByZip('99999', function(err, timezone) {
       expect(timezone).to.equal(null);
-      expect(err.message).to.equal('Timezone not found');
+      expect(err.message).to.equal('Zipcode not found');
       done();
     })
   })

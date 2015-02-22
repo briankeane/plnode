@@ -132,6 +132,16 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      createStation: function (stationObject, callback) {
+        var cb = callback || angular.noop;
+
+        return Station.create({ _user: currentUser._id }, stationObject, function (station) {
+          return cb(null, station);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       getCurrentStation: function() {
         return currentStation;
       },

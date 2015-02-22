@@ -33,6 +33,15 @@ angular.module('pl2NodeYoApp')
 
             // All updated, redirect home
             // $location.path('/');
+            Auth.createStation({ _user: $scope.user._id,
+                                 artists: ['Rachel Loy',
+                                            'Randy Rogers Band',
+                                            'Brian Keane']}, function (err, newStation) {
+              console.log('error: ');
+              console.log(error);
+              console.log('newStation: ');
+              console.log(newStation);
+            });
           })
         })
         .catch( function(err) {

@@ -22,10 +22,12 @@ exports.show = function(req, res) {
 
 // Creates a new station in the DB.
 exports.create = function(req, res) {
-  Station.create(req.body, function(err, station) {
-    if(err) { return handleError(res, err); }
-    return res.json(201, station);
-  });
+  console.log(req.body);
+  return res.json(201, req.body);
+  // Station.create(req.body, function(err, station) {
+  //   if(err) { return handleError(res, err); }
+  //   return res.json(201, station);
+  // });
 };
 
 // Updates an existing station in the DB.

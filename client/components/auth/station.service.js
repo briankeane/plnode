@@ -23,6 +23,9 @@ angular.module('pl2NodeYoApp')
         params: {
           id:'me'
         }
+      },
+      create: {
+        method: 'POST'
       }
     });
   });
