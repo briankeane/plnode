@@ -139,17 +139,24 @@ describe('songPoolHandler', function (done) {
     it('suggests a playlist based on an artist', function (done) {
       this.timeout(5000);
       SongPool.getSongSuggestions(['Rachel Loy'], function (err, playlist) {
-        expect(playlist.length > 30);
+        Song.find({}, function (err, allSongs) {
+          for (var i=0;i<allSongs.length;i++) {
+            console.log(allSongs[i].echonestId)
+          }
+          console.log('allSongs size: ' + allSongs.length);
+        console.log('playlist length: ' + playlist.length);
+        expect(playlist.length >= 57).to.equal(true);
         expect(playlist[0].artist).to.be.a('String');
         expect(playlist[0].title).to.be.a('String');
         done();
+        })
       });
     });
 
     it('suggests a playlist based on multiple artists', function (done) {
       this.timeout(5000);
       SongPool.getSongSuggestions(['Rachel Loy', 'Lily Allen', 'Miranda Lambert'], function (err, playlist) {
-        expect(playlist.length > 30).to.equal(true);
+        expect(playlist.length >= 57).to.equal(true);
         expect(playlist[0].artist).to.be.a('String');
         expect(playlist[0].title).to.be.a('String');
         done();

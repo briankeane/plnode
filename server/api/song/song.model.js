@@ -1,5 +1,6 @@
 'use strict';
 
+var random = require('mongoose-simple-random');
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 var extend = require('mongoose-schema-extend');
@@ -67,5 +68,6 @@ songSchema.statics.all = function (cb) {
 }
 
 // *************************************
+songSchema.plugin(random);
 var Song = mongoose.model('Song', songSchema);
 module.exports = Song;

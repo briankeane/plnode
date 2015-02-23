@@ -4,6 +4,7 @@ var _ = require('lodash');
 var Song = require('../../api/song/song.model');
 var events = require('events');
 var Helper = require('../helpers/helper');
+var Q = require('q');
 
 function Handler() {
   var self = this;
@@ -19,7 +20,6 @@ function Handler() {
 
     function getChunkOfSongs(startingIndex) {
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 300, start: startingIndex }, function (err, json) {
-
         if (err) { 
           emitter.emit('finish', err, null);
           return;
@@ -35,8 +35,9 @@ function Handler() {
                           echonestId: items[i]["song_id"] 
                         });
         }
-        if (allSongs.length < json.response["catalog"]["total"]) {
-          getChunkOfSongs(startingIndex + 300);
+        var newStartingIndex = startingIndex + 300;
+        if (newStartingIndex < json.response["catalog"]["total"]) {
+          getChunkOfSongs(newStartingIndex);
         } else {
           allSongs = _.sortBy(allSongs, function (song) { return [song.artist, song.title] });
           emitter.emit('finish', null, allSongs);
@@ -55,6 +56,7 @@ function Handler() {
     function deleteChunkOfSongs() {
 
       echo('tasteprofile/read').get({ id: config.ECHONEST_TASTE_PROFILE_ID, results: 1000 }, function (err, json) {
+
         // if there's an error, exit with error
         if (err) { 
           emitter.emit('finish', err);
@@ -181,7 +183,8 @@ function Handler() {
                                   '}' +
             '}]'
 
-     echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
+    echo('tasteprofile/update').post({ id: config.ECHONEST_TASTE_PROFILE_ID, data: data }, function (err, json) {
+
       emitter.emit('finish', err, json);
      });
      return emitter;
@@ -189,40 +192,94 @@ function Handler() {
 
   this.getSongSuggestions = function (artists, callback) {
     
+
     var suggestedSongs = [];
 
     var getSuggestionFunctions = [];
 
-    // grab 4 songs by each artist if they're there
-    for (i=0;i<artists.length;i++) {
-      Song.findAllMatchingArtist(artists[i], function (err, matches) {
-        for (j=0;(j<=4) && (j<matches.length);j++) {
-          suggestedSongs.push(matches[j]);
-        }
-      });
-    }
 
     // get suggestsions from echonest
 
-    echo('playlist/basic').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
+    echo('playlist/static').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
                                 bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
+      console.log("songs From Echonest: " + json.response["songs"].length);
       var songsJson = json.response["songs"];
-
+      var songEchonestIds = _.map(songsJson, function (song) {return song["id"] });
+      var songs = [];
+      var finalList = [];
       var count = 0;
 
-      for (i=0;(i<songsJson.length) && (i<45);i++) {
-        Song.find({ echonestId: songsJson[i]["id"] }, function (err, song) {
-          count++;
-          if (err) { 
-            callback(err, null); 
-          } else {
-            suggestedSongs.push(song[0]);
-            if ((count >= songsJson.length) || (count >= 45)) {
-              callback(null, suggestedSongs);
+      // pre-grab songs from artists
+      var grabSongFunctions = [];
+      for (var i=0;i<artists.length;i++) {
+        grabSongFunctions.push((function () {
+          var deferred = Q.defer();
+          Song.findAllMatchingArtist(artists[i], function (err, artistSongs) {
+            if (err) {
+              deferred.reject(new Error(error));
+            } else {
+              deferred.resolve(artistSongs);
             }
+          });
+          return deferred.promise;
+        })(i));
+      }
+      Q.all(grabSongFunctions)
+      .done(function (results) {
+        // add the songs
+        for(var i=0;i<results.length;i++) {
+          // add up to 4 songs from each artist
+          for(var j=0;((j<4) && (j<results[i].length));j++) {
+            finalList.push(results[i][j]);
+
+            // remove duplicate if it exists
+            var index = songEchonestIds.indexOf(results[i][j].echonestId);
+            if (index > -1) {
+              songEchonestIds.splice(index,1);
+            }
+          }  
+        }
+        // build a query object
+        var query = _.map(songEchonestIds, function (echonestId) {
+          return { echonestId: echonestId }
+        });
+        // grab all the suggested songs from their echonestIds
+        Song.find({ $or: query }, function (err, suggestedSongs) {
+          console.log("songEchonestIds: " + songEchonestIds);
+          console.log("songEchonestIds length: " + songEchonestIds.length);
+          console.log("suggestedSongs length: " + suggestedSongs.length);
+          finalList = finalList.concat(suggestedSongs);
+
+          console.log("finalList length: " + finalList.length);
+
+          // if there's enough, exit
+          if (finalList.length) {
+            callback(null, finalList);
+          } else {
+            // for now, fill with random songs
+            Song.findRandom({}, {}, { count: 57 }, function (err, randomSongs) {
+              console.log("randomSongs.length: " + raondomSongs.length);
+              var i=0;
+              while (songIds.length < 57) {
+                var alreadyIncluded = false;
+                for (j=0; j<finalList.length; j++) {
+                  if (finalList[j].echonestId === randomSongs[i].echonestId) {
+                    alreadyIncluded = true;
+                    break;
+                  }
+                }
+                if (!alreadyIncluded) {
+                  finalList.push(randomSongs[i]);
+                  i++;
+                }
+              }
+
+              // callback with list
+              callback(null, finalList);
+            });
           }
         });
-      }
+      });
     });
   };
 
@@ -236,7 +293,7 @@ function Handler() {
       if (json.response["ticket_status"] != 'complete') {
         setTimeout(function () {
           waitForCompletedTicket(ticket, callback);
-        }, 1000);
+        }, 1500);
       } else {
         callback();
       }

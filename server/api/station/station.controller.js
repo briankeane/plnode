@@ -2,6 +2,10 @@
 
 var _ = require('lodash');
 var Station = require('./station.model');
+//var SongPool = require('../../utilities/songPoolHandlerEmitter');
+var RotationItem = require('../rotationItem/rotationItem.model');
+var User = require('../user/user.model');
+var SongPool = require('../../utilities/songPoolHandlerEmitter/songPoolHandlerEmitter')
 
 // Get list of stations
 exports.index = function(req, res) {
@@ -22,12 +26,52 @@ exports.show = function(req, res) {
 
 // Creates a new station in the DB.
 exports.create = function(req, res) {
-  console.log(req.body);
-  return res.json(201, req.body);
-  // Station.create(req.body, function(err, station) {
-  //   if(err) { return handleError(res, err); }
-  //   return res.json(201, station);
-  // });
+  User.findOne({ _id: req.body._user }, function (err, user) {
+    if (err) { return res.json(500, err); }
+    if (!user) {return res.json(404, { message: 'User not found' } ); }
+    Station.create({ _user: req.body._user,
+                  timezone: user.timezone }, function (err, station) {
+      if (err) { 
+        return res.json(500, err); 
+      } else {
+        SongPool.getSongSuggestions(req.body.artists, function (err, songSuggestions) {
+          if (err) { return res.json(500, err); }
+          console.log("song Suggestions length: " + songSuggestions.length);
+          for (var i=0;i<songSuggestions.length;i++) {
+            if (i<13) {
+              RotationItem.create({ _song: songSuggestions[i]._id,
+                                    _station: station.id,
+                                    bin: 'activeRotation',
+                                    weight: 27 });
+            } else if (i<40) {
+              RotationItem.create({ _song: songSuggestions[i]._id,
+                                    _station: station.id,
+                                    bin: 'activeRotation',
+                                    weight: 17 });
+            } else if (i<57) {
+              RotationItem.create({ _song: songSuggestions[i]._id,
+                                    _station: station.id,
+                                    bin: 'activeRotation',
+                                    weight: 17 });
+            } else {
+              // we don't need the rest
+              break;
+            }
+          }
+
+          user.update({ _station: station.id }, function (err, updatedUser) {
+            if (err) { 
+              return res.json(500, err) 
+            } else {
+              return res.json(201, station);
+            }
+
+          });
+
+        });
+      }
+    });
+  });
 };
 
 // Updates an existing station in the DB.

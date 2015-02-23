@@ -8,12 +8,12 @@ var mongoose = require('mongoose'),
 
 var StationSchema = new Schema({
   _user:                                  { type: Schema.ObjectId, ref: 'User'},
-  secsOfCommercialPerHour:                { type: Number, default: 360 },
-  lastAccuratePlaylistPosition:           { type: Number },
-  lastAccurateAirtime:                    { type: Date },
-  averageDailyListeners:                  { type: Number, default: 0 },
-  timezone:                               { type: String },
-  averageDailyListenersCalculationDate:   { type: Date, default: new Date() }
+  secsOfCommercialPerHour:                { type: Number, default: 360        },
+  lastAccuratePlaylistPosition:           { type: Number                      },
+  lastAccurateAirtime:                    { type: Date                        },
+  averageDailyListeners:                  { type: Number, default: 0          },
+  timezone:                               { type: String                      },
+  averageDailyListenersCalculationDate:   { type: Date, default: new Date()   }
 });
 
 StationSchema.plugin(timestamps);

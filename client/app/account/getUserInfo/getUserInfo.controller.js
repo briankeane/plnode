@@ -37,10 +37,6 @@ angular.module('pl2NodeYoApp')
                                  artists: ['Rachel Loy',
                                             'Randy Rogers Band',
                                             'Brian Keane']}, function (err, newStation) {
-              console.log('error: ');
-              console.log(error);
-              console.log('newStation: ');
-              console.log(newStation);
             });
           })
         })
