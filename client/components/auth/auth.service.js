@@ -166,7 +166,7 @@ angular.module('pl2NodeYoApp')
       removeRotationItem: function (rotationItemId, callback) {
         var cb = callback || angular.noop;
 
-        return Station.removeRotationItem({ id: currentStation._id, rotationItemId: rotationItemId }, { rotationItemId: rotationItemId }, function (updatedRotationItems) {
+        return Station.removeRotationItem({ id: currentStation._id }, { rotationItemId: rotationItemId }, function (updatedRotationItems) {
           return cb(null, updatedRotationItems.rotationItems)
         }, function (err) {
           return cb(err);
