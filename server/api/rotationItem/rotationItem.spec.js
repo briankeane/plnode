@@ -98,14 +98,32 @@ describe('a rotationItem', function () {
     RotationItem.updateBySongId({ _station: station._id,
                                   _song: song._id,
                                   weight: 100 }, function (err, updatedRotationItem) {
-      console.log(err);
-      console.log('updatedRotationItem');
-      console.log(updatedRotationItem);
       expect(updatedRotationItem.weight).to.equal(100);
       expect(updatedRotationItem.bin).to.equal('trash');
       expect(updatedRotationItem.history[0].bin).to.equal('trash');
       expect(updatedRotationItem.history[0].weight).to.equal(45);
       done();
+    });
+  });
+
+    it("updates via songId if the song is new to the station", function (done) {
+      var newSong = new Song({ artist: 'Rachel Loy',
+                        title: 'Broken Machine',
+                        album: 'Broken Machine',
+                        duration: 180000,
+                        key: 'ThisIsAKey.mp3',
+                        echonestId: 'ECHONEST_ID' });
+      newSong.save(function (err, newSongSaved) {
+        RotationItem.updateBySongId({ _station: station._id,
+                                  _song: newSongSaved._id,
+                                  weight: 100,
+                                  bin: 'newBin' }, function (err, updatedRotationItem) {
+        expect(updatedRotationItem.weight).to.equal(100);
+        expect(updatedRotationItem._song).to.equal(newSongSaved._id);
+        expect(updatedRotationItem.bin).to.equal('newBin');
+        expect(updatedRotationItem.history.length).to.equal(0);
+        done();
+      })
     });
   })
 
