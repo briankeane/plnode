@@ -192,7 +192,13 @@ function Handler() {
 
   this.getSongSuggestions = function (artists, callback) {
     
+    // give echonest a blank if no artists provided
+    if (!artists.length) {
+      artists = ['Rachel Loy'];
+    }
 
+    console.log('artists');
+    console.log(artists);
     var suggestedSongs = [];
 
     var getSuggestionFunctions = [];
@@ -202,7 +208,13 @@ function Handler() {
 
     echo('playlist/static').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
                                 bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
-      console.log("songs From Echonest: " + json.response["songs"].length);
+      if (err) { 
+        console.log(err);
+        console.log(json);
+        callback(err); 
+        return;
+      }
+
       var songsJson = json.response["songs"];
       var songEchonestIds = _.map(songsJson, function (song) {return song["id"] });
       var songs = [];

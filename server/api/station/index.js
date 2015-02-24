@@ -9,6 +9,7 @@ var router = express.Router();
 router.get('/', controller.index);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.get('/:id/getRotationItems', auth.isAuthenticated(), controller.getRotationItems)
+router.put('/:id/removeRotationItem', auth.isAuthenticated(), controller.removeRotationItem)
 router.get('/:id', controller.show);
 router.post('/', controller.create);
 router.put('/:id', controller.update);

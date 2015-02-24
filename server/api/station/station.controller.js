@@ -42,17 +42,17 @@ exports.create = function(req, res) {
             if (i<13) {
               RotationItem.create({ _song: songSuggestions[i]._id,
                                     _station: station._id,
-                                    bin: 'activeRotation',
+                                    bin: 'active',
                                     weight: 27 });
             } else if (i<40) {
               RotationItem.create({ _song: songSuggestions[i]._id,
                                     _station: station._id,
-                                    bin: 'activeRotation',
+                                    bin: 'active',
                                     weight: 17 });
             } else if (i<57) {
               RotationItem.create({ _song: songSuggestions[i]._id,
                                     _station: station._id,
-                                    bin: 'activeRotation',
+                                    bin: 'active',
                                     weight: 17 });
             } else {
               // we don't need the rest
@@ -115,9 +115,44 @@ exports.me = function(req, res, next) {
 exports.getRotationItems = function(req, res, next) {
   RotationItem.findAllForStation(req.params.id, function (err, rotationItems) {
     if (err) return next(err);
-    return res.json({ rotationItems: rotationItems });
-  })
+
+    var rotationItemsObject = createRotationItemsObject(rotationItems);
+
+    return res.json({ rotationItems: rotationItemsObject });
+  });
 };
+
+exports.removeRotationItem = function (req,res,next) {
+  RotationItem.findById(req.body.rotationItemId, function (err, rotationItem) {
+    if (err) return next(err);
+    if (!rotationItem) return res.json(401);
+
+    rotationItem.updateBin('inactive', function (err, updatedRotationItem) {
+      if (err) return next(err);
+
+      RotationItem.findAllForStation(rotationItem._station, function (err, rotationItems) {
+        if (err) return next(err);
+
+        var rotationItemsObject = createRotationItemsObject(rotationItems);
+        return res.json({ rotationItems: rotationItemsObject });
+      });
+    });
+  });
+};
+
+function createRotationItemsObject(rotationItems) {
+  var rotationItemsObject = {};
+
+  for (var i=0;i<rotationItems.length;i++) {
+    
+    if (!rotationItemsObject[rotationItems[i].bin]) {
+      rotationItemsObject[rotationItems[i].bin] = [];
+    }
+
+    rotationItemsObject[rotationItems[i].bin].push(rotationItems[i]);
+  }
+  return rotationItemsObject;
+}
 
 function handleError(res, err) {
   return res.send(500, err);

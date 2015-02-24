@@ -32,6 +32,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'getRotationItems'
         }
+      },
+      removeRotationItem: {
+        method: 'PUT',
+        params: {
+          controller: 'removeRotationItem'
+        }
       }
     });
   });

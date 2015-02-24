@@ -6,6 +6,10 @@
     <div class="col-sm-12 col-md-7">
       <h4 class="small-headline">Your Songs</h4>
       <p class="sub-headline">These are the songs that will automatically play when you're not around.</p>
+      <div class="alert alert-danger" role="alert" ng-show="rotationItemsMessage">
+            {{ rotationItemsMessage }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="rotationItemsMessage = null;"><span aria-hidden="true">&times;</span></button>
+      </div>
       <ul id="spinsPerWeekList" ng-model="rotationItems">
         <li ng-repeat="rotationItem in rotationItems">
           <span class="songlist-title">{{ rotationItem._song.title }}</span>
@@ -17,7 +21,7 @@
             <option value='2'>Light</option>
           </select>
 
-          <a href="#" class="close" title="delete">×</a>
+          <a href="#" class="close" title="delete" ng-click="removeRotationItem(rotationItem)">×</a>
 
         </li>
       </ul>

@@ -138,7 +138,7 @@ angular.module('pl2NodeYoApp')
 
         return Station.create({ _user: currentUser._id }, stationObject, function (station) {
           currentStation = station;
-          currentUser.station = station;
+          currentUser._station = station;
           return cb(null, station);
         }, function (err) {
           return cb(err);
@@ -158,6 +158,16 @@ angular.module('pl2NodeYoApp')
 
         return Station.getRotationItems({}, { _id: currentStation._id }, function (rotationItems) {
           return cb(null, rotationItems.rotationItems);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      removeRotationItem: function (rotationItemId, callback) {
+        var cb = callback || angular.noop;
+
+        return Station.removeRotationItem({ id: currentStation._id, rotationItemId: rotationItemId }, { rotationItemId: rotationItemId }, function (updatedRotationItems) {
+          return cb(null, updatedRotationItems.rotationItems)
         }, function (err) {
           return cb(err);
         }).$promise;
