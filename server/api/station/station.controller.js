@@ -115,7 +115,7 @@ exports.me = function(req, res, next) {
 exports.getRotationItems = function(req, res, next) {
   RotationItem.findAllForStation(req.params.id, function (err, rotationItems) {
     if (err) return next(err);
-    return res.json(rotationItems);
+    return res.json({ rotationItems: rotationItems });
   })
 };
 

@@ -31,8 +31,7 @@ angular.module('pl2NodeYoApp')
         method: 'GET',
         params: {
           controller: 'getRotationItems'
-        },
-        isArray: 'true'
+        }
       }
     });
   });

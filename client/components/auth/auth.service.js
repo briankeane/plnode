@@ -157,7 +157,7 @@ angular.module('pl2NodeYoApp')
         var cb = callback || angular.noop;
 
         return Station.getRotationItems({}, { _id: currentStation._id }, function (rotationItems) {
-          return cb(null, rotationItems);
+          return cb(null, rotationItems.rotationItems);
         }, function (err) {
           return cb(err);
         }).$promise;
