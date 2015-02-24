@@ -5,7 +5,7 @@ angular.module('pl2NodeYoApp')
     var currentUser = {};
     var currentStation = {};
     if($cookieStore.get('token')) {
-      currentUser = User.get();
+      currentUser = User.get()
       currentStation = Station.get();
     }
 
@@ -30,6 +30,7 @@ angular.module('pl2NodeYoApp')
         success(function(data) {
           $cookieStore.put('token', data.token);
           currentUser = User.get();
+          currentStation = Station.get();
           deferred.resolve(data);
           return cb();
         }).
@@ -136,6 +137,8 @@ angular.module('pl2NodeYoApp')
         var cb = callback || angular.noop;
 
         return Station.create({ _user: currentUser._id }, stationObject, function (station) {
+          currentStation = station;
+          currentUser.station = station;
           return cb(null, station);
         }, function (err) {
           return cb(err);
@@ -148,6 +151,16 @@ angular.module('pl2NodeYoApp')
 
       getCurrentUser: function() {
         return currentUser;
+      },
+      
+      getRotationItems: function(_station, callback) {
+        var cb = callback || angular.noop;
+
+        return Station.getRotationItems({}, { _id: currentStation._id }, function (rotationItems) {
+          return cb(null, rotationItems);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
       },
 
       /**

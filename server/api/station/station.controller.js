@@ -5,7 +5,8 @@ var Station = require('./station.model');
 //var SongPool = require('../../utilities/songPoolHandlerEmitter');
 var RotationItem = require('../rotationItem/rotationItem.model');
 var User = require('../user/user.model');
-var SongPool = require('../../utilities/songPoolHandlerEmitter/songPoolHandlerEmitter')
+var SongPool = require('../../utilities/songPoolHandlerEmitter/songPoolHandlerEmitter');
+var RotationItem = require('../rotationItem/rotationItem.model');
 
 // Get list of stations
 exports.index = function(req, res) {
@@ -40,17 +41,17 @@ exports.create = function(req, res) {
           for (var i=0;i<songSuggestions.length;i++) {
             if (i<13) {
               RotationItem.create({ _song: songSuggestions[i]._id,
-                                    _station: station.id,
+                                    _station: station._id,
                                     bin: 'activeRotation',
                                     weight: 27 });
             } else if (i<40) {
               RotationItem.create({ _song: songSuggestions[i]._id,
-                                    _station: station.id,
+                                    _station: station._id,
                                     bin: 'activeRotation',
                                     weight: 17 });
             } else if (i<57) {
               RotationItem.create({ _song: songSuggestions[i]._id,
-                                    _station: station.id,
+                                    _station: station._id,
                                     bin: 'activeRotation',
                                     weight: 17 });
             } else {
@@ -59,7 +60,7 @@ exports.create = function(req, res) {
             }
           }
 
-          user.update({ _station: station.id }, function (err, updatedUser) {
+          user.update({ _station: station._id }, function (err, updatedUser) {
             if (err) { 
               return res.json(500, err) 
             } else {
@@ -109,6 +110,13 @@ exports.me = function(req, res, next) {
     if (!station) return res.json(401);
     res.json(station);
   });
+};
+
+exports.getRotationItems = function(req, res, next) {
+  RotationItem.findAllForStation(req.params.id, function (err, rotationItems) {
+    if (err) return next(err);
+    return res.json(rotationItems);
+  })
 };
 
 function handleError(res, err) {

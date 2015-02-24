@@ -26,6 +26,13 @@ angular.module('pl2NodeYoApp')
       },
       create: {
         method: 'POST'
+      },
+      getRotationItems: {
+        method: 'GET',
+        params: {
+          controller: 'getRotationItems'
+        },
+        isArray: 'true'
       }
     });
   });

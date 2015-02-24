@@ -38,7 +38,7 @@ rotationItemSchema.statics.findByIdAndPopulate = function (id, callback) {
 rotationItemSchema.statics.findAllForStation = function (stationId, callback) {
   RotationItem
   .find({ _station: stationId })
-  .populate('_station _song')
+  .populate('_song')
   .sort('bin -weight')
   .exec(callback);
 };
