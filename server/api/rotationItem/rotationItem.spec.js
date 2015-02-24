@@ -93,6 +93,21 @@ describe('a rotationItem', function () {
       });
     });
   });
+  
+  it("updates via songId if there is already a rotationItem", function (done) {
+    RotationItem.updateBySongId({ _station: station._id,
+                                  _song: song._id,
+                                  weight: 100 }, function (err, updatedRotationItem) {
+      console.log(err);
+      console.log('updatedRotationItem');
+      console.log(updatedRotationItem);
+      expect(updatedRotationItem.weight).to.equal(100);
+      expect(updatedRotationItem.bin).to.equal('trash');
+      expect(updatedRotationItem.history[0].bin).to.equal('trash');
+      expect(updatedRotationItem.history[0].weight).to.equal(45);
+      done();
+    });
+  })
 
   it("can updated weight and log it's own history", function (done) {
     var oldDate = rotationItem.assignedAt;

@@ -29,14 +29,20 @@ angular.module('pl2NodeYoApp')
           })
           .then( function () {
             
-
+            // create array from inputs
+            var artists = []
+            if (form.artist1.$modelValue) { artists.push(form.artist1.$modelValue); }
+            if (form.artist2.$modelValue) { artists.push(form.artist2.$modelValue); }
+            if (form.artist3.$modelValue) { artists.push(form.artist3.$modelValue); }
+            if (form.artist4.$modelValue) { artists.push(form.artist4.$modelValue); }
+            if (form.artist5.$modelValue) { artists.push(form.artist5.$modelValue); }
 
             // All updated, redirect home
             // $location.path('/');
             Auth.createStation({ _user: $scope.user._id,
-                                 artists: ['Rachel Loy',
-                                            'Randy Rogers Band',
-                                            'Brian Keane']}, function (err, newStation) {
+                                 artists: artists }, function (err, newStation) {
+              $scope.station = newStation;
+
             });
           })
         })

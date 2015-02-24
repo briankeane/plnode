@@ -43,6 +43,50 @@ rotationItemSchema.statics.findAllForStation = function (stationId, callback) {
   .exec(callback);
 };
 
+rotationItemSchema.statics.updateBySongId = function (attrs, callback) {
+  RotationItem.findOne({ _station: attrs._station,
+                          _song: attrs._song }, function (err, rotationItem) {
+    // if the song has never been in rotation
+    if (!rotationItem) {
+      RotationItem.create(attrs, function (err, newRotationItem) {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, newRotationItem);
+        }
+      })
+
+    // otherwise if the song has been in rotation before
+    } else {
+      if (attrs.weight && attrs.bin) {
+        rotationItem.updateWeightAndBin(attrs.weight, attrs.bin, function (err, updatedRotationItem) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, updatedRotationItem);
+          }
+        });
+      } else if (attrs.weight) {
+        rotationItem.updateWeight(attrs.weight, function (err, updatedRotationItem) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, updatedRotationItem);
+          }
+        });
+      } else if (attrs.bin) {
+        rotationItem.updateBin(attrs.bin, function (err, updatedRotationItem) {
+          if (err) {
+            callback(err);
+          } else { 
+            callback(null, updatedRotationItem);
+          }
+        });
+      }
+    }
+  });
+}
+
 
 // ***********************************************************
 // ************************ Methods **************************
