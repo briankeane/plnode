@@ -66,6 +66,22 @@ angular.module('pl2NodeYoApp')
       }
     };
 
+    $scope.saveOldValue = function (item) {
+      item.oldValue = item.weight;
+    };
+
+    $scope.updateRotationWeight = function (item) {
+      Auth.updateRotationWeight({ _id: item._id,
+                                  weight: item.weight}, function (err, newRotationItems) {
+        // if there was an error, keep the old value the same and let the user know
+        if (err) {
+          item.weight = item.oldValue;
+          $scope.rotationItemsMessage = "Error: Unable to change rotation level for: " + item._song.title +
+                                                    " by " + item._song.artist +
+                                                    ".  Please try again.";
+        }
+      });
+    };
 
     $scope.currentStation = Auth.getCurrentStation()
     console.log($scope.currentStation);

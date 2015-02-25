@@ -38,6 +38,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'removeRotationItem'
         }
+      },
+      updateRotationWeight: {
+        method: 'PUT',
+        params: {
+          controller: 'updateRotationWeight'
+        }
       }
     });
   });

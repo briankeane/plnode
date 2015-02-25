@@ -15,7 +15,7 @@
           <span class="songlist-title">{{ rotationItem._song.title }}</span>
           <span class="songlist-artist">{{ rotationItem._song.artist }}</span>
 
-          <select class="rotationSelect" ng-model="rotationItem.weight">
+          <select class="rotationSelect" ng-model="rotationItem.weight" ng-click="saveOldValue(rotationItem)" ng-change="updateRotationWeight(rotationItem)">
             <option value='27'>Heavy</option>
             <option value='17'>Medium</option>
             <option value='2'>Light</option>

@@ -173,6 +173,16 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      updateRotationWeight: function (rotationItemObject, callback) {
+        var cb = callback || angular.noop;
+
+        return Station.updateRotationWeight({ id: currentStation._id }, { rotationItemId: rotationItemObject._id, weight: rotationItemObject.weight }, function (updatedRotationItems) {
+          return cb(null, updatedRotationItems.rotationItems)
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       findSongsByKeywords: function (searchString, callback) {
         var cb = callback || angular.noop;
 

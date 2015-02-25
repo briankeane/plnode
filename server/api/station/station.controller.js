@@ -140,6 +140,24 @@ exports.removeRotationItem = function (req,res,next) {
   });
 };
 
+exports.updateRotationWeight = function (req,res,next) {
+  RotationItem.findById(req.body.rotationItemId, function (err, rotationItem) {
+    if (err) return next(err);
+    if (!rotationItem) return res.json(401);
+
+    rotationItem.updateWeight(req.body.weight, function (err, updatedRotationItem) {
+      if (err) return next(err);
+
+      RotationItem.findAllForStation(rotationItem._station, function (err, rotationItems) {
+        if (err) return next(err);
+
+        var rotationItemsObject = createRotationItemsObject(rotationItems);
+        return res.json({ rotationItems: rotationItemsObject });
+      });
+    });
+  });
+};
+
 function createRotationItemsObject(rotationItems) {
   var rotationItemsObject = {};
 
