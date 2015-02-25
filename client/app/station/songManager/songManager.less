@@ -16,16 +16,15 @@ body .mic-image-inverse {
   border: 2px solid @microphone-red;
 }
 
-.nowPlaying .progress .meter {
-  background-color: #0E5050;
-}
-
 #catalog-list {
+  overflow-y: scroll;
   height: 307px;
-  
-  &.onDjBoothPage {
-    height: 323px;
-  }
+  margin: 0;
+  background: rgba(0,0,0,0.05);
+  margin-bottom: 33px;
+  padding: 0;
+  font-size:
+
   li {
     list-style-type: none;
     -webkit-touch-callout: none;
@@ -34,10 +33,44 @@ body .mic-image-inverse {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    font-size: .9rem;
+    list-style-type: none;
+    position: relative;
+    width: 100%;
+    float: left;
+    clear: both;
+    margin: 0 0 2px 0;
+    background-color: white;
+    box-sizing: border-box;
+    padding: 9px 15px;
   }
+  
   .disabled {
     opacity:0.5;
     // for disabling text selection
+  }
+
+  .songlist-title {
+    display: inline-block;
+    width:60%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 2px;
+    vertical-align: middle;
+    line-height: 100%;
+  }
+
+  .songlist-artist {
+    display: inline-block;
+    width: 40%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: right;
+    padding: 2px;
+    display: inline-block;
+    width: 40%;
+    padding: 2px;
+    vertical-align: middle;
   }
 }
 
