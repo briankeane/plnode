@@ -57,7 +57,9 @@ angular.module('pl2NodeYoApp')
         Auth.findSongsByKeywords(searchString, function (err, results) {
           if (err) { console.log(err); }
           if (results) {
-            $scope.catalogSearchResults = results;
+            if ($scope.searchText === searchString) {
+              $scope.catalogSearchResults = results;
+            }
             console.log(results);
           }
         });
