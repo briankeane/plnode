@@ -42,6 +42,13 @@ exports.update = function(req, res) {
   });
 };
 
+exports.findByKeywords = function (req, res) {
+  Song.keywordSearch(req.query.searchString, function (err, searchResults) {
+    if (err) { return res.send(500, err); }
+    return res.json(200, { searchResults: searchResults });
+  });
+};
+
 // Deletes a song from the DB.
 exports.destroy = function(req, res) {
   Song.findById(req.params.id, function (err, song) {

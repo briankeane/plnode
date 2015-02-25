@@ -5,6 +5,7 @@ angular.module('pl2NodeYoApp')
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
+    $scope.catalogSearchResults = [];
     $scope.rotationItems = [];
     $scope.rotationItemsPendingRemoval = [];
     
@@ -47,10 +48,21 @@ angular.module('pl2NodeYoApp')
           }
         });
       }
-    }
+    };
 
-
-
+    $scope.findSongs = function (searchString) {
+      if (searchString.length <= 3) {
+        $scope.catalogSearchResults = [];
+      } else {
+        Auth.findSongsByKeywords(searchString, function (err, results) {
+          if (err) { console.log(err); }
+          if (results) {
+            $scope.catalogSearchResults = results;
+            console.log(results);
+          }
+        });
+      }
+    };
 
 
     $scope.currentStation = Auth.getCurrentStation()

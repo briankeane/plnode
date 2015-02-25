@@ -50,6 +50,7 @@ songSchema.statics.keywordSearch = function (keywords, cb) {
   Song
   .find(query)
   .sort({ artist: 1, title: 1 })
+  .limit(20)
   .exec(cb);
 }
 

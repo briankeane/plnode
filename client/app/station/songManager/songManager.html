@@ -30,9 +30,13 @@
     <div class="col-sm-12 col-md-5 columns">
       <h4 class="small-headline">Songs</h4>
       <p class="sub-headline">Search our Catalog</p>  
-      <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here"/>
+      <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="searchText" ng-change="findSongs(searchText)"/>
 
-      <ul id="catalog-list" class="song-manager-page">
+      <ul id="catalog-list" ng-model="catalogSearchResults" class="song-manager-page">
+        <li ng-repeat="song in catalogSearchResults">
+          <span class="songlist.title">{{ song.title }}</span>
+          <span class="songlist.artist">{{ song.artist }}</span>
+        </li>
       </ul>
 
     </div>
