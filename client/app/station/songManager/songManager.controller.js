@@ -110,7 +110,7 @@ angular.module('pl2NodeYoApp')
       // ADD LATER scroll to inserted item
 
       // Add song
-      Auth.createRotationItem(newRotationItem, function (err, newRotationItems) {
+      Auth.createRotationItem(newRotationItem, function (err, results) {
         if (err) { 
           // remove inserted object
           for (var i=0;i<$scope.rotationItems.length;i++) {
@@ -123,6 +123,14 @@ angular.module('pl2NodeYoApp')
           // display error message
           $scope.rotationItemsMessage = 'Error: Could not add ' + newRotationItem._song.title + ' by ' + newRotationItem._song.artist + 
                                         '.  Please try again.';
+        } else {
+          // put new ID into object
+          for (var i=0;i<$scope.rotationItems.length;i++) {
+            if (newRotationItem._song._id === $scope.rotationItems[i]._song._id) {
+              $scope.rotationItems[i]._id = results.newRotationItem._id;
+              break;   
+            }
+          }
         }
 
       });

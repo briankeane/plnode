@@ -189,7 +189,7 @@ angular.module('pl2NodeYoApp')
         rotationItemObject._station = currentStation._id;
 
         return Station.createRotationItem({ id: currentStation._id }, rotationItemObject, function (updatedRotationItems) {
-          return cb(null, updatedRotationItems.rotationItems)
+          return cb(null, updatedRotationItems)
         }, function (err) {
           return cb(err);
         }).$promise;
