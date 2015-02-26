@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('SongManagerCtrl', function ($scope, Auth, $location, $window, $timeout) {
+  .controller('SongManagerCtrl', function ($scope, Auth, $location, $window, $timeout, $anchorScroll) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -12,15 +12,7 @@ angular.module('pl2NodeYoApp')
     $scope.getRotationItems = function() {
       Auth.getRotationItems($scope.currentStation._id, function (err, rotationItems) {
         console.log(rotationItems);
-        $scope.rotationItems = rotationItems.active.sort(function (a,b) {
-          if (a._song.artist.toLowerCase() > b._song.artist.toLowerCase()) {
-            return 1;
-          } else if (a._song.artist.toLowerCase() < b._song.artist.toLowerCase()) {
-            return -1;
-          } else {
-            return 0;
-          }
-        });
+        $scope.rotationItems = rotationItems.active.sort(compareSong);
       });
     }
 
@@ -83,6 +75,42 @@ angular.module('pl2NodeYoApp')
       });
     };
 
+    $scope.newSongDropped = function (event, index, song, type) {
+      // create an actual rotationItem
+      var newRotationItem = { weight: 17,
+                              bin: 'active',
+                              _song: song }
+      var insertedIndex = -1;
+
+      // insert it at the proper index
+      for (var i=0;i<$scope.rotationItems.length;i++) {
+        // IF the song is already in the list, give error message and exit
+        if ((compareSong($scope.rotationItems[i], newRotationItem) === 0) && 
+                    ($scope.rotationItems[i]._song._id === newRotationItem._song._id)) {
+          $scope.rotationItemsMessage = "Error: That song is already in rotation";
+
+          // ADD LATER: scroll to it
+          return;
+
+        // ELSE IF it's time to insert... 
+        } else if (compareSong($scope.rotationItems[i], newRotationItem) === 1) {
+          $scope.rotationItems.splice(i,0,newRotationItem);
+          if (i===0) { $scope.$apply(); }     // not sure why this is needed only when inserted
+          insertedIndex = i;
+          break;
+        }
+      }
+
+      // IF it wasn't included put it last
+      if (insertedIndex < 0) {
+        $scope.rotationItems.push(newRotationItem);
+        insertedIndex = $scope.rotationItems.length-1;
+      }
+
+      // scroll to inserted item
+
+    }
+
     $scope.currentStation = Auth.getCurrentStation()
     console.log($scope.currentStation);
     $scope.currentUser = Auth.getCurrentUser();
@@ -94,5 +122,14 @@ angular.module('pl2NodeYoApp')
     } else {
       $scope.getRotationItems();
     }
-
   });
+
+function compareSong(a,b) {
+  if (a._song.artist.toLowerCase() > b._song.artist.toLowerCase()) {
+    return 1;
+  } else if (a._song.artist.toLowerCase() < b._song.artist.toLowerCase()) {
+    return -1;
+  } else {
+    return 0;
+  }
+}

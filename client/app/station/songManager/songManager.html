@@ -10,9 +10,9 @@
             {{ rotationItemsMessage }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="rotationItemsMessage = null;"><span aria-hidden="true">&times;</span></button>
       </div>
-      <ul id="spinsPerWeekList" ng-model="rotationItems" as-sortable>
-        <li ng-repeat="rotationItem in rotationItems" as-sortable-item>
-          <span   disabled as-sortable-item-handle class="songlist-title">{{ rotationItem._song.title }}</span>
+      <ul id="spinsPerWeekList" ng-model="rotationItems" dnd-list="rotationItems"  dnd-drop="newSongDropped(event, index, item, external, type)">
+        <li ng-repeat="rotationItem in rotationItems" id="songId{{rotationItem._song._id}}">
+          <span class="songlist-title">{{ rotationItem._song.title }}</span>
           <span class="songlist-artist">{{ rotationItem._song.artist }}</span>
 
           <select class="rotationSelect" ng-model="rotationItem.weight" ng-click="saveOldValue(rotationItem)" ng-change="updateRotationWeight(rotationItem)">
@@ -32,8 +32,8 @@
       <p class="sub-headline">Search our Catalog</p>  
       <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs(searchText)"/>
 
-      <ul id="catalog-list" ng-model="catalogSearchResults" class="song-manager-page">
-        <li ng-repeat="song in catalogSearchResults">
+      <ul id="catalog-list" class="song-manager-page" dnd-list="catalogSearchResults">
+        <li ng-repeat="song in catalogSearchResults"  dnd-draggable="song" dnd-moved="catalogSearchResults.splice($index, 1)" dnd-effect-allowed="move"  dnd-selected="catalogSearchResults.selected = item" ng-class="{'selected': models.selected === song}">
           <span class="songlist-title">{{ song.title }}</span>
           <span class="songlist-artist">{{ song.artist }}</span>
         </li>

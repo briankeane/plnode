@@ -7,7 +7,7 @@ angular.module('pl2NodeYoApp', [
   'btford.socket-io',
   'ui.router',
   'ui.bootstrap',
-  'ui.sortable'
+  'dndLists'
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
