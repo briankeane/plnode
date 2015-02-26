@@ -183,6 +183,18 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      createRotationItem: function (rotationItemObject, callback) {
+        var cb = callback || angular.noop;
+
+        rotationItemObject._station = currentStation._id;
+
+        return Station.createRotationItem({ id: currentStation._id }, rotationItemObject, function (updatedRotationItems) {
+          return cb(null, updatedRotationItems.rotationItems)
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       findSongsByKeywords: function (searchString, callback) {
         var cb = callback || angular.noop;
 

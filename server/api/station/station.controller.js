@@ -140,6 +140,23 @@ exports.removeRotationItem = function (req,res,next) {
   });
 };
 
+exports.createRotationItem = function (req,res) {
+  // if it's been populated, replace it song with unpopulated field for query
+  if (req.body._song._id) {
+    req.body._song = req.body._song._id;
+  }
+  RotationItem.updateBySongId(req.body, function (err, newRotationItem) {
+    if (err) { return res.json(500, err); }
+    RotationItem.findAllForStation(newRotationItem._station, function (err, updatedRotationItems) {
+      if (err) return res(500, err);
+
+      var rotationItemsObject = createRotationItemsObject(updatedRotationItems);
+
+      return res.json({ newRotationItem: newRotationItem, rotationItems: rotationItemsObject });
+    });
+  });
+};
+
 exports.updateRotationWeight = function (req,res,next) {
   RotationItem.findById(req.body.rotationItemId, function (err, rotationItem) {
     if (err) return next(err);

@@ -95,7 +95,7 @@ angular.module('pl2NodeYoApp')
         // ELSE IF it's time to insert... 
         } else if (compareSong($scope.rotationItems[i], newRotationItem) === 1) {
           $scope.rotationItems.splice(i,0,newRotationItem);
-          if (i===0) { $scope.$apply(); }     // not sure why this is needed only when inserted
+          if (i===0) { $scope.$apply(); }     // this is needed only when inserted in 1st slot... not sure why
           insertedIndex = i;
           break;
         }
@@ -107,7 +107,25 @@ angular.module('pl2NodeYoApp')
         insertedIndex = $scope.rotationItems.length-1;
       }
 
-      // scroll to inserted item
+      // ADD LATER scroll to inserted item
+
+      // Add song
+      Auth.createRotationItem(newRotationItem, function (err, newRotationItems) {
+        if (err) { 
+          // remove inserted object
+          for (var i=0;i<$scope.rotationItems.length;i++) {
+            if (newRotationItem._song._id === $scope.rotationItems[i]._song._id) {
+              $scope.rotationItems.splice(i,1);
+              $scope.$apply();
+              break;   
+            }
+          }
+          // display error message
+          $scope.rotationItemsMessage = 'Error: Could not add ' + newRotationItem._song.title + ' by ' + newRotationItem._song.artist + 
+                                        '.  Please try again.';
+        }
+
+      });
 
     }
 

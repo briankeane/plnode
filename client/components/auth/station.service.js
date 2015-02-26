@@ -44,6 +44,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'updateRotationWeight'
         }
+      },
+      createRotationItem: {
+        method: 'POST',
+        params: {
+          controller: 'createRotationItem'
+        }
       }
     });
   });
