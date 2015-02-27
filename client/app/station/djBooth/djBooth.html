@@ -7,21 +7,14 @@
       <h4 class="small-headline">Now Playing</h4>
       <p class="sub-headline">Streaming to your Listeners Right Now:</p>
       <ul id="nowPlayingList">
-        <% if current_station.now_playing.is_commercial_block %>
-           <li class='nowPlaying commercialBlock'>
-            <span class='title'><b>Commercial Block</b></span>
-            <span class='artist'></span>
-        
-        <% elsif current_station.now_playing.audio_block.is_a?(PL::Song) %>
-          <li class='nowPlaying song'>
-            <span class='title'><%= current_station.now_playing.audio_block.title %></span>
-            <span class='artist'><%= current_station.now_playing.audio_block.artist %></span>
-        
-        <% elsif current_station.now_playing.is_a?(PL::Commentary) %>
-          <li class='nowPlaying commentary'>
-          <span class='title'><b>Commentary</b></span>
-        <% end %>
-        
+        <li ng-model="nowPlaying" class='nowPlaying song'>
+          <!-- Titles -->
+          <span class='title' ng-show="nowPlaying._audioBlock._type === 'Song'">{{nowPlaying._audioBlock.title}}</span>
+          <span class='title' ng-show="nowPlaying._audioBlock._type === 'Commentary'">Commentary</span>
+          <span class='title' ng-show="nowPlaying._audioBlock._type === 'CommercialBlock'">Commercial Block</span>
+
+          <span class='artist' ng-show="nowPlaying._audioBlock._type === 'Song'">{{nowPlaying._audioBlock.artist}}</span>
+
           <div class="progress">
             <span class="meter"></span>
           </div>
@@ -34,33 +27,26 @@
         </li>  
       </ul>       
 
-      <ul id="station-list" data-firstCurrentPosition="<%= @first_current_position %>"  data-lastCurrentPosition="<%= @program.last.current_position || @program[-2].current_position %>">
-        <% @program.each do |spin| %>
-          <% if spin.is_a?(PL::CommercialBlock) %>
+      <ul id="station-list" dnd-list="playlist">
+        <span ng-repeat="spin in playlist">
+          <li class='song' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Song')">
+            <span class="songlist-title">{{ spin._audioBlock.title }}</span>
+            <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
+            <span class="songlist-airtime">{{ spin.airtime }}</span>
+            <a href="#" class="close" title="delete">×</a>
+          </li>
+          <li class='commentary' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Commentary')">
+            <span class="songlist-title">{{ spin._audioBlock.title }}</span>
+            <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
+            <span class="songlist-airtime">{{ spin.airtime }}</span>
+            <a href="#" class="close" title="delete">×</a>
+          </li>
 
-
-            <li class='commercialBlock disabled' data-currentPosition="<%= spin.current_position %>">
-              <span class="songlist-title">Commercial Block</span>
-              <span class="songlist-airtime"><%= time_formatter(spin.airtime) %></span>
-            </li>
-
-            
-          <% elsif spin.audio_block.is_a?(PL::Song) %>
-            <li class='song' data-currentPosition="<%= spin.current_position %>">
-              <span class="songlist-title"><%= spin.audio_block.title %></span>
-              <span class="songlist-artist"><%= spin.audio_block.artist %></span>
-              <span class="songlist-airtime"><%= time_formatter(spin.airtime) %></span>
-              <a href="#" class="close" title="delete">×</a>
-            </li>
-            <% else %>
-              <li class='commentary' data-currentPosition="<%= spin.current_position %>">
-                <span class='songlist-title'>Commentary</span>
-                <span class="songlist-artist"><audio controls src="http://commentaries.playola.fm/<%=spin.audio_block.key %>"</audio></span>
-                <span class="songlist-airtime"><%= time_formatter(spin.airtime) %></span>
-                <a href="#" class="close" title="delete">×</a>
-              </li>
-          <% end %>
-        <% end %> 
+          <li class='commercialBlock disabled' ng-show="spin.commercialsFollow">
+            <span class="songlist-title">Commercial Block</span>
+            <span class="songlist-airtime">{{spin.endTime}}</span>
+          </li>
+        </span>   
       </ul>
     </div>
         
@@ -74,9 +60,12 @@
             <span for="searchbox">Search Text:</span>
               <span id="onlyMySongs-label">My Songs Only</span>
               <input id="onlyMySongs" class="switch" type="checkbox">
-            <input type="text" placeholder="Type Artist and/or Title Here" id="searchbox" />
-
-            <ul id="catalog-list" class="onDjBoothPage">
+            <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
+            <ul id="catalog-list" class="song-manager-page" dnd-list="catalogSearchResults">
+              <li ng-repeat="song in catalogSearchResults"  dnd-draggable="song" dnd-moved="catalogSearchResults.splice($index, 1)" dnd-effect-allowed="move"  dnd-selected="catalogSearchResults.selected = item" ng-class="{'selected': models.selected === song}">
+                <span class="songlist-title">{{ song.title }}</span>
+                <span class="songlist-artist">{{ song.artist }}</span>
+              </li>
             </ul>
           </div>
         </tab>
@@ -102,7 +91,7 @@
 </div>
 
 <!-- JOYRIDE -->
-<ol class='joyride-list' id="tour" data-joyride>
+<!-- <ol class='joyride-list' id="tour" data-joyride>
   <li data-text="Next" data-button="Continue" data-options="prev_button: false">
     <h4>Welcome!</h4>
     <p>Welcome to Playola, where we set up a 24-hour-a-day radio station and hand you the controls.  Press Continue to see how it works!</p>
@@ -141,4 +130,4 @@
     <h4>Thanks!</h4>
     <p>Thanks for taking the tour! Happy broadcasting!</p>
   </li>
-</ol>
+</ol> -->

@@ -13,7 +13,8 @@ var spinSchema = new Schema({
   airtime:            { type: Date },
   durationOffset:     { type: Number, default: 0 }
 }, {
-  toObject: { getters: true }
+  toObject: { getters: true },
+  toJSON: { virtuals: true }
 });
 
 spinSchema.virtual('endTime').get(function () {
