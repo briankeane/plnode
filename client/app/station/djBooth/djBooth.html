@@ -32,19 +32,19 @@
           <li class='song' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Song')">
             <span class="songlist-title">{{ spin._audioBlock.title }}</span>
             <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
-            <span class="songlist-airtime">{{ spin.airtime }}</span>
+            <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
             <a href="#" class="close" title="delete">×</a>
           </li>
           <li class='commentary' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Commentary')">
             <span class="songlist-title">{{ spin._audioBlock.title }}</span>
             <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
-            <span class="songlist-airtime">{{ spin.airtime }}</span>
+            <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
             <a href="#" class="close" title="delete">×</a>
           </li>
 
           <li class='commercialBlock disabled' ng-show="spin.commercialsFollow">
             <span class="songlist-title">Commercial Block</span>
-            <span class="songlist-airtime">{{spin.endTime}}</span>
+            <span class="songlist-airtime">{{ formatTime(spin.endTime) }}</span>
           </li>
         </span>   
       </ul>

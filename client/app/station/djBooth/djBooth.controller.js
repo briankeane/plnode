@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function ($scope, Auth, $location, $window, $timeout) {
+  .controller('djBoothCtrl', function ($scope, Auth, $location, $window, $timeout, moment) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -27,16 +27,21 @@ angular.module('pl2NodeYoApp')
       }
     };
 
+    $scope.formatTime = function (time) {
+      return moment(time).format("MMM Do, h:mm:ss a")
+    };
+
 
     if (!$scope.currentStation._id) {
       $timeout(function () {
         Auth.getProgram({}, function (err, program) {
-
+          moment.tz.setDefault($scope.currentStation.timezone);
           $scope.playlist = program.playlist;
           $scope.nowPlaying = program.nowPlaying;
         });
       }, 1000);
     } else {
+      moment.tz.setDefault($scope.currentStation.timezone);
       Auth.getProgram({}, function (err, program) {
         $scope.playlist = program.playlist;
         $scope.nowPlaying = program.nowPlaying;
