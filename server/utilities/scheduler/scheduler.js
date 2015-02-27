@@ -27,6 +27,11 @@ function Scheduler() {
     // all times utc
     moment().utc().format();
 
+    // format playlistEndTime
+    if (attrs.playlistEndTime) {
+      attrs.playlistEndTime = moment(attrs.playlistEndTime);
+    }
+
     // unpack attrs
     var station = attrs.station;
 
@@ -49,7 +54,7 @@ function Scheduler() {
         sampleArray = [];
         RotationItem.findAllForStation(station.id, function (err, rotationItems) {
           rotationItems.forEach(function (rotationItem) {
-            if (rotationItem.bin === 'inRotation') {
+            if (rotationItem.bin === 'active') {
               for(var i=0;i<rotationItem.weight; i++) {
                 sampleArray.push(rotationItem._song);
               }
@@ -60,11 +65,14 @@ function Scheduler() {
           if ((!currentPlaylist.length) && (currentLogEntries.length)) {
 
             // give it 1 spin to start from
+            song = _.sample(sampleArray);
             lastAccuratePlaylistPosition = currentLogEntries[0].playlistPosition + 1
             var spin = new Spin({ _station: station.id,
-                                  _audioBlock: _.sample(sampleArray),
+                                  _audioBlock: song,
                                   playlistPosition: lastAccuratePlaylistPosition,
                                   airtime: currentLogEntries[0].endTime });
+            // repopulate _audioBlock
+            spin._audioBlock = song;
             currentPlaylist.push(spin);
           }
 
@@ -84,7 +92,7 @@ function Scheduler() {
 
           // load recently played songs
           recentlyPlayedSongs = [];
-          for (var i=0; i<currentPlaylist.length-1; i++) {
+          for (var i=0; i<currentPlaylist.length; i++) {
             recentlyPlayedSongs.push(currentPlaylist[i]._audioBlock);
           }
 
@@ -115,7 +123,7 @@ function Scheduler() {
             }
 
             spin = new Spin({ _station: station.id,
-                              _audioBlock: song.id,
+                              _audioBlock: song,
                               playlistPosition: maxPosition += 1,
                               airtime: moment(timeTracker).toDate() });
 

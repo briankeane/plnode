@@ -50,6 +50,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'createRotationItem'
         }
+      },
+      getProgram: {
+        method: 'GET',
+        params: {
+          controller: 'getProgram'
+        }
       }
     });
   });

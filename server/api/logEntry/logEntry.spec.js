@@ -171,6 +171,10 @@ describe('Log Methods', function (done){
     });
   });
 
+  xit('getMostRecent gets the most recently played logEntry', function (done) {
+    done();
+  });
+
   it('can create a version of itself from a populated spin', function (done) {
     var spin = new Spin({ _station: station.id,
                           playlistPosition: 100,

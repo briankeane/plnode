@@ -57,6 +57,17 @@ logEntrySchema.statics.getRecent = function (attrs, callback) {
   .exec(callback);
 };
 
+logEntrySchema.statics.getMostRecent = function (stationId, callback) {
+  LogEntry.find({ _station: stationId })
+  .sort('-airtime')
+  .limit(1)
+  .populate('_audioBlock')
+  .exec(function (err, logEntries) {
+    
+    callback(err, logEntries[0])
+  });
+};
+
 logEntrySchema.statics.getFullStationLog = function (stationId, callback) {
   LogEntry
   .find({ _station: stationId })

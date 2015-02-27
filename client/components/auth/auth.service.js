@@ -152,6 +152,16 @@ angular.module('pl2NodeYoApp')
       getCurrentUser: function() {
         return currentUser;
       },
+
+      getProgram: function(attrs, callback) {
+        var cb = callback || angular.noop;
+
+        return Station.getProgram({ id: currentStation._id },attrs, function (program) {
+          return cb(null, program);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
       
       getRotationItems: function(_station, callback) {
         var cb = callback || angular.noop;

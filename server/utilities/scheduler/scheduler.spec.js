@@ -42,19 +42,19 @@ describe('playlist functions', function (done) {
             for(var i=0;i<30;i++) {
               rotationItems.push(new RotationItem({ _song: songs[i].id,
                                                     _station: station.id,
-                                                    bin: 'inRotation',
+                                                    bin: 'active',
                                                     weight: 45 }));
             }
             for(var i=30;i<45;i++) {
               rotationItems.push(new RotationItem({ _song: songs[i].id,
                                                     _station: station.id,
-                                                    bin: 'inRotation',
+                                                    bin: 'active',
                                                     weight: 25 }));
             }
             for(var i=45;i<60;i++) {
               rotationItems.push(new RotationItem({ _song: songs[i].id,
                                                     _station: station.id,
-                                                    bin: 'inRotation',
+                                                    bin: 'active',
                                                     weight: 10 }));
             }
 

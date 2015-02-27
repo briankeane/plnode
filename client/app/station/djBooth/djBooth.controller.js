@@ -5,4 +5,15 @@ angular.module('pl2NodeYoApp')
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
+
+    $scope.currentStation = Auth.getCurrentStation()
+    $scope.currentUser = Auth.getCurrentUser();
+
+    if (!$scope.currentStation._id) {
+      $timeout(function () {
+        Auth.getProgram({});
+      }, 1000);
+    } else {
+      Auth.getProgram({});
+    }
   });
