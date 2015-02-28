@@ -29,7 +29,7 @@
 
       <ul id="station-list" dnd-list="playlist">
         <span ng-repeat="spin in playlist">
-          <li class='song' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Song')">
+          <li class='song' dnd-draggable="spin" dnd-effect-allowed="move" dnd-moved="playlist.splice($index, 1);" ng-show="(spin._audioBlock._type==='Song')">
             <span class="songlist-title">{{ spin._audioBlock.title }}</span>
             <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
             <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
