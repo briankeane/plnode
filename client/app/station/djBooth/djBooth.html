@@ -15,13 +15,13 @@
 
           <span class='artist' ng-show="nowPlaying._audioBlock._type === 'Song'">{{nowPlaying._audioBlock.artist}}</span>
 
-          <div class="progress">
+          <progressbar ng-show="songPercentComplete" class="progress meter" type="dynamic" animate="false" value="songPercentComplete">
             <span class="meter"></span>
-          </div>
+          </progressbar>
           <div class='nowPlayingTimes'>
-            <div class='elapsedTime'></div>
+            <div class='elapsedTime' ng-model="nowPlayingElapsedString">{{nowPlayingElapsedString}}</div>
             <a class='muteButton' href='#'></a>
-            <div class='timeRemaining'></div>
+            <div ng-show="nowPlayingRemainingString" class='timeRemaining' ng-model="nowPlayingRemainingString">-{{nowPlayingRemainingString}}</div>
           </div>
 
         </li>  

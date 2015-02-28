@@ -17,7 +17,8 @@ var logEntrySchema = new Schema({
   durationOffset:     { type: Number, default: 0 },
   commercialsFollow:  { type: Boolean }
 }, {
-  toObject: { getters: true }
+  toObject: { getters: true },
+  toJSON:   { getters: true }
 });
 
 
