@@ -11,6 +11,13 @@ angular.module('pl2NodeYoApp')
     $scope.currentStation = Auth.getCurrentStation()
     $scope.currentUser = Auth.getCurrentUser();
 
+    var playlistSet = false;
+    var progressUpdater;
+
+
+    // ******************************************************************
+    // *                 Server Request Functions                       *
+    // ******************************************************************
     $scope.findSongs = function (searchString) {
       if (searchString.length <= 3) {
         $scope.catalogSearchResults = [];
@@ -26,6 +33,39 @@ angular.module('pl2NodeYoApp')
         });
       }
     };
+
+    $scope.setPlaylist = function () {
+      Auth.getProgram({}, function (err, program) {
+        if (err) {
+          return (err);
+        } else {
+
+          moment.tz.setDefault($scope.currentStation.timezone);
+
+          $scope.playlist = program.playlist;
+          $scope.nowPlaying = program.nowPlaying;
+          
+          progressUpdater = $interval($scope.updateProgressBar, 1000);
+          playlistSet = true;
+
+          // set up first advance
+          var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
+          $timeout($scope.advanceSpin, msTillNextAdvance);
+        }
+      });
+    };
+
+    $scope.refreshProgram = function () {
+      Auth.getProgram({}, function (err, program) {
+        if (err) return (err);
+
+        if ($scope.nowPlaying._id != program.nowPlaying._id) {
+          $scope.nowPlaying = program.nowPlaying;
+        }
+
+        $scope.playlist = program.playlist;
+      });
+    }
 
     $scope.formatTime = function (time) {
       return moment(time).format("MMM Do, h:mm:ss a")
@@ -72,24 +112,25 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+    $scope.advanceSpin = function () {
 
+      // advance to current spin
+      while(Date.now() < $scope.playlist[0].airtime) {
+        $scope.playlist.unshift();
+      }
+
+      $scope.refreshProgram();
+      
+      // set up next advance
+      var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
+      $timeout($scope.advanceSpin, msTillNextAdvance);
+    }
+
+    // if there's not a  currentStation yet, wait for it
     if (!$scope.currentStation._id) {
-      $timeout(function () {
-        Auth.getProgram({}, function (err, program) {
-          moment.tz.setDefault($scope.currentStation.timezone);
-          $scope.playlist = program.playlist;
-          $scope.nowPlaying = program.nowPlaying;
-          var progressUpdater = $interval($scope.updateProgressBar, 1000);
-
-        });
-      }, 1000);
+      $timeout($scope.setPlaylist, 1000);
     } else {
-      moment.tz.setDefault($scope.currentStation.timezone);
-      Auth.getProgram({}, function (err, program) {
-        $scope.playlist = program.playlist;
-        $scope.nowPlaying = program.nowPlaying;
-        var progressUpdater = $interval($scope.updateProgressBar, 1000);
-      });
+      $scope.setPlaylist();
     }
 
 
