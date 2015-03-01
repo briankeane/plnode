@@ -14,6 +14,7 @@ angular.module('pl2NodeYoApp')
     var nextAdvance;
     var playlistSet = false;
     var progressUpdater;
+    var lastUpdateIndex = 0;
 
 
     // ******************************************************************
@@ -29,7 +30,6 @@ angular.module('pl2NodeYoApp')
             if ($scope.searchText === searchString) {
               $scope.catalogSearchResults = results;
             }
-            console.log(results);
           }
         });
       }
@@ -51,7 +51,6 @@ angular.module('pl2NodeYoApp')
 
           // set up first advance
           var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
-          console.log($scope.formatTime($scope.playlist[0].airtime));
           $timeout($scope.advanceSpin, msTillNextAdvance);
         }
       });
@@ -92,7 +91,6 @@ angular.module('pl2NodeYoApp')
 
     $scope.commercialsFollow = function (startTimeMS, endTimeMS) {
       // if beginning and end of spin are in different time 'blocks'
-      console.log($scope.currentStation.secsOfCommercialPerHour);
       return (Math.floor(startTimeMS/1800000.0) != Math.floor(endTimeMS/1800000.0))
     }
 
@@ -142,31 +140,19 @@ angular.module('pl2NodeYoApp')
     }
 
     $scope.advanceSpin = function () {
-
-      // advance to current spin
-      console.log('newDate: ' + new Date().getTime());
-      console.log('airtime: ' + new Date($scope.nowPlaying.airtime).getTime());
-      while(new Date() > new Date($scope.nowPlaying.endTime) - 1000) {   // 1 sec buffer for $timeout innacuracies
-        if ($scope.nowPlaying.commercialsFollow) {
-          $scope.nowPlaying = { _audioBlock: { type: 'CommercialBlock'},
-                          airtime: $scope.nowPlaying.endTime,
-                          endTime: $scope.playlist[0].airtime }
-        } else {
-          $scope.nowPlaying = $scope.playlist.shift();
-          console.log('shifting');
-          console.log($scope.playlist[0]);
-        }
+      // advance spin
+      if ($scope.nowPlaying.commercialsFollow) {
+        $scope.nowPlaying = { _audioBlock: { type: 'CommercialBlock'},
+                        airtime: $scope.nowPlaying.endTime,
+                        endTime: $scope.playlist[0].airtime }
+      } else {
+        $scope.nowPlaying = $scope.playlist.shift();
       }
 
       $scope.refreshProgramFromServer();
       
       // set up next advance
       var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
-      if (msTillNextAdvance < 0) {
-        console.log('STILL FUCKING LESS THAN ZERO');
-      }
-      console.log($scope.formatTime($scope.playlist[0].airtime));
-      console.log(msTillNextAdvance);
       $timeout($scope.advanceSpin, msTillNextAdvance);
     }
 
@@ -186,6 +172,7 @@ angular.module('pl2NodeYoApp')
             oldIndex++;
           }
           var movedAmount = (newIndex - oldIndex);
+          newPlaylistPosition = spin.playlistPosition + movedAmount;
           break;
         }
       }
@@ -194,6 +181,10 @@ angular.module('pl2NodeYoApp')
         return false; 
       } else {
         $scope.refreshProgramWithoutServer();
+
+        Auth.moveSpin({ spin: spin, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
+          if (err) { return false; }
+        });
       }
     }
 

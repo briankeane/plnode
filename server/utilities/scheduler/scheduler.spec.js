@@ -404,6 +404,10 @@ describe('playlist functions', function (done) {
 
   });
 
+  xit('getProgram gets a program', function (done) {
+
+  });
+
   after(function (done) {
     tk.reset();
     done();

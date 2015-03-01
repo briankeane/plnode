@@ -26,5 +26,7 @@ module.exports = {
     COMMERCIALS_BUCKET: 'playolacommercials',
     COMMENTARIES_BUCKET: 'playolacommentaries',
     UNPROCESSED_SONGS: 'playolaunprocessedsongs'
-  }
+  },
+
+  ECHONEST_TASTE_PROFILE_ID: 'CACRWKJ14BA4596CF4'
 };

@@ -178,27 +178,13 @@ exports.updateRotationWeight = function (req,res,next) {
 };
 
 exports.getProgram = function (req,res,next) {
-  Station.findById(req.params.id, function (err, station) {
+  Scheduler.getProgram({ stationId: req.params.id }, function (err, programObject) {
     if (err) return next(err);
-    if (!station) return res.json(401);
-
-    // make sure schedule is accurate 2 hours from now
-    Scheduler.bringCurrent(station, function () {
-      Scheduler.generatePlaylist({ station: station,
-                                  playlistEndTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
-        Spin.getPartialPlaylist({ _station: station.id,
-                                  endTime: new Date(Date.now() + 60*60*2*1000) }, function (err, playlist) {
-
-          if(err) return next(err);
-          LogEntry.getMostRecent(station.id, function (err, nowPlaying) {
-            if (err) return next(err);
-            return res.json({ playlist: playlist, nowPlaying: nowPlaying});
-          });
-        });
-      });
-    });
+    return res.json(programObject);
   });
 };
+
+
 
 function createRotationItemsObject(rotationItems) {
   var rotationItemsObject = {};

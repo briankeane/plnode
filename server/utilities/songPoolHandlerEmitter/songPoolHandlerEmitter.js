@@ -197,8 +197,6 @@ function Handler() {
       artists = ['Rachel Loy'];
     }
 
-    console.log('artists');
-    console.log(artists);
     var suggestedSongs = [];
 
     var getSuggestionFunctions = [];
@@ -209,9 +207,6 @@ function Handler() {
     echo('playlist/static').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
                                 bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
       if (err) { 
-        console.log(err);
-        console.log(json);
-        callback(err); 
         return;
       }
 
@@ -257,22 +252,16 @@ function Handler() {
         });
         // grab all the suggested songs from their echonestIds
         Song.find({ $or: query }, function (err, suggestedSongs) {
-          console.log("songEchonestIds: " + songEchonestIds);
-          console.log("songEchonestIds length: " + songEchonestIds.length);
-          console.log("suggestedSongs length: " + suggestedSongs.length);
           finalList = finalList.concat(suggestedSongs);
 
-          console.log("finalList length: " + finalList.length);
-
           // if there's enough, exit
-          if (finalList.length) {
+          if (finalList.length > 57) {
             callback(null, finalList);
           } else {
             // for now, fill with random songs
             Song.findRandom({}, {}, { count: 57 }, function (err, randomSongs) {
-              console.log("randomSongs.length: " + raondomSongs.length);
               var i=0;
-              while (songIds.length < 57) {
+              while (finalList.length < 57) {
                 var alreadyIncluded = false;
                 for (j=0; j<finalList.length; j++) {
                   if (finalList[j].echonestId === randomSongs[i].echonestId) {

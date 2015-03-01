@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Song, $cookieStore, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Song, Spin, $cookieStore, $q) {
     var currentUser = {};
     var currentStation = {};
     if($cookieStore.get('token')) {
@@ -200,6 +200,16 @@ angular.module('pl2NodeYoApp')
 
         return Station.createRotationItem({ id: currentStation._id }, rotationItemObject, function (updatedRotationItems) {
           return cb(null, updatedRotationItems)
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      moveSpin: function (moveSpinObject, callback) {
+        var cb = callback || angular.noop;
+
+        return new Spin.move({ id: moveSpinObject.spin._id }, moveSpinObject, function (updatedProgram) {
+          return cb(null, updatedProgram);
         }, function (err) {
           return cb(err);
         }).$promise;

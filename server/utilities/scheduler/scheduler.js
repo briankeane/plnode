@@ -346,6 +346,29 @@ function Scheduler() {
       });
     });
   }
+
+  this.getProgram = function (attrs, callback) {
+    Station.findById(attrs.stationId, function (err, station) {
+      if (err) callback(err);
+      if (!station) callback(new Error('Station not found'));
+
+      // make sure schedule is accurate 2 hours from now
+      self.bringCurrent(station, function () {
+        self.generatePlaylist({ station: station,
+                                    playlistEndTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
+          Spin.getPartialPlaylist({ _station: station.id,
+                                    endTime: new Date(Date.now() + 60*60*2*1000) }, function (err, playlist) {
+
+            if(err) callback(err);
+            LogEntry.getMostRecent(station.id, function (err, nowPlaying) {
+              if (err) callback(err);
+              callback(null, {playlist: playlist, nowPlaying: nowPlaying});
+            });
+          });
+        });
+      });
+    });
+  }
 }
 
 module.exports = new Scheduler();
