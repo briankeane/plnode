@@ -55,7 +55,7 @@ angular.module('pl2NodeYoApp')
       });
     };
 
-    $scope.refreshProgram = function () {
+    $scope.refreshProgramFromServer = function () {
       Auth.getProgram({}, function (err, program) {
         if (err) return (err);
 
@@ -65,6 +65,33 @@ angular.module('pl2NodeYoApp')
 
         $scope.playlist = program.playlist;
       });
+    }
+
+    $scope.refreshProgramWithoutServer = function () {
+      var timeTracker =  moment($scope.playlist[0].airtime);
+      var playlistPositionTracker = $scope.playlist[0].playlistPosition;
+
+      for (var i=0;i<$scope.playlist.length;i++) {
+        // reset new values
+        $scope.playlist[i].airtime = moment(timeTracker).toDate();
+        $scope.playlist[i].endTime = moment(timeTracker).add($scope.playlist[i].duration, 'ms').toDate();
+        $scope.playlist[i].playlistPosition = playlistPositionTracker;
+        $scope.playlist[i].commercialsFollow = $scope.commercialsFollow($scope.playlist[i].airtime.getTime(), new Date($scope.playlist[i].endTime).getTime());
+        
+        // increment timeTracker
+        timeTracker.add($scope.playlist[i].duration, 'ms');
+        if ($scope.playlist[i].commercialsFollow) {
+          timeTracker.add($scope.currentStation.secsOfCommercialPerHour/2, 'seconds');
+        }
+
+        playlistPositionTracker++;
+      }
+    }
+
+    $scope.commercialsFollow = function (startTimeMS, endTimeMS) {
+      // if beginning and end of spin are in different time 'blocks'
+      console.log($scope.currentStation.secsOfCommercialPerHour);
+      return (Math.floor(startTimeMS/1800000.0) != Math.floor(endTimeMS/1800000.0))
     }
 
     $scope.formatTime = function (time) {
@@ -119,7 +146,7 @@ angular.module('pl2NodeYoApp')
         $scope.playlist.unshift();
       }
 
-      $scope.refreshProgram();
+      $scope.refreshProgramFromServer();
       
       // set up next advance
       var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
@@ -133,5 +160,44 @@ angular.module('pl2NodeYoApp')
       $scope.setPlaylist();
     }
 
+    $scope.movedSpin = function (oldIndex, event, spin) {
+      oldIndex = oldIndex - 1;   // adjustment for leading commercialBlock
+      // find new index
+      var newPlaylistPosition;
+      var newIndex;
 
+      for (var i=0;i<$scope.playlist.length;i++) {
+        if ($scope.playlist[i]._id === spin._id) {
+          newIndex = i;
+
+          // adjustment for strange newIndex offset
+          if (newIndex > oldIndex) {
+            oldIndex++;
+          }
+          var movedAmount = (newIndex - oldIndex);
+          break;
+        }
+      }
+
+      if (movedAmount === 0) { 
+        return false; 
+      } else {
+        $scope.refreshProgramWithoutServer();
+      }
+    }
+
+    // for now disable 1st two elements
+    $scope.determineDisable = function (spin, index) {
+      if ($scope.playlist[0].commercialsFollow || $scope.nowPlaying.commercialsFollow) {
+        if (index < 1) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (index < 2) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   });

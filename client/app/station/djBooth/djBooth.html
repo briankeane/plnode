@@ -25,28 +25,44 @@
           </div>
 
         </li>  
-      </ul>       
+      </ul> 
 
-      <ul id="station-list" dnd-list="playlist">
-        <span ng-repeat="spin in playlist">
-          <li class='song' dnd-draggable="spin" dnd-effect-allowed="move" dnd-moved="playlist.splice($index, 1);" ng-show="(spin._audioBlock._type==='Song')">
-            <span class="songlist-title">{{ spin._audioBlock.title }}</span>
-            <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
-            <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
-            <a href="#" class="close" title="delete">×</a>
-          </li>
-          <li class='commentary' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Commentary')">
-            <span class="songlist-title">{{ spin._audioBlock.title }}</span>
-            <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
-            <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
-            <a href="#" class="close" title="delete">×</a>
-          </li>
 
-          <li class='commercialBlock disabled' ng-show="spin.commercialsFollow">
-            <span class="songlist-title">Commercial Block</span>
-            <span class="songlist-airtime">{{ formatTime(spin.endTime) }}</span>
-          </li>
-        </span>   
+      <ul id="station-list">
+        <!-- Leading Commercial Block if nowPlaying.commercialsFollow -->
+        <li class='commercialBlock disabled' ng-show="nowPlaying.commercialsFollow">
+          <span class="songlist-title">Commercial Block</span>
+          <span class="songlist-airtime">{{ formatTime(nowPlaying.endTime) }}</span>
+        </li>
+        <!-- ******************************************************** -->
+        <div dnd-list="playlist">
+          <div ng-repeat="spin in playlist">
+            <div class="dragGroup"
+              dnd-dragstart="console.log('dragstart');"
+              dnd-disable-if="determineDisable(spin, $index);"
+              dnd-draggable="spin" 
+              dnd-effect-allowed="move"
+              dnd-moved="playlist.splice($index, 1); movedSpin($index, event, spin);" 
+              ng-show="(spin._audioBlock._type==='Song')">
+              <li class='song'>
+                <span class="songlist-title">{{ spin._audioBlock.title }}</span>
+                <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
+                <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
+                <a href="#" class="close" title="delete">×</a>
+              </li>
+              <li class='commentary' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Commentary')">
+                <span class="songlist-title">{{ spin._audioBlock.title }}</span>
+                <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
+                <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
+                <a href="#" class="close" title="delete">×</a>
+              </li>
+            </div>
+            <li class='commercialBlock disabled' ng-show="spin.commercialsFollow">
+              <span class="songlist-title">Commercial Block</span>
+              <span class="songlist-airtime">{{ formatTime(spin.endTime) }}</span>
+            </li>
+          </div>
+        </div>   
       </ul>
     </div>
         
@@ -62,7 +78,12 @@
               <input id="onlyMySongs" class="switch" type="checkbox">
             <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
             <ul id="catalog-list" class="song-manager-page" dnd-list="catalogSearchResults">
-              <li ng-repeat="song in catalogSearchResults"  dnd-draggable="song" dnd-moved="catalogSearchResults.splice($index, 1)" dnd-effect-allowed="move"  dnd-selected="catalogSearchResults.selected = item" ng-class="{'selected': models.selected === song}">
+              <li ng-repeat="song in catalogSearchResults" 
+              dnd-draggable="song" 
+              dnd-moved="catalogSearchResults.splice($index, 1)" 
+              dnd-effect-allowed="move" 
+              dnd-selected="catalogSearchResults.selected = item" 
+              ng-class="{'selected': models.selected === song}">
                 <span class="songlist-title">{{ song.title }}</span>
                 <span class="songlist-artist">{{ song.artist }}</span>
               </li>
