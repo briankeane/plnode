@@ -430,6 +430,41 @@ function Scheduler() {
       });
     });
   }
+
+  this.removeSpin = function (spin, callback) {
+    Spin.getPartialPlaylist({ startingPlaylistPosition: spin.playlistPosition + 1,
+                              _station: spin._station
+                            }, function (err, beforePlaylist) {
+      if (err) return (err);
+
+      var modelsToSave = [];
+      var playlistPositionTracker = spin.playlistPosition + 1;
+      for(var i=0; i<beforePlaylist.length;i++) {
+        beforePlaylist[i].playlistPosition = beforePlaylist[i].playlistPosition - 1;
+        modelsToSave.push(beforePlaylist[i]);
+      }
+      Station.findById(spin._station, function (err, station) {
+        if (err) return (err);
+        
+        station.lastAccuratePlaylistPosition = spin.playlistPosition - 1;
+        modelsToSave.push(station);
+
+        Helper.saveAll(modelsToSave, function (err, savedSpins) {
+          if (err) return (err);
+
+          Spin.findByIdAndRemove(spin._id, function (err, removedSpin) {
+
+            self.updateAirtimes({ station: station, playlistPosition: modelsToSave[0].playlistPosition 
+                                }, function (err, updatedStation) {
+              if (err) return err;
+
+              callback(null, updatedStation);
+            });
+          });
+        });
+      });
+    });
+  }
 }
 
 

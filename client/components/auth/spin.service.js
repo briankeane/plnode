@@ -11,6 +11,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller:'move'
         }
+      },
+      remove: {
+        method: 'DELETE',
+        params: {
+          controller: 'remove'
+        }
       }
     });
   });

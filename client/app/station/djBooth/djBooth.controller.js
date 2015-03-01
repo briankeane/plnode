@@ -184,8 +184,20 @@ angular.module('pl2NodeYoApp')
 
         Auth.moveSpin({ spin: spin, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
           if (err) { return false; }
+          $scope.playlist = newProgram.playlist;
         });
       }
+    }
+
+    $scope.removeSpin = function (spin, index) {
+      $scope.playlist.splice(index,1);
+
+      $scope.refreshProgramWithoutServer();
+
+      Auth.removeSpin(spin, function (err, newProgram) {
+        if (err) return false;
+        $scope.playlist = newProgram.playlist;
+      })
     }
 
     // for now disable 1st two elements

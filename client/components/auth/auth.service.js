@@ -215,6 +215,16 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      removeSpin: function (spin, callback) {
+        var cb = callback || angular.noop;
+
+        return new Spin.remove({ id: spin._id, spin: spin }, spin, function (updatedProgram) {
+          return cb(null, updatedProgram);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       findSongsByKeywords: function (searchString, callback) {
         var cb = callback || angular.noop;
 
