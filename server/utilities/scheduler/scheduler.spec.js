@@ -408,6 +408,10 @@ describe('playlist functions', function (done) {
 
   });
 
+  xit('moveSpin tests', function (done) {
+
+  });
+
   after(function (done) {
     tk.reset();
     done();

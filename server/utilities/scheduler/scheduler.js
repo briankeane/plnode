@@ -354,21 +354,83 @@ function Scheduler() {
 
       // make sure schedule is accurate 2 hours from now
       self.bringCurrent(station, function () {
-        self.generatePlaylist({ station: station,
-                                    playlistEndTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
-          Spin.getPartialPlaylist({ _station: station.id,
-                                    endTime: new Date(Date.now() + 60*60*2*1000) }, function (err, playlist) {
+        self.updateAirtimes({ station: station,
+                                    endTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
+          self.generatePlaylist({ station: station,
+                                      playlistEndTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
+            Spin.getPartialPlaylist({ _station: station.id,
+                                      endTime: new Date(Date.now() + 60*60*2*1000) }, function (err, playlist) {
 
-            if(err) callback(err);
-            LogEntry.getMostRecent(station.id, function (err, nowPlaying) {
-              if (err) callback(err);
-              callback(null, {playlist: playlist, nowPlaying: nowPlaying});
+              if(err) callback(err);
+              LogEntry.getMostRecent(station.id, function (err, nowPlaying) {
+                if (err) callback(err);
+                callback(null, {playlist: playlist, nowPlaying: nowPlaying});
+              });
             });
           });
         });
       });
     });
   }
+
+  // moves a spin
+  this.moveSpin = function(attrs, callback) {
+    Spin.getFullPlaylist(attrs.spin._station, function (err, beforePlaylist) {
+      if (err) callback(err);
+  
+      var minPlaylistPosition = Math.min(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
+      var maxPlaylistPosition = Math.max(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
+  
+      // set flag for moving forward or backwards
+      var movingForward = false;
+      if (attrs.spin.playlistPosition < attrs.newPlaylistPosition) {
+        movingForward = true;
+      }
+    
+      var lastAccurateAirtime;
+      var spinsToUpdate = [];
+      for (var i=0;i<beforePlaylist.length;i++) {
+        // if it's the first spin, grab the lastAccurateAirtime
+        if(beforePlaylist[i].playlistPosition === minPlaylistPosition) {
+          if (i != 0) {
+            lastAccurateAirtime = beforePlaylist[i-1].airtime;
+          } else {
+
+          }
+        }
+
+        // if it's the moved spin, set the newPlaylistPosition
+        if (beforePlaylist[i]._id.equals(attrs.spin._id)) {
+          beforePlaylist[i].playlistPosition = attrs.newPlaylistPosition;
+          spinsToUpdate.push(beforePlaylist[i]);
+  
+        // ELSE IF it's within the range  
+        } else if ((beforePlaylist[i].playlistPosition >= minPlaylistPosition) &&
+                    (beforePlaylist[i].playlistPosition <= maxPlaylistPosition)) {
+          
+          
+          if(movingForward) {
+            beforePlaylist[i].playlistPosition = beforePlaylist[i].playlistPosition - 1;
+          } else {
+            beforePlaylist[i].playlistPosition = beforePlaylist[i].playlistPosition + 1;
+          }
+          spinsToUpdate.push(beforePlaylist[i]);
+        }
+      }
+  
+      Helper.saveAll(spinsToUpdate, function (err, updatedSpins) {  
+        Station.findByIdAndUpdate(attrs.spin._station, { lastAccuratePlaylistPosition: minPlaylistPosition - 1 
+                                                        }, function (err, updatedStation) {
+          if (err) callback(err);
+          self.updateAirtimes({ station: updatedStation, playlistPosition: maxPlaylistPosition + 1 }, function (err, updatedStation) {
+            callback(null, { station: updatedStation,
+                            updatedSpins: updatedSpins });
+          });
+        });
+      });
+    });
+  }
 }
+
 
 module.exports = new Scheduler();
