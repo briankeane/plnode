@@ -11,6 +11,7 @@ angular.module('pl2NodeYoApp')
     $scope.currentStation = Auth.getCurrentStation()
     $scope.currentUser = Auth.getCurrentUser();
 
+    var nextAdvance;
     var playlistSet = false;
     var progressUpdater;
 
@@ -50,6 +51,7 @@ angular.module('pl2NodeYoApp')
 
           // set up first advance
           var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
+          console.log($scope.formatTime($scope.playlist[0].airtime));
           $timeout($scope.advanceSpin, msTillNextAdvance);
         }
       });
@@ -142,23 +144,32 @@ angular.module('pl2NodeYoApp')
     $scope.advanceSpin = function () {
 
       // advance to current spin
-      while(Date.now() < $scope.playlist[0].airtime) {
-        $scope.playlist.unshift();
+      console.log('newDate: ' + new Date().getTime());
+      console.log('airtime: ' + new Date($scope.nowPlaying.airtime).getTime());
+      while(new Date() > new Date($scope.nowPlaying.endTime) - 1000) {   // 1 sec buffer for $timeout innacuracies
+        if ($scope.nowPlaying.commercialsFollow) {
+          $scope.nowPlaying = { _audioBlock: { type: 'CommercialBlock'},
+                          airtime: $scope.nowPlaying.endTime,
+                          endTime: $scope.playlist[0].airtime }
+        } else {
+          $scope.nowPlaying = $scope.playlist.shift();
+          console.log('shifting');
+          console.log($scope.playlist[0]);
+        }
       }
 
       $scope.refreshProgramFromServer();
       
       // set up next advance
       var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
+      if (msTillNextAdvance < 0) {
+        console.log('STILL FUCKING LESS THAN ZERO');
+      }
+      console.log($scope.formatTime($scope.playlist[0].airtime));
+      console.log(msTillNextAdvance);
       $timeout($scope.advanceSpin, msTillNextAdvance);
     }
 
-    // if there's not a  currentStation yet, wait for it
-    if (!$scope.currentStation._id) {
-      $timeout($scope.setPlaylist, 1000);
-    } else {
-      $scope.setPlaylist();
-    }
 
     $scope.movedSpin = function (oldIndex, event, spin) {
       oldIndex = oldIndex - 1;   // adjustment for leading commercialBlock
@@ -199,5 +210,12 @@ angular.module('pl2NodeYoApp')
       } else {
         return false;
       }
+    }
+
+    // if there's not a  currentStation yet, wait for it
+    if (!$scope.currentStation._id) {
+      $timeout($scope.setPlaylist, 1000);
+    } else {
+      $scope.setPlaylist();
     }
   });
