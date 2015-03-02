@@ -200,6 +200,35 @@ angular.module('pl2NodeYoApp')
       })
     }
 
+    $scope.audioDropped = function (event, index, item, type) {
+      // grab the start time
+      if (item._type === 'Song') {
+        
+        // create the new spin object
+        var newSpin = { _audioBlock: item,
+                        duration: item.duration,
+                        durationOffset: 0,
+                        playlistPosition: $scope.playlist[index].playlistPosition
+                      }
+
+        // insert the new spin
+        $scope.playlist.splice(index, 0, newSpin);
+
+        // update playlistPositions
+        for (var i=index+1;i<$scope.playlist.length;i++) {
+          $scope.playlist[i].playlistPosition += 1;
+        }
+
+        $scope.refreshProgramWithoutServer();
+
+        // notify server and refresh list
+        Auth.insertSpin(newSpin, function (err, newProgram) {
+          if (err) { return false; }
+          $scope.playlist = newProgram.playlist;
+        });
+      }  //ENDIF
+    };
+
     // for now disable 1st two elements
     $scope.determineDisable = function (spin, index) {
       if ($scope.playlist[0].commercialsFollow || $scope.nowPlaying.commercialsFollow) {

@@ -218,7 +218,17 @@ angular.module('pl2NodeYoApp')
       removeSpin: function (spin, callback) {
         var cb = callback || angular.noop;
 
-        return new Spin.remove({ id: spin._id, spin: spin }, spin, function (updatedProgram) {
+        return new Spin.remove({ id: spin._id }, {}, function (updatedProgram) {
+          return cb(null, updatedProgram);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      insertSpin: function (spinInfo, callback) {
+        var cb = callback || angular.noop;
+
+        return new Spin.insert({}, spinInfo, function (updatedProgram) {
           return cb(null, updatedProgram);
         }, function (err) {
           return cb(err);

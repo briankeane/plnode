@@ -35,7 +35,7 @@
           <span class="songlist-airtime">{{ formatTime(nowPlaying.endTime) }}</span>
         </li>
         <!-- ******************************************************** -->
-        <div dnd-list="playlist">
+        <div dnd-list="playlist" dnd-drop="audioDropped(event, index, item, type);">
           <div ng-repeat="spin in playlist">
             <div class="dragGroup"
               dnd-dragstart="console.log('dragstart');"

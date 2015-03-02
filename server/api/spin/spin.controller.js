@@ -78,6 +78,10 @@ exports.remove = function(req,res) {
   });
 }
 
+exports.insert = function(req,res) {
+  return res.json(500, 'test');
+}
+
 function handleError(res, err) {
   return res.send(500, err);
 }

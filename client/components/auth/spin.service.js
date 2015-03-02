@@ -17,6 +17,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'remove'
         }
+      },
+      insert: {
+        method: 'POST',
+        params: {
+          controller: 'insert'
+        }
       }
     });
   });
