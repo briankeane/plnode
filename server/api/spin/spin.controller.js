@@ -79,7 +79,13 @@ exports.remove = function(req,res) {
 }
 
 exports.insert = function(req,res) {
-  return res.json(500, 'test');
+  Scheduler.insertSpin(req.body, function (err, updatedStation) {
+    if (err) return res.send(500, err);
+    Scheduler.getProgram({ stationId: req.body._station }, function (err, program) {
+      if (err) return res.send(500, err);
+      return res.json(200, program);
+    });
+  });
 }
 
 function handleError(res, err) {

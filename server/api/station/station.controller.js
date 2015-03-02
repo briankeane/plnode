@@ -184,8 +184,6 @@ exports.getProgram = function (req,res,next) {
   });
 };
 
-
-
 function createRotationItemsObject(rotationItems) {
   var rotationItemsObject = {};
 

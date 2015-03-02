@@ -412,6 +412,10 @@ describe('playlist functions', function (done) {
 
   });
 
+  xit('insertSpin tests', function (done) {
+
+  });
+
   after(function (done) {
     tk.reset();
     done();

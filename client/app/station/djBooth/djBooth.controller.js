@@ -222,7 +222,10 @@ angular.module('pl2NodeYoApp')
         $scope.refreshProgramWithoutServer();
 
         // notify server and refresh list
-        Auth.insertSpin(newSpin, function (err, newProgram) {
+        Auth.insertSpin({ playlistPosition: newSpin.playlistPosition,
+                          _audioBlock: newSpin._audioBlock._id,
+                          _station: $scope.currentStation._id 
+                        }, function (err, newProgram) {
           if (err) { return false; }
           $scope.playlist = newProgram.playlist;
         });

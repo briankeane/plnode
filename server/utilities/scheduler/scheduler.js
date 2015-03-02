@@ -355,7 +355,7 @@ function Scheduler() {
       // make sure schedule is accurate 2 hours from now
       self.bringCurrent(station, function () {
         self.updateAirtimes({ station: station,
-                                    endTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
+                                    endTime: new Date(Date.now() + 60*60*2.5*1000) }, function (err, station) {
           self.generatePlaylist({ station: station,
                                       playlistEndTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
             Spin.getPartialPlaylist({ _station: station.id,
@@ -464,7 +464,37 @@ function Scheduler() {
         });
       });
     });
-  }
+  };
+
+  this.insertSpin = function (spinInfo, callback) {
+    Spin.getPartialPlaylist({ startingPlaylistPosition: spinInfo.playlistPosition,
+                              _station: spinInfo._station }, function (err, partialPlaylist) {
+      if (err) return err;
+      
+      // update the rest of the playlist
+      var modelsToSave = [];
+      for (var i=0;i<partialPlaylist.length;i++) {
+        partialPlaylist[i].playlistPosition += 1;
+        modelsToSave.push(partialPlaylist[i]);
+      }
+
+      // create the new spin
+      var newSpin = new Spin({ _station: spinInfo._station,
+                              _audioBlock: spinInfo._audioBlock,
+                              playlistPosition: spinInfo.playlistPosition,
+                              airtime: partialPlaylist[0].airtime });
+      modelsToSave.push(newSpin);
+
+      Station.findByIdAndUpdate(spinInfo._station, { lastAccurateAirtime: newSpin.airtime,
+                                                     lastAccuratePlaylistPosition: newSpin.playlistPosition
+                                                   }, function (err, updatedStation) {
+        Helper.saveAll(modelsToSave, function (err, savedModels) {
+          if (err) return err;
+          callback(null, updatedStation);
+        });
+      });
+    });
+  };
 }
 
 
