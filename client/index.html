@@ -24,6 +24,7 @@
 
   <!-- navbar before the body... -->
   <div ng-include="'components/navbar/navbar.html'"></div>
+  <div ng-include="'components/audioPlayer/audioPlayer.html'"></div>
   <body ng-app="pl2NodeYoApp">
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -82,11 +83,15 @@
           <script src="app/station/djBooth/djBoothTabs.controller.js"></script>
           <script src="app/station/songManager/songManager.controller.js"></script>
           <script src="app/station/station.js"></script>
+          <script src="components/audioPlayer/audioPlayer.controller.js"></script>
+          <script src="components/audioRecorder/audioRecorder.controller.js"></script>
           <script src="components/auth/auth.service.js"></script>
           <script src="components/auth/song.service.js"></script>
           <script src="components/auth/spin.service.js"></script>
           <script src="components/auth/station.service.js"></script>
           <script src="components/auth/user.service.js"></script>
+          <script src="components/libraries/recorder.js"></script>
+          <script src="components/libraries/recorderWorker.js"></script>
           <script src="components/modal/modal.service.js"></script>
           <script src="components/mongoose-error/mongoose-error.directive.js"></script>
           <script src="components/navbar/navbar.controller.js"></script>

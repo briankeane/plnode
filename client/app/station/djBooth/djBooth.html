@@ -92,16 +92,7 @@
         </tab>
         <tab heading="Record">
           <div class="content" id="record">
-            <h4>Record</h4>
-            <button id="startRecording" class="glyphicon glyphicon-">record</button>
-            <button id="stopRecording" disabled="true">stop</button>
-            <canvas id="volumeMeter"></canvas>
-
-            <ul id="recording">
-              <li class="commentary" opacity="0.3">
-              </li>
-            </ul>
-
+            <div ng-include="'components/audioRecorder/audioRecorder.html'" >
           </div>
         </tab>
       </tabset>
