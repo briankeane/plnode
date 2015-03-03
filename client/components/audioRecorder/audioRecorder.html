@@ -4,8 +4,8 @@
   <button id="stopRecording" ng-click="stopRecordingPressed()" ng-disabled="stopDisabled">stop</button>
   <canvas id="volumeMeter"></canvas>
 
-  <ul id="recording">
-    <li class="commentary" opacity="0.3">
+  <ul id="recording" dnd-list="commentaryList">
+    <li class="commentary" opacity="0.3" dnd-draggable="recordedCommentaryObject" >
     </li>
   </ul>
 </div>

@@ -229,7 +229,10 @@ angular.module('pl2NodeYoApp')
           if (err) { return false; }
           $scope.playlist = newProgram.playlist;
         });
-      }  //ENDIF
+      } else if (item._type === 'Commentary')  {
+        console.log('DROPPED A COMMENTARY BITCH')
+
+      } // ENDIF
     };
 
     // for now disable 1st two elements

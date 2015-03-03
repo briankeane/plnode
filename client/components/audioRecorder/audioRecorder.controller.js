@@ -1,17 +1,22 @@
 angular.module('pl2NodeYoApp')
   .controller('AudioRecorderCtrl', function ($scope, $location, Auth) {
 
+    $scope.stopDisabled = true;
+    $scope.recordButtonDisabled = false;
+    $scope.recordedCommentaryObject;
+
+
     $scope.startRecordingPressed = function () {
       startRecording();
-      recordButton.attr("disabled", "true");
-      stopButton.removeAttr("disabled");
+      $scope.recordButtonDisabled = true;
+      $scope.stopDisabled = false;
       $(document).trigger('recordingStarted');
     };
 
     $scope.stopRecordingPressed = function () {
       stopRecording();
       $(document).trigger('recordingStopped');
-      stopButton.attr("disabled", "true");
+      $scope.stopDisabled = true;
     };
 
 
@@ -52,8 +57,6 @@ angular.module('pl2NodeYoApp')
         ctx.fillStyle="gradient";
         ctx.fillRect(0,0, average*2, 100);
       };
-
-
 
       function getAverageVolume(array) {
         var values = 0;
@@ -101,6 +104,16 @@ angular.module('pl2NodeYoApp')
         var recordingList = $('#recording');
         var template = $('#recording li').html();
 
+        // store the blob and it's info
+        au.onloadeddata = function () {
+          $scope.recordedCommentaryObject = { _type: 'Commentary',
+                                              blob: blob,
+                                              src: au.src,
+                                              duration: au.duration * 1000 };
+          console.log($scope.recordedCommentaryObject);
+        }
+
+        // add the element to the screen
         au.controls = true;
         au.src = url;
         hf.href = url;
@@ -111,7 +124,6 @@ angular.module('pl2NodeYoApp')
         recordingList.append(template);
 
         // Possibly a better way to do this in the future?
-        window.currentBlob = blob;
 
       });
     }
