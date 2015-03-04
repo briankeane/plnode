@@ -36,8 +36,6 @@ function TimezoneFinder() {
           method: 'GET'
         }
 
-        console.log(options.hostname + options.path);
-
         var req = https.request(options, function (res) {
           var responseString = '';
 
@@ -61,7 +59,6 @@ function TimezoneFinder() {
     })
     .on('end', function() {
       if (!foundZip) {
-        console.log('NOTFOUND!')
         callback(new Error('Zipcode not found'), null);
       }
     });

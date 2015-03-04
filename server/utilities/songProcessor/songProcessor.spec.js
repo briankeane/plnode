@@ -31,7 +31,6 @@ describe('songProcessor', function (done) {
   it('gets id4 tags from a non-encrypted m4a file', function (done) {
     this.timeout(5000);
     SongProcessor.getTags(process.cwd() + '/server/data/testFiles/lonestar.m4a', function (err, tags) {
-      console.log(tags);
       expect(tags.title).to.equal('Lone Star Blues');
       expect(tags.artist).to.equal('Delbert McClinton');
       expect(tags.album).to.equal('Room to Breathe');
@@ -50,5 +49,16 @@ describe('songProcessor', function (done) {
     });
   });
 
-
+  it('getSongMatchPossibilities', function (done) {
+    this.timeout(4000);
+    SongProcessor.getSongMatchPossibilities({ artist: 'The Beatles',
+                                              title: 'Eleanor Rigby' 
+                                            }, function (err, matches) {
+      expect(matches.length).to.equal(15);
+      expect(matches[0].artist).to.equal('The Beatles');
+      expect(matches[0].title).to.equal('ELEANOR RIGBY');
+      expect(matches[0].echonestId).to.equal('SOKTZBX12B20E5E4AB');
+      done();
+    });
+  });
 });
