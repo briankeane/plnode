@@ -20,6 +20,10 @@ exports.show = function(req, res) {
   });
 };
 
+exports.upload = function(req, res) {
+  console.dir(req.files);
+}
+
 // Creates a new song in the DB.
 exports.create = function(req, res) {
   Song.create(req.body, function(err, song) {

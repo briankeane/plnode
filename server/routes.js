@@ -4,10 +4,13 @@
 
 'use strict';
 
+var multer = require('multer');
+
 var errors = require('./components/errors');
 
 module.exports = function(app) {
 
+  app.use(multer({dest:'./server/data/unprocessedAudio'}));
   // Insert routes below
   app.use('/api/v1/spins', require('./api/spin'));
   app.use('/api/v1/songs', require('./api/song'));
