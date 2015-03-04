@@ -39,4 +39,16 @@ describe('songProcessor', function (done) {
     });
   });
 
+  it('gets itunes info', function (done) {
+    this.timeout(5000);
+    SongProcessor.getItunesInfo({ artist: 'Miranda Lambert',
+                                  title: 'Little Red Wagon'
+                                }, function (err, match) {
+      expect(match.albumArtworkUrl).to.equal('http://is1.mzstatic.com/image/pf/us/r30/Music/v4/e5/22/a0/e522a052-63eb-d71e-7fbd-ccff670a399d/886444518710.600x600-75.jpg');
+      expect(match.trackViewUrl).to.equal('https://itunes.apple.com/us/album/little-red-wagon/id849069497?i=849069513&uo=4');
+      done();
+    });
+  });
+
+
 });

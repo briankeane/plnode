@@ -27,6 +27,7 @@ function AudioConverter() {
     .outputOptions('-write_xing 0')
     .run();
   }
+
 }
 
 module.exports = new AudioConverter();
