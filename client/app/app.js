@@ -8,8 +8,9 @@ angular.module('pl2NodeYoApp', [
   'ui.router',
   'ui.bootstrap',
   'dndLists',
-  'angularMoment'
-])
+  'angularMoment',
+  'angularFileUpload'
+  ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
       .otherwise('/');
