@@ -259,7 +259,9 @@ function Handler() {
             callback(null, finalList);
           } else {
             // for now, fill with random songs
-            Song.findRandom({}, {}, { count: 57 }, function (err, randomSongs) {
+            Song.findRandom({}, {}, { limit: 57 }, function (err, randomSongs) {
+              if (err) throw err;
+              console.log('randomSongs: ' + randomSongs.length);
               var i=0;
               while (finalList.length < 57) {
                 var alreadyIncluded = false;

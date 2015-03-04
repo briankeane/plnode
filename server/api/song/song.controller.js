@@ -22,6 +22,7 @@ exports.show = function(req, res) {
 
 exports.upload = function(req, res) {
   console.dir(req.files);
+  return res.send(200)
 }
 
 // Creates a new song in the DB.

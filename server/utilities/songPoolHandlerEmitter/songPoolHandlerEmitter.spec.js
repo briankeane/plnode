@@ -120,7 +120,7 @@ describe('songPoolHandler', function (done) {
 
   describe('songPoolHandler - getSuggestions', function (done) {
     before(function (done) {
-      this.timeout(8000);
+      this.timeout(30000);
       var data = fs.readFileSync(process.cwd() + '/server/data/testFiles/echonest_cat.json', 'utf8');
       SongPool.clearAllSongs()
       .on('finish', function () {
@@ -129,7 +129,10 @@ describe('songPoolHandler', function (done) {
             // seed the db
             var allSongs = _.map(allSongsAsObjects, function(attrs) { return new Song(attrs); });
               SpecHelper.saveAll(allSongs, function(err, songs) {
+                Song.find({}, function (err, allSongs) {
+                  console.log('all songs: ' + allSongs.length);
                 done();
+                })
             });
           });
         });
