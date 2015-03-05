@@ -57,8 +57,6 @@ function Handler() {
           duration:   parseInt(data.Metadata.pl_duration, 10),
           echonestId: data.Metadata.pl_echonest_id
         }
-console.log('data: ');
-console.log(data);
         callback (null, metadata);
       }
     });

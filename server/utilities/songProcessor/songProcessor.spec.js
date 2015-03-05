@@ -95,18 +95,50 @@ describe('songProcessor', function (done) {
   describe('adds a song to the system', function (done) {
 
     before(function (done) {
+      var finishedCount = 0;
+      testFilesArray = [];
+    
+      // copy the file from test folder to unprocessedAudio folder
+      var read = fs.createReadStream(__dirname + '/../../data/testFiles/lonestarTest.m4a');
+      var write = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a');
+      testFilesArray.push(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a');
+      read.pipe(write)
+      .on('finish', function () {
+        finishedOperation();
+      });
+
       // copy the file from test folder to unprocessedAudio folder
       var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestar.m4a');
       var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
       read.pipe(write)
       .on('finish', function () {
-        Storage.clearBucket('playolasongstest', function () {
-          SongPool.clearAllSongs()
-          .on('finish', function() {
-            done();
-          });
-        });
+        finishedOperation();
       });
+
+      var read3 = fs.createReadStream(__dirname + '/../../data/testFiles/downtown.m4p')
+      var write3 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/downtown.m4p');
+      testFilesArray.push(__dirname + '/../../data/unprocessedAudio/downtown.m4p');
+      read3.pipe(write3)
+      .on('finish', function () {
+        finishedOperation();
+      });
+      
+      Storage.clearBucket('playolasongstest', function () {
+        finishedOperation();
+      });
+
+      SongPool.clearAllSongs()
+      .on('finish', function() {
+        finishedOperation();
+      });
+      
+      function finishedOperation() {
+        finishedCount++;
+
+        if (finishedCount >= 5) {
+          done();
+        }
+      }
     });
 
     it('adds a song to the system (db, echonest, AWS', function (done) {
@@ -142,15 +174,19 @@ describe('songProcessor', function (done) {
       });
     });
 
-    xit('responds to missing song info', function (done) {
+    xit('responds to no echonest song info', function (done) {
+
     });
 
-    xit('adds ')
+    xit('responds to copy-protected song', function (done) {
+    });
+    
     after(function (done) {
-      if (fs.exists(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a')) {
-        fs.unlinkSync(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
+      this.timeout(5000);
+      for (var i=0;i<testFilesArray.length;i++) {
+        if (fs.exists(testFilesArray[i])) fs.unlinkSync(testFilesArray[i]);
       }
-      console.log('deleted');
+
       Storage.clearBucket('playolasongstest', function () {
         SongPool.clearAllSongs()
         .on('finish', function() {
