@@ -58,7 +58,32 @@ describe('songProcessor', function (done) {
       expect(matches[0].artist).to.equal('The Beatles');
       expect(matches[0].title).to.equal('ELEANOR RIGBY');
       expect(matches[0].echonestId).to.equal('SOKTZBX12B20E5E4AB');
-      done();
+      SongProcessor.getSongMatchPossibilities({ artist: 'Rachel Loy',
+                                                title: 'Stepladder' 
+                                              }, function (err, matches) {
+        expect(matches[0].artist).to.equal('Rachel Loy');
+        expect(matches[0].title).to.equal('Stepladder');
+        done();
+      });
+    }); 
+  });
+
+  it('gets the echonest info', function (done) {
+    SongProcessor.getEchonestInfo({ title: 'Stepladder', artist: 'Rachel Loy'
+                                   }, function (err, song) {
+      expect(song.title).to.equal('Stepladder');
+      expect(song.artist).to.equal('Rachel Loy');
+      expect(song.echonestId).to.equal('SOOWAAV13CF6D1B3FA');
+      expect(song.genres.length).to.equal(0);
+      SongProcessor.getEchonestInfo({ title: 'Kiss Me In The Dark',
+                                      artist: 'Randy Rogers'
+                                    }, function (err, song2) {
+        expect(song2.title.toLowerCase()).to.equal('kiss me in the dark');
+        expect(song2.artist).to.equal('Randy Rogers Band');
+        expect(song2.genres[0]).to.equal('texas country');
+        expect(song2.genres[1]).to.equal('outlaw country');
+        done();
+      });
     });
   });
 });
