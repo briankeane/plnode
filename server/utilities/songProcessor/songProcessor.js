@@ -6,6 +6,8 @@ var config = require('../../config/environment');
 var echojs = require('echojs');
 var natural = require('natural');
 var Converter = require('../audioConverter/audioConverter');
+var Storage = require('../audioFileStorageHandler/audioFileStorageHandler');
+var SongPool = require('../songPoolHandlerEmitter/songPoolHandlerEmitter');
 
 function SongProcessor() {
   var self = this;
@@ -81,6 +83,58 @@ function SongProcessor() {
     self.getTags(attrs.filepath, function (err, tags) {
       if (err) return err;
 
+      // get closest echonest tags
+      self.getEchonestInfo({ title: tags.title, artist: tags.artist }, function (err, match) {
+        if (err) return err;
+        
+        // if a suitable match was not found, callback with not found error
+        if ((match.titleMatchRating < 0.75) || (match.artistMatchRating < 0.75)) {
+          callback(new Error('Song info not found'));
+        }
+
+        // grab itunes artwork
+        self.getItunesInfo({ title: attrs.title, artist: attrs.artist }, function (err, itunesInfo) {
+          if (err) {
+            var itunesInfo = {};
+          }
+          
+          // store the song
+          Storage.storeSong({ title: attrs.title,
+                              artist: attrs.artist,
+                              album: attrs.album,
+                              duration: tags.duration,
+                              echonestId: match.echonestId,
+                              filepath: attrs.filepath,
+                              }, function (err, key) {
+            if (err) callback(new Error('Audio File Storage Error'));
+
+            // add to DB
+            Song.create({ title: attrs.title,
+                          artist: attrs.artist,
+                          album: attrs.album,
+                          duration: tags.duration,
+                          echonestId: match.echonestId,
+                          key: key,
+                          albumArtworkUrl: itunesInfo.albumArtworkUrl,
+                          trackViewUrl: itunesInfo.trackViewUrl,
+                          itunesInfo: itunesInfo }, function (err, newSong) {
+              if (err) callback(err);
+
+              // add song to Echonest
+              SongPool.addSong(newSong)
+              .on('finish', function () {
+                callback(newSong);
+              })
+              .on('error', function(err) {
+                callback(err);
+              });
+            });
+          });
+
+
+        })
+
+      })
     });
   };
 
