@@ -82,7 +82,6 @@ function SongProcessor() {
   this.addSongToSystem = function (originalFilepath, callback) {
     // get tags
     self.getTags(originalFilepath, function (err, tags) {
-console.log('got tags: ');
 
       if (err) return err;
 
@@ -94,7 +93,6 @@ console.log('got tags: ');
 
       // get closest echonest tags
       self.getEchonestInfo({ title: tags.title, artist: tags.artist }, function (err, match) {
-console.log('got echonest info');
         if (err) return err;
 
         // if a suitable match was not found, callback with not found error
@@ -104,13 +102,11 @@ console.log('got echonest info');
 
         // convert the song
         Converter.convertFile(originalFilepath, function (err, filepath) {
-console.log('converted');
           if (err) callback(err);
 
 
           // grab itunes artwork
           self.getItunesInfo({ title: match.title, artist: match.artist }, function (err, itunesInfo) {
-console.log('got itunes info');
             if (err) {
               var itunesInfo = {};
             }
@@ -123,7 +119,6 @@ console.log('got itunes info');
                                 echonestId: match.echonestId,
                                 filepath: filepath,
                                 }, function (err, key) {
-  console.log('stored song');
               if (err) callback(new Error('Audio File Storage Error'));
 
               // add to DB
@@ -137,12 +132,10 @@ console.log('got itunes info');
                             trackViewUrl: itunesInfo.trackViewUrl,
                             itunesInfo: itunesInfo }, function (err, newSong) {
                 if (err) callback(err);
-console.log('in database');
 
                 // delete file 
                 fs.unlink(filepath, function (err) {
                   if (err) callback(err);
-console.log('unlinked');
                   // add song to Echonest
                   SongPool.addSong(newSong)
                   .on('finish', function () {

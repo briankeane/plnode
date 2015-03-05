@@ -3,6 +3,7 @@ var expect = require('chai').expect;
 var fs = require('fs');
 var Song = require('../../api/song/song.model');
 var Storage = require('../audioFileStorageHandler/audioFileStorageHandler');
+var SongPool = require('../songPoolHandlerEmitter/songPoolHandlerEmitter');
 
 describe('songProcessor', function (done) {
   
@@ -100,7 +101,10 @@ describe('songProcessor', function (done) {
       read.pipe(write)
       .on('finish', function () {
         Storage.clearBucket('playolasongstest', function () {
-          done();
+          SongPool.clearAllSongs()
+          .on('finish', function() {
+            done();
+          });
         });
       });
     });
@@ -119,18 +123,39 @@ describe('songProcessor', function (done) {
           expect(song.key).to.equal('-pl-01-DelbertMcClinton-LoneStarBlues.mp3')
           expect(song.albumArtworkUrl).to.equal('http://is5.mzstatic.com/image/pf/us/r30/Music/v4/2b/fc/a3/2bfca30d-727c-e235-75d9-dbc7ead5b0d8/607396604234.600x600-75.jpg')
           expect(song.trackViewUrl).to.equal('https://itunes.apple.com/us/album/lone-star-blues/id508912066?i=508912363&uo=4');
-          done();
+          
+          // make sure song was stored properly
+          Storage.getStoredSongMetadata(song.key, function (err, data) {
+            expect(data.title).to.equal(song.title);
+            expect(data.artist).to.equal(song.artist);
+            expect(data.duration).to.equal(song.duration);
+            expect(data.echonestId).to.equal(song.echonestId);
+          
+            // make sure it was stored on echonest
+            SongPool.getAllSongs()
+            .on('finish', function (err, allSongs) {
+              expect(allSongs[0].echonestId).to.equal(song.echonestId);
+              done();
+            });
+          });
         })
       });
     });
 
+    xit('responds to missing song info', function (done) {
+    });
+
+    xit('adds ')
     after(function (done) {
       if (fs.exists(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a')) {
         fs.unlinkSync(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
       }
       console.log('deleted');
       Storage.clearBucket('playolasongstest', function () {
-        done();
+        SongPool.clearAllSongs()
+        .on('finish', function() {
+          done();
+        });
       });
     });
   });
