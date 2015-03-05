@@ -8,6 +8,7 @@ var natural = require('natural');
 var Converter = require('../audioConverter/audioConverter');
 var Storage = require('../audioFileStorageHandler/audioFileStorageHandler');
 var SongPool = require('../songPoolHandlerEmitter/songPoolHandlerEmitter');
+var fs = require('fs');
 
 function SongProcessor() {
   var self = this;
@@ -78,63 +79,84 @@ function SongProcessor() {
     });
   };
 
-  this.addSongToSystem = function (attrs, callback) {
+  this.addSongToSystem = function (originalFilepath, callback) {
     // get tags
-    self.getTags(attrs.filepath, function (err, tags) {
+    self.getTags(originalFilepath, function (err, tags) {
+console.log('got tags: ');
+
       if (err) return err;
+
+      if (!tags.title || !tags.artist) {
+        return new Error('No Id Info in File');
+      }
+
+      
 
       // get closest echonest tags
       self.getEchonestInfo({ title: tags.title, artist: tags.artist }, function (err, match) {
+console.log('got echonest info');
         if (err) return err;
-        
+
         // if a suitable match was not found, callback with not found error
         if ((match.titleMatchRating < 0.75) || (match.artistMatchRating < 0.75)) {
           callback(new Error('Song info not found'));
         }
 
-        // grab itunes artwork
-        self.getItunesInfo({ title: attrs.title, artist: attrs.artist }, function (err, itunesInfo) {
-          if (err) {
-            var itunesInfo = {};
-          }
-          
-          // store the song
-          Storage.storeSong({ title: attrs.title,
-                              artist: attrs.artist,
-                              album: attrs.album,
-                              duration: tags.duration,
-                              echonestId: match.echonestId,
-                              filepath: attrs.filepath,
-                              }, function (err, key) {
-            if (err) callback(new Error('Audio File Storage Error'));
+        // convert the song
+        Converter.convertFile(originalFilepath, function (err, filepath) {
+console.log('converted');
+          if (err) callback(err);
 
-            // add to DB
-            Song.create({ title: attrs.title,
-                          artist: attrs.artist,
-                          album: attrs.album,
-                          duration: tags.duration,
-                          echonestId: match.echonestId,
-                          key: key,
-                          albumArtworkUrl: itunesInfo.albumArtworkUrl,
-                          trackViewUrl: itunesInfo.trackViewUrl,
-                          itunesInfo: itunesInfo }, function (err, newSong) {
-              if (err) callback(err);
 
-              // add song to Echonest
-              SongPool.addSong(newSong)
-              .on('finish', function () {
-                callback(newSong);
-              })
-              .on('error', function(err) {
-                callback(err);
+          // grab itunes artwork
+          self.getItunesInfo({ title: match.title, artist: match.artist }, function (err, itunesInfo) {
+console.log('got itunes info');
+            if (err) {
+              var itunesInfo = {};
+            }
+            
+            // store the song
+            Storage.storeSong({ title: match.title,
+                                artist: match.artist,
+                                album: match.album,
+                                duration: tags.duration,
+                                echonestId: match.echonestId,
+                                filepath: filepath,
+                                }, function (err, key) {
+  console.log('stored song');
+              if (err) callback(new Error('Audio File Storage Error'));
+
+              // add to DB
+              Song.create({ title: match.title,
+                            artist: match.artist,
+                            album: match.album,
+                            duration: tags.duration,
+                            echonestId: match.echonestId,
+                            key: key,
+                            albumArtworkUrl: itunesInfo.albumArtworkUrl,
+                            trackViewUrl: itunesInfo.trackViewUrl,
+                            itunesInfo: itunesInfo }, function (err, newSong) {
+                if (err) callback(err);
+console.log('in database');
+
+                // delete file 
+                fs.unlink(filepath, function (err) {
+                  if (err) callback(err);
+console.log('unlinked');
+                  // add song to Echonest
+                  SongPool.addSong(newSong)
+                  .on('finish', function () {
+                    callback(null, newSong);
+                  })
+                  .on('error', function(err) {
+                    callback(err);
+                  });
+                });
               });
             });
           });
-
-
-        })
-
-      })
+        });
+      });
     });
   };
 

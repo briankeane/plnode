@@ -1,5 +1,6 @@
 var ffmpeg = require('fluent-ffmpeg');
 var path = require('path');
+var fs = require('fs');
 
 function AudioConverter() {
   var self = this;
@@ -22,7 +23,11 @@ function AudioConverter() {
       }
     })
     .on('end', function () {
-      callback(null, newFilepath);
+      fs.unlink(filepath, function (err) {
+        if (err) throw err;
+
+        callback(null, newFilepath);
+      })
     })
     .outputOptions('-write_xing 0')
     .run();

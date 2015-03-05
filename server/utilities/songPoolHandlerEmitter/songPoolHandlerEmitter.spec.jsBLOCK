@@ -130,7 +130,6 @@ describe('songPoolHandler', function (done) {
             var allSongs = _.map(allSongsAsObjects, function(attrs) { return new Song(attrs); });
               SpecHelper.saveAll(allSongs, function(err, songs) {
                 Song.find({}, function (err, allSongs) {
-                  console.log('all songs: ' + allSongs.length);
                 done();
                 })
             });
@@ -146,12 +145,10 @@ describe('songPoolHandler', function (done) {
           for (var i=0;i<allSongs.length;i++) {
             console.log(allSongs[i].echonestId)
           }
-          console.log('allSongs size: ' + allSongs.length);
-        console.log('playlist length: ' + playlist.length);
-        expect(playlist.length >= 57).to.equal(true);
-        expect(playlist[0].artist).to.be.a('String');
-        expect(playlist[0].title).to.be.a('String');
-        done();
+          expect(playlist.length >= 57).to.equal(true);
+          expect(playlist[0].artist).to.be.a('String');
+          expect(playlist[0].title).to.be.a('String');
+          done();
         })
       });
     });

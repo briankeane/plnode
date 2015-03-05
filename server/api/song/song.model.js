@@ -12,7 +12,8 @@ var songSchema = AudioBlockSchema.extend({
   album:              { type: String },
   echonestId:         { type: String },
   albumArtworkUrl:    { type: String },
-  itunesTrackViewUrl: { type: String }
+  trackViewUrl:       { type: String },
+  itunesInfo:         {}
 });
 
 // ***********************************************************

@@ -11,9 +11,9 @@ function Handler() {
 
   this.cleanFilename = function (filename) {
     var cleanedFilename = unidecode(filename)
-                            .replace(/[^a-zA-Z0-9\-\.]/, '')
-                            .replace('_', '-')
-                            .replace(' ', '-');
+                            .replace(/[^a-zA-Z0-9\-\.]/g, '')
+                            .replace(/_/g, '-')
+                            .replace(/ /g, '-');
     return cleanedFilename;
   }
 
@@ -205,9 +205,6 @@ function Handler() {
   };
 
   this.getAllSongs = function (callback) {
-
-    console.log(process.env.NODE_ENV);
-    console.log(config["s3Buckets"].SONGS_BUCKET);
 
     var objects = [];
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].SONGS_BUCKET } });

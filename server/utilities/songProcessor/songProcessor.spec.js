@@ -1,5 +1,8 @@
 var SongProcessor = require('./songProcessor');
 var expect = require('chai').expect;
+var fs = require('fs');
+var Song = require('../../api/song/song.model');
+var Storage = require('../audioFileStorageHandler/audioFileStorageHandler');
 
 describe('songProcessor', function (done) {
   
@@ -31,6 +34,7 @@ describe('songProcessor', function (done) {
   it('gets id4 tags from a non-encrypted m4a file', function (done) {
     this.timeout(5000);
     SongProcessor.getTags(process.cwd() + '/server/data/testFiles/lonestar.m4a', function (err, tags) {
+      if (err) { console.log(err);}
       expect(tags.title).to.equal('Lone Star Blues');
       expect(tags.artist).to.equal('Delbert McClinton');
       expect(tags.album).to.equal('Room to Breathe');
@@ -82,6 +86,50 @@ describe('songProcessor', function (done) {
         expect(song2.artist).to.equal('Randy Rogers Band');
         expect(song2.genres[0]).to.equal('texas country');
         expect(song2.genres[1]).to.equal('outlaw country');
+        done();
+      });
+    });
+  });
+
+  describe('adds a song to the system', function (done) {
+
+    before(function (done) {
+      // copy the file from test folder to unprocessedAudio folder
+      var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestar.m4a');
+      var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
+      read.pipe(write)
+      .on('finish', function () {
+        Storage.clearBucket('playolasongstest', function () {
+          done();
+        });
+      });
+    });
+
+    it('adds a song to the system (db, echonest, AWS', function (done) {
+      this.timeout(40000);
+      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a', function (err, newSong) {
+        if (err) console.log(err);
+        Song.findOne({ artist: 'Delbert McClinton',
+                    title: 'Lone Star Blues' }, function (err, song) {
+          console.log(song);
+          expect(song.title).to.equal('Lone Star Blues');
+          expect(song.artist).to.equal('Delbert McClinton');
+          expect(song.duration).to.equal(237000);
+          expect(song.echonestId).to.equal('SOASHCW12B35058614');
+          expect(song.key).to.equal('-pl-01-DelbertMcClinton-LoneStarBlues.mp3')
+          expect(song.albumArtworkUrl).to.equal('http://is5.mzstatic.com/image/pf/us/r30/Music/v4/2b/fc/a3/2bfca30d-727c-e235-75d9-dbc7ead5b0d8/607396604234.600x600-75.jpg')
+          expect(song.trackViewUrl).to.equal('https://itunes.apple.com/us/album/lone-star-blues/id508912066?i=508912363&uo=4');
+          done();
+        })
+      });
+    });
+
+    after(function (done) {
+      if (fs.exists(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a')) {
+        fs.unlinkSync(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
+      }
+      console.log('deleted');
+      Storage.clearBucket('playolasongstest', function () {
         done();
       });
     });

@@ -54,7 +54,8 @@ function Helper() {
   this.cleanString = function (inputString) {
     var cleanedString = unidecode(inputString
                             .replace(/_/g, '-')
-                            .replace(/[^a-zA-Z0-9\-\.]/g, ''));
+                            .replace(/[^a-zA-Z0-9\-\.]/g, ''))
+                            .replace(/ /g,'-');
     return cleanedString;
   }
     this.cleanTitleString = function (inputString) {

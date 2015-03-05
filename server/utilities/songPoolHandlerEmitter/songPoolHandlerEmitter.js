@@ -9,12 +9,15 @@ var Q = require('q');
 function Handler() {
   var self = this;
   var echo = echojs({ key: process.env.ECHONEST_KEY });
+  console.log('settingupsongPoolHandlerEmitterEchonest key: ');
+  console.log(process.env.ECHONEST_KEY);
 
   this.addSong = function (song) {
     return this.addSongs([song]);
   };
 
   this.getAllSongs = function() {
+    var echo = echojs({ key: process.env.ECHONEST_KEY });
     var emitter = new events.EventEmitter();
     var allSongs = [];
 
@@ -107,7 +110,7 @@ function Handler() {
 
     self.getAllSongs()
     .on('finish', function (err, allSongs) {
-      if (err) { emitter.emit('finish', err); }
+      if (err) throw err; //emitter.emit('finish', err);
 
       // remove songs without echonestId
       var count=0;
@@ -261,7 +264,6 @@ function Handler() {
             // for now, fill with random songs
             Song.findRandom({}, {}, { limit: 57 }, function (err, randomSongs) {
               if (err) throw err;
-              console.log('randomSongs: ' + randomSongs.length);
               var i=0;
               while (finalList.length < 57) {
                 var alreadyIncluded = false;
