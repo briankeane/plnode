@@ -141,7 +141,7 @@ describe('songProcessor', function (done) {
       }
     });
 
-    it('adds a song to the system (db, echonest, AWS', function (done) {
+    xit('adds a song to the system (db, echonest, AWS', function (done) {
       this.timeout(40000);
       SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a', function (err, newSong) {
         if (err) console.log(err);
@@ -178,7 +178,11 @@ describe('songProcessor', function (done) {
 
     });
 
-    xit('responds to copy-protected song', function (done) {
+    it('responds to copy-protected song', function (done) {
+      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p', function (err, newSong) {
+        expect(err.message).to.equal('File is Copy-Protected');
+        done();
+      });
     });
     
     after(function (done) {

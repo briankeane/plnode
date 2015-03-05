@@ -102,8 +102,10 @@ function SongProcessor() {
 
         // convert the song
         Converter.convertFile(originalFilepath, function (err, filepath) {
-          if (err) callback(err);
-
+          if (err) {
+            callback(err);
+            return
+          }
 
           // grab itunes artwork
           self.getItunesInfo({ title: match.title, artist: match.artist }, function (err, itunesInfo) {

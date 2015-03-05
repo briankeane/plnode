@@ -18,7 +18,7 @@ function AudioConverter() {
     .output(newFilepath)
     .on('error', function (err) {
       if (err.message.substr('Operation not permitted')) {
-        var error = new Error('File is CopyProtected');  
+        var error = new Error('File is Copy-Protected');  
         callback(error, null)
       }
     })
