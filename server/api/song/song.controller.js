@@ -25,9 +25,19 @@ exports.upload = function(req, res) {
   console.log(req.files.file);
   SongProcessor.addSongToSystem((process.cwd() + '/server/data/unprocessedAudio/' + req.files.file.name), function (err, newSong) {
     if (err) {
-      return res.send(400,err)
+      if (err.message === 'Song info not found') {
+        // get possible matches for response
+        SongProcessor.getSongMatchPossibilities({ artist: err.tags.artist,
+                                                  title: err.tags.title 
+                                                }, function (err, matches) {
+
+          return res.send(200, { status: 'Song info not found',
+                                 possibleMatches: matches });
+        })
+      }
     } else {
-      return res.send(200, newSong);
+      return res.send(200, { status: 'added',
+                              song: newSong });
     }
   })
 }

@@ -107,7 +107,9 @@ function SongProcessor() {
 
         // if a suitable match was not found, callback with not found error
         if ((match.titleMatchRating < 0.75) || (match.artistMatchRating < 0.75)) {
-          callback(new Error('Song info not found'));
+          var err = new Error('Song info not found');
+          err.tags = tags;
+          callback(err);
           return;
         }
 
