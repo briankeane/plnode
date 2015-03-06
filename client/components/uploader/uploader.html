@@ -30,13 +30,17 @@
                   </div>
               </td>
               <td class="text-center">
-                  <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
                   <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+                  <button ng-show="item.isSuccess && !item.addedToStation" type="button" class="btn btn-xs" ng-click="addToMyStation(item.songId);">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Add to Station
+                  </button>
                   <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
-                  <span ng-show="item.isNeedInfo"><button class="btn btn-default" ng-click="getSongInfo">More Info Needed</button></span>
+                  <span ng-show="item.isNeedInfo"><button class="btn btn-xs" ng-click="getSongInfo"><span class="glyphicon glyphicon-info-sign"></span> More Info Needed</button></span>
+                  <span ng
               </td>
               <td nowrap>
-                  <button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+                  <button ng-show="!item.isSuccess" type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
                       <span class="glyphicon glyphicon-ban-circle"></span> Cancel
                   </button>
                   <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">

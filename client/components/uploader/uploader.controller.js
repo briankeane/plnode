@@ -34,10 +34,13 @@ angular.module('pl2NodeYoApp')
         if (response.status === 'info needed') {
           fileItem.status = response.status;
           fileItem.possibleMatches = response.possibleMatches;
-          fileItem.ticket = response.ticket;
           fileItem.isSuccess = false;
           fileItem.isNeedInfo = true;
           fileItem.uploadId = response._id;
+        } else if (response.status === 'added') {
+          fileItem.status = response.status;
+          fileItem.isSuccess = true;
+          fileItem.songId = response.song._id;
         }
 
       };
@@ -45,8 +48,20 @@ angular.module('pl2NodeYoApp')
           console.info('onCompleteAll');
       };
 
+      $scope.addToMyStation = function (songId) {
+        Auth.createRotationItem({ weight: 17,
+                                  bin: 'active',
+                                  _song: songId }, function (err, results) {
+          if (!err){
+            for (var i=0;i<$scope.uploader.queue.length;i++) {
+              if ($scope.uploader.queue[i].songId === songId) {
+                $scope.uploader.queue[i].addedToStation = true;
+
+              }
+            }
+          }
+        });
+      };
+
       console.info('uploader', uploader);
-
-
-
   });
