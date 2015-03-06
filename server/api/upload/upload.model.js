@@ -6,7 +6,9 @@ var timestamps = require('mongoose-timestamp');
 
 var UploadSchema = new Schema({
   filename: String,
-  info: {}
+  tags: {},
+  possibleMatches: [{}],
+  status: String
 });
 
 UploadSchema.plugin(timestamps);

@@ -31,12 +31,13 @@ angular.module('pl2NodeYoApp')
           console.info('onCancelItem', fileItem, response, status, headers);
       };
       $scope.uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        if (response.status === 'Song info not found') {
+        if (response.status === 'info needed') {
           fileItem.status = response.status;
           fileItem.possibleMatches = response.possibleMatches;
           fileItem.ticket = response.ticket;
           fileItem.isSuccess = false;
           fileItem.isNeedInfo = true;
+          fileItem.uploadId = response._id;
         }
 
       };

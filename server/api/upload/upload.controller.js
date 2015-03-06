@@ -22,18 +22,20 @@ exports.show = function(req, res) {
 };
 
 exports.create = function(req, res) {
-  console.log(req.files.file);
   SongProcessor.addSongToSystem((process.cwd() + '/server/data/unprocessedAudio/' + req.files.file.name), function (err, newSong) {
     if (err) {
       if (err.message === 'Song info not found') {
         // get possible matches for response
         SongProcessor.getSongMatchPossibilities({ artist: err.tags.artist,
                                                   title: err.tags.title 
-                                                }, function (err, matches) {
-
-          return res.send(200, { status: 'Song info not found',
-                                 possibleMatches: matches,
-                                 ticket: req.files.file.name.replace('.mp3','') });
+                                                }, function (matchErr, matches) {
+          Upload.create({ tags: err.tags,
+                          possibleMatches: matches,
+                          filename: req.files.file.name,
+                          status: 'info needed'
+                        }, function (err, savedUpload) {
+            return res.send(200, savedUpload);
+          });
         })
       }
     } else {
