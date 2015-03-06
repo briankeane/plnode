@@ -1,13 +1,12 @@
 angular.module('pl2NodeYoApp')
   .controller('uploaderCtrl', function ($scope, Auth, FileUploader) {
-    $scope.uploader = new FileUploader({ url: 'api/v1/songs/upload',
+    $scope.uploader = new FileUploader({ url: 'api/v1/uploads',
                                           autoUpload: true });
 
       $scope.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
           console.info('onWhenAddingFileFailed', item, filter, options);
       };
       $scope.uploader.onAfterAddingFile = function(fileItem) {
-        alert('file added');
           console.info('onAfterAddingFile', fileItem);
       };
       $scope.uploader.onAfterAddingAll = function(addedFileItems) {
@@ -32,7 +31,14 @@ angular.module('pl2NodeYoApp')
           console.info('onCancelItem', fileItem, response, status, headers);
       };
       $scope.uploader.onCompleteItem = function(fileItem, response, status, headers) {
-          console.info('onCompleteItem', fileItem, response, status, headers);
+        if (response.status === 'Song info not found') {
+          fileItem.status = response.status;
+          fileItem.possibleMatches = response.possibleMatches;
+          fileItem.ticket = response.ticket;
+          fileItem.isSuccess = false;
+          fileItem.isNeedInfo = true;
+        }
+
       };
       $scope.uploader.onCompleteAll = function() {
           console.info('onCompleteAll');

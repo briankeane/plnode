@@ -32,7 +32,8 @@ exports.upload = function(req, res) {
                                                 }, function (err, matches) {
 
           return res.send(200, { status: 'Song info not found',
-                                 possibleMatches: matches });
+                                 possibleMatches: matches,
+                                 ticket: req.files.file.name.replace('.mp3','') });
         })
       }
     } else {

@@ -20,6 +20,7 @@ module.exports = function(app) {
   app.use('/api/v1/audioBlocks', require('./api/audioBlock'));
   app.use('/api/v1/rotationItems', require('./api/rotationItem'));
   app.use('/api/v1/stations', require('./api/station'));
+  app.use('/api/v1/uploads', require('./api/upload'));
   app.use('/api/things', require('./api/thing'));
   app.use('/api/v1/users', require('./api/user'));
 
