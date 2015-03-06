@@ -11,11 +11,11 @@ module.exports = {
   seedDB: false,
 
   s3Buckets: { 
-    SONGS_BUCKET: 'playolasongs',
-    COMMERCIALS_BUCKET: 'playolacommercials',
-    COMMENTARIES_BUCKET: 'playolacommentaries',
-    UNPROCESSED_SONGS: 'playolaunprocessedsongs'
+    SONGS_BUCKET: 'playolasongsdevelopment',
+    COMMERCIALS_BUCKET: 'playolacommercialblocks',
+    COMMENTARIES_BUCKET: 'playolacommentariesdevelopment',
+    UNPROCESSED_SONGS: 'playolaunprocessedsongsdevelopment'
   },
 
-  ECHONEST_TASTE_PROFILE_ID: 'CACRWKJ14BA4596CF4'
+  ECHONEST_TASTE_PROFILE_ID: 'CAMCWVM14BECED787C'
 };

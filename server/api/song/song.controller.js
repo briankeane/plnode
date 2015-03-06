@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Song = require('./song.model');
+var SongProcessor = require('../../utilities/songProcessor/songProcessor');
 
 // Get list of songs
 exports.index = function(req, res) {
@@ -21,8 +22,14 @@ exports.show = function(req, res) {
 };
 
 exports.upload = function(req, res) {
-  console.dir(req.files);
-  return res.send(200)
+  console.log(req.files.file);
+  SongProcessor.addSongToSystem((process.cwd() + '/server/data/unprocessedAudio/' + req.files.file.name), function (err, newSong) {
+    if (err) {
+      return res.send(400,err)
+    } else {
+      return res.send(200, newSong);
+    }
+  })
 }
 
 // Creates a new song in the DB.

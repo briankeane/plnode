@@ -10,7 +10,7 @@ var errors = require('./components/errors');
 
 module.exports = function(app) {
 
-  app.use(multer({dest:'./server/data/unprocessedAudio'}));
+  app.use(multer({dest: process.cwd() + '/server/data/unprocessedAudio'}));
   // Insert routes below
   app.use('/api/v1/spins', require('./api/spin'));
   app.use('/api/v1/songs', require('./api/song'));

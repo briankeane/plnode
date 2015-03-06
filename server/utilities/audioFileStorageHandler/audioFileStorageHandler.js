@@ -20,8 +20,12 @@ function Handler() {
   this.clearBucket = function (bucket, callback) {
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: bucket } });
 
-    listGetter.on('data', function (data) {
-      var objects = data.Contents;
+    var objects = [];
+    listGetter.on('data', function (newData) {
+      objects.concat(newData.Contents);
+    });
+
+    listGetter.on('end', function () {
       var objectKeys = [];
 
       
@@ -65,9 +69,16 @@ function Handler() {
   this.storeSong = function (attrs, callback) {
     // build key
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].SONGS_BUCKET } });
+    
+    var objects = [];
+    
+    // add objects to the array as they come in
+    listGetter.on('data', function (newData) {
+      objects.concat(newData.Contents);
+    });
 
-    listGetter.on('data', function (data) {
-      var objects = data.Contents;
+    // after all objects have been gotten
+    listGetter.on('end', function () {
       var nextKeyValue;
       
       if (!objects.length) {
@@ -106,6 +117,7 @@ function Handler() {
                                               }
                                             });
       uploader.on('end', function (data) {
+console.log('store song end');
         callback(null, key);
       });
     });    
@@ -115,8 +127,12 @@ function Handler() {
     // build key
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].COMMENTARIES_BUCKET } });
 
-    listGetter.on('data', function (data) {
-      var objects = data.Contents;
+    var objects = [];
+    listGetter.on('data', function (newData) {
+      objects.concat(newData.Contents);
+    });
+
+    listGetter.on('end', function () {
       var nextKeyValue;
       
       if (!objects.length) {

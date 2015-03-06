@@ -1,6 +1,7 @@
 angular.module('pl2NodeYoApp')
   .controller('uploaderCtrl', function ($scope, Auth, FileUploader) {
-    $scope.uploader = new FileUploader({ url: 'api/v1/songs/upload' });
+    $scope.uploader = new FileUploader({ url: 'api/v1/songs/upload',
+                                          autoUpload: true });
 
       uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
           console.info('onWhenAddingFileFailed', item, filter, options);
