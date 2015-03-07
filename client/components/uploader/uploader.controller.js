@@ -83,6 +83,21 @@ angular.module('pl2NodeYoApp')
               $scope.submitted = true;
 
               if (form.$valid) {
+                if ($scope.selectedSong === 'ECHONESTIDNOTFOUND') {
+                  // have user check spelling and resubmit
+
+
+                // if echonestID was provided, resubmit upload
+                } else {
+                  var uploadInfo = {
+                                    newEchonestId: $scope.selectedSong,
+                                    uploadId: item.uploadId
+                                    };
+
+                  Auth.resubmitUploadWithEchonestId(uploadInfo, function (err, result) {
+
+                  });
+                }
                 alert('you chose ' + $scope.selectedSong);
               }
             };

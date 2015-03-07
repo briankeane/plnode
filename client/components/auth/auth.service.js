@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Song, Spin, $cookieStore, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Upload, Song, Spin, $cookieStore, $q) {
     var currentUser = {};
     var currentStation = {};
     if($cookieStore.get('token')) {
@@ -230,6 +230,16 @@ angular.module('pl2NodeYoApp')
 
         return new Spin.insert({}, spinInfo, function (updatedProgram) {
           return cb(null, updatedProgram);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      resubmitUploadWithEchonestId: function (item, callback) {
+        var cb = callback || angular.noop;
+
+        return new Upload.resubmitWithEchonestId({ _id: item.uploadId }, item, function (result) {
+          return cb(null, result);
         }, function (err) {
           return cb(err);
         }).$promise;
