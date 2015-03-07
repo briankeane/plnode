@@ -94,15 +94,16 @@ describe('songProcessor', function (done) {
 
   describe('adds a song to the system', function (done) {
 
+    var testFilesArray = [];
+    
     before(function (done) {
       this.timeout(5000);
       var finishedCount = 0;
-      testFilesArray = [];
     
       // copy the file from test folder to unprocessedAudio folder
-      var read = fs.createReadStream(__dirname + '/../../data/testFiles/lonestarTest.m4a');
-      var write = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a');
-      testFilesArray.push(__dirname + '/../../data/unprocessedAudio/lonestarTest.m4a');
+      var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestarTest.m4a');
+      var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a');
+      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a');
       read.pipe(write)
       .on('finish', function () {
         finishedOperation();
@@ -111,22 +112,23 @@ describe('songProcessor', function (done) {
       // copy the file from test folder to unprocessedAudio folder
       var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestar.m4a');
       var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
+      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
       read.pipe(write)
       .on('finish', function () {
         finishedOperation();
       });
 
-      var read3 = fs.createReadStream(__dirname + '/../../data/testFiles/downtown.m4p')
-      var write3 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/downtown.m4p');
-      testFilesArray.push(__dirname + '/../../data/unprocessedAudio/downtown.m4p');
+      var read3 = fs.createReadStream(process.cwd() + '/server/data/testFiles/downtown.m4p')
+      var write3 = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p');
+      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p');
       read3.pipe(write3)
       .on('finish', function () {
         finishedOperation();
       });
 
-      var read4 = fs.createReadStream(__dirname + '/../../data/testFiles/faith.mp3')
-      var write4 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/faith.mp3');
-      testFilesArray.push(__dirname + '/../../data/unprocessedAudio/faith.mp3');
+      var read4 = fs.createReadStream(process.cwd() + '/server/data/testFiles/faithTest.mp3')
+      var write4 = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3');
+      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3');
       read4.pipe(write4)
       .on('finish', function () {
         finishedOperation();
@@ -184,7 +186,7 @@ describe('songProcessor', function (done) {
     });
 
     it('responds to no echonest song info', function (done) {
-      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/faith.mp3', function (err, newSong) {
+      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3', function (err, newSong) {
         expect(err.message).to.equal('Song info not found');
         expect(err.tags.artist).to.equal('Sting');
         expect(err.tags.title).to.equal('Prologue (If I Ever Lose My Faith In You)');
@@ -199,6 +201,38 @@ describe('songProcessor', function (done) {
         done();
       });
     });
+
+    it('allows resubmission with chosen echonestId', function (done) {
+      SongProcessor.addSongWithEchonestId({ match: { 
+                                                  echonestId: 'SOPUMUC14373D95FA3',
+                                                  artist: 'Sting',
+                                                  title: 'If I Ever Lose My Faith In You'
+                                                   },
+                                            filename: process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3'
+                                          }, function (err, newSong) {
+        expect(newSong.title).to.equal('If I Ever Lose My Faith In You');
+        expect(newSong.artist).to.equal('Sting');
+        expect(newSong.album).to.equal("Ten Summoner's Tales");
+        expect(newSong.echonestId).to.equal('SOPUMUC14373D95FA3');
+        expect(newSong.albumArtworkUrl).to.equal('');
+        expect(newSong.trackViewUrl).to.equal('');
+
+        // make sure it was stored properly
+        Storage.getStoredSongMetadata(newSong.key, function (err, data) {
+          expect(data.title).to.equal(newSong.title);
+          expect(data.artist).to.equal(newSong.artist);
+          expect(data.duration).to.equal(newSong.duration);
+          expect(data.echonestId).to.equal(newSong.echonestId);
+
+          // make sure it was added to echonest
+          SongPool.getAllSongs()
+          .on('finish', function (err, allSongs) {
+            expect(allSongs[0].echonestId).to.equal(newSong.echonestId);
+            done();
+          });
+        });
+      });
+    })
     
     after(function (done) {
       this.timeout(5000);

@@ -1,4 +1,4 @@
-'use strict';
+ 'use strict';
 
 var _ = require('lodash');
 var Upload = require('./upload.model');
@@ -12,7 +12,6 @@ exports.index = function(req, res) {
   });
 };
 
-// Get a single thing
 exports.show = function(req, res) {
   Upload.findById(req.params.id, function (err, thing) {
     if(err) { return handleError(res, err); }
