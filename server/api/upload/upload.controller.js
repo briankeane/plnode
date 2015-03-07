@@ -46,7 +46,16 @@ exports.create = function(req, res) {
 }
 
 exports.resubmitWithEchonestId = function(req, res) {
-  return res.send('hereiam');
+  Upload.findById(req.params.id, function (err, upload) {
+    if (!upload) return res.send(404);
+
+    SongProcessor.addSongWithEchonestId({ match: req.query.match,
+                                          tags: req.query.tags,
+                                          filename: process.cwd() + '/server/data/unprocessedAudio/' + upload.filename,
+                                         }, function (err, newSong) {
+      
+    });
+  });
 }
 
 // Updates an existing thing in the DB.

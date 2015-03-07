@@ -95,6 +95,7 @@ describe('songProcessor', function (done) {
   describe('adds a song to the system', function (done) {
 
     before(function (done) {
+      this.timeout(5000);
       var finishedCount = 0;
       testFilesArray = [];
     
@@ -122,6 +123,14 @@ describe('songProcessor', function (done) {
       .on('finish', function () {
         finishedOperation();
       });
+
+      var read4 = fs.createReadStream(__dirname + '/../../data/testFiles/faith.mp3')
+      var write4 = fs.createWriteStream(__dirname + '/../../data/unprocessedAudio/faith.mp3');
+      testFilesArray.push(__dirname + '/../../data/unprocessedAudio/faith.mp3');
+      read4.pipe(write4)
+      .on('finish', function () {
+        finishedOperation();
+      });
       
       Storage.clearBucket('playolasongstest', function () {
         finishedOperation();
@@ -135,7 +144,7 @@ describe('songProcessor', function (done) {
       function finishedOperation() {
         finishedCount++;
 
-        if (finishedCount >= 5) {
+        if (finishedCount >= 6) {
           done();
         }
       }
@@ -174,8 +183,14 @@ describe('songProcessor', function (done) {
       });
     });
 
-    xit('responds to no echonest song info', function (done) {
-
+    it('responds to no echonest song info', function (done) {
+      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/faith.mp3', function (err, newSong) {
+        expect(err.message).to.equal('Song info not found');
+        expect(err.tags.artist).to.equal('Sting');
+        expect(err.tags.title).to.equal('Prologue (If I Ever Lose My Faith In You)');
+        expect(err.tags.album).to.equal("Ten Summoner's Tales");
+        done();
+      });
     });
 
     it('responds to copy-protected song', function (done) {
