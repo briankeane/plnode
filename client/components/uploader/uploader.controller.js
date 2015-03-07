@@ -89,9 +89,11 @@ angular.module('pl2NodeYoApp')
 
                 // if echonestID was provided, resubmit upload
                 } else {
+                  var index = parseInt($scope.selectedSongIndex);
                   var uploadInfo = {
-                                    newEchonestId: $scope.selectedSong,
-                                    uploadId: item.uploadId
+                                    match: item.possibleMatches[index],
+                                    uploadId: item.uploadId,
+                                    tags: item.tags
                                     };
 
                   Auth.resubmitUploadWithEchonestId(uploadInfo, function (err, result) {

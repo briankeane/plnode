@@ -45,6 +45,10 @@ exports.create = function(req, res) {
   })
 }
 
+exports.resubmitWithEchonestId = function(req, res) {
+  return res.send('hereiam');
+}
+
 // Updates an existing thing in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }

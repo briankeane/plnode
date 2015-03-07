@@ -238,7 +238,7 @@ angular.module('pl2NodeYoApp')
       resubmitUploadWithEchonestId: function (item, callback) {
         var cb = callback || angular.noop;
 
-        return new Upload.resubmitWithEchonestId({ _id: item.uploadId }, item, function (result) {
+        return new Upload.resubmitWithEchonestId(item, { _id: item.uploadId }, function (result) {
           return cb(null, result);
         }, function (err) {
           return cb(err);
