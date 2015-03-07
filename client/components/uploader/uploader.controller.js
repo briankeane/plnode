@@ -63,5 +63,24 @@ angular.module('pl2NodeYoApp')
         });
       };
 
+      $scope.getSongMatch = function (item) {
+        $modal.open({
+          templateUrl: './uploader.modal.html',
+          size: 'lg',
+          controller: function ($scope, $modalInstance) {
+            $scope.item = item;
+            
+            $scope.cancel = function () {
+              $modalInstance.dismiss('cancel');
+            };
+
+            $scope.updateSong = function (item) {
+
+            };
+
+          }
+        });
+      };
+
       console.info('uploader', uploader);
   });
