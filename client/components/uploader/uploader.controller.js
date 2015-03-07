@@ -1,5 +1,5 @@
 angular.module('pl2NodeYoApp')
-  .controller('uploaderCtrl', function ($scope, Auth, FileUploader) {
+  .controller('uploaderCtrl', function ($scope, Auth, FileUploader, $modal) {
     $scope.uploader = new FileUploader({ url: 'api/v1/uploads',
                                           autoUpload: true });
 
@@ -34,6 +34,8 @@ angular.module('pl2NodeYoApp')
         if (response.status === 'info needed') {
           fileItem.status = response.status;
           fileItem.possibleMatches = response.possibleMatches;
+          fileItem.tags = response.tags;
+          fileItem.filename = response.filename;
           fileItem.isSuccess = false;
           fileItem.isNeedInfo = true;
           fileItem.uploadId = response._id;
@@ -65,17 +67,24 @@ angular.module('pl2NodeYoApp')
 
       $scope.getSongMatch = function (item) {
         $modal.open({
-          templateUrl: './uploader.modal.html',
+          templateUrl: 'components/uploader/getMatch.modal.html',
           size: 'lg',
           controller: function ($scope, $modalInstance) {
+            scope: $scope,
+
             $scope.item = item;
-            
+            $scope.selectedSong = '';
+
             $scope.cancel = function () {
               $modalInstance.dismiss('cancel');
             };
 
-            $scope.updateSong = function (item) {
+            $scope.submitSongWithEchonestId = function (form) {
+              $scope.submitted = true;
 
+              if (form.$valid) {
+                alert('you chose ' + $scope.selectedSong);
+              }
             };
 
           }

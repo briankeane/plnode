@@ -36,8 +36,7 @@
                     Add to Station
                   </button>
                   <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
-                  <span ng-show="item.isNeedInfo"><button class="btn btn-xs" ng-click="getSongInfo"><span class="glyphicon glyphicon-info-sign"></span> More Info Needed</button></span>
-                  <span ng
+                  <span ng-show="item.isNeedInfo"><button class="btn btn-xs" ng-click="getSongMatch(item);"><span class="glyphicon glyphicon-info-sign"></span> More Info Needed</button></span>
               </td>
               <td nowrap>
                   <button ng-show="!item.isSuccess" type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
