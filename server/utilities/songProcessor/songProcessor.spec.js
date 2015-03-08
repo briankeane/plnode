@@ -154,14 +154,14 @@ describe('songProcessor', function (done) {
 
     it('adds a song to the system (db, echonest, AWS', function (done) {
       this.timeout(40000);
-      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a', function (err, newSong) {
+      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a', function (err, newSong) {
         if (err) console.log(err);
         Song.findOne({ artist: 'Delbert McClinton',
                     title: 'Lone Star Blues' }, function (err, song) {
           console.log(song);
           expect(song.title).to.equal('Lone Star Blues');
           expect(song.artist).to.equal('Delbert McClinton');
-          expect(song.duration).to.equal(237000);
+          expect(song.duration).to.equal(4000);
           expect(song.echonestId).to.equal('SOASHCW12B35058614');
           expect(song.key).to.equal('-pl-01-DelbertMcClinton-LoneStarBlues.mp3')
           expect(song.albumArtworkUrl).to.equal('http://is5.mzstatic.com/image/pf/us/r30/Music/v4/2b/fc/a3/2bfca30d-727c-e235-75d9-dbc7ead5b0d8/607396604234.600x600-75.jpg')
@@ -203,36 +203,43 @@ describe('songProcessor', function (done) {
     });
 
     it('allows resubmission with chosen echonestId', function (done) {
-      SongProcessor.addSongWithEchonestId({ match: { 
-                                                  echonestId: 'SOPUMUC14373D95FA3',
-                                                  artist: 'Sting',
-                                                  title: 'If I Ever Lose My Faith In You'
-                                                   },
-                                            filename: process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3'
-                                          }, function (err, newSong) {
-        expect(newSong.title).to.equal('If I Ever Lose My Faith In You');
-        expect(newSong.artist).to.equal('Sting');
-        expect(newSong.album).to.equal("Ten Summoner's Tales");
-        expect(newSong.echonestId).to.equal('SOPUMUC14373D95FA3');
-        expect(newSong.albumArtworkUrl).to.equal('');
-        expect(newSong.trackViewUrl).to.equal('');
+      this.timeout(10000);
+      SongPool.clearAllSongs()
+      .on('finish', function () {
 
-        // make sure it was stored properly
-        Storage.getStoredSongMetadata(newSong.key, function (err, data) {
-          expect(data.title).to.equal(newSong.title);
-          expect(data.artist).to.equal(newSong.artist);
-          expect(data.duration).to.equal(newSong.duration);
-          expect(data.echonestId).to.equal(newSong.echonestId);
+        SongProcessor.addSongViaEchonestId({  echonestId: 'SOPUMUC14373D95FA3',
+                                              artist: 'Sting',
+                                              title: 'If I Ever Lose My Faith In You',
+                                              album: "Ten Summoner's Tales",
+                                              duration: 500,
+                                              filepath: process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3'
+                                            }, function (err, newSong) {
+          if (err) console.log(err);
 
-          // make sure it was added to echonest
-          SongPool.getAllSongs()
-          .on('finish', function (err, allSongs) {
-            expect(allSongs[0].echonestId).to.equal(newSong.echonestId);
-            done();
+          expect(newSong.title).to.equal('If I Ever Lose My Faith In You');
+          expect(newSong.artist).to.equal('Sting');
+          expect(newSong.album).to.equal("Ten Summoner's Tales");
+          expect(newSong.echonestId).to.equal('SOPUMUC14373D95FA3');
+          expect(newSong.albumArtworkUrl).to.equal('http://is1.mzstatic.com/image/pf/us/r30/Features/11/af/6e/dj.dertmkus.600x600-75.jpg');
+          expect(newSong.trackViewUrl).to.equal('https://itunes.apple.com/us/album/if-i-ever-lose-my-faith-in-you/id110871?i=110861&uo=4');
+
+          // make sure it was stored properly
+          Storage.getStoredSongMetadata(newSong.key, function (err, data) {
+            expect(data.title).to.equal(newSong.title);
+            expect(data.artist).to.equal(newSong.artist);
+            expect(data.duration).to.equal(newSong.duration);
+            expect(data.echonestId).to.equal(newSong.echonestId);
+
+            // make sure it was added to echonest
+            SongPool.getAllSongs()
+            .on('finish', function (err, allSongs) {
+              expect(allSongs[0].echonestId).to.equal(newSong.echonestId);
+              done();
+            });
           });
         });
       });
-    })
+    });
     
     after(function (done) {
       this.timeout(5000);

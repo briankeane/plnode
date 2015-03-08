@@ -38,11 +38,9 @@ function SongProcessor() {
       });
 
       response.on('end', function () {
-        console.log('on end running');
         var responseObj = JSON.parse(string)
         if (responseObj.resultCount === 0) {
           var err = new Error('iTunes match not found');
-          console.log('matchnotfounderror');
           callback(err);
           return;
         } else {
@@ -53,7 +51,6 @@ function SongProcessor() {
         if (match.artworkUrl100) {
           match.albumArtworkUrl = match.artworkUrl100.replace('100x100-75.jpg', '600x600-75.jpg');
         }
-        console.log('foundit');
         callback(null, match);
         return;
       });
@@ -85,7 +82,6 @@ function SongProcessor() {
   this.addSongToSystem = function (originalFilepath, callback) {
     // get tags
     self.getTags(originalFilepath, function (err, tags) {
-      console.log('tags gotten');
       // handle problems
       if (err) {
         callback(err);
@@ -95,11 +91,8 @@ function SongProcessor() {
         return;
       }
 
-      
-
       // get closest echonest tags
       self.getEchonestInfo({ title: tags.title, artist: tags.artist }, function (err, match) {
-        console.log('echonest searched');
         if (err) {
           callback(err);
           return;
@@ -123,7 +116,6 @@ function SongProcessor() {
 
           // grab itunes artwork
           self.getItunesInfo({ title: match.title, artist: match.artist }, function (err, itunesInfo) {
-            console.log('itunes gotten');
             if (err) {
               var itunesInfo = {};
             }
@@ -136,7 +128,6 @@ function SongProcessor() {
                                 echonestId: match.echonestId,
                                 filepath: filepath,
                                 }, function (err, key) {
-              console.log('stored');
               if (err) {
                 callback(new Error('Audio File Storage Error'));
                 return;
@@ -153,7 +144,6 @@ function SongProcessor() {
                             trackViewUrl: itunesInfo.trackViewUrl,
                             itunesInfo: itunesInfo })
               song.save(function (err, newSong) {
-                console.log('created');
                 if (err) callback(err);
 
                 // delete file 
@@ -176,6 +166,66 @@ function SongProcessor() {
       });
     });
   };
+
+  this.addSongViaEchonestId = function (info, callback) {
+    // convert the song
+    Converter.convertFile(info.filepath, function (err, filepath) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      // grab itunes artwork
+      self.getItunesInfo({ title: info.title, artist: info.artist }, function (err, itunesInfo) {
+        if (err) {
+          var itunesInfo = {};
+        }
+        
+        // store the song
+        Storage.storeSong({ title: info.title,
+                            artist: info.artist,
+                            album: info.album,
+                            duration: info.duration,
+                            echonestId: info.echonestId,
+                            filepath: filepath,
+                            }, function (err, key) {
+          if (err) {
+            callback(new Error('Audio File Storage Error'));
+            return;
+          }
+
+          // add to DB
+          song = new Song({ title: info.title,
+                        artist: info.artist,
+                        album: info.album,
+                        duration: info.duration,
+                        echonestId: info.echonestId,
+                        key: key,
+                        albumArtworkUrl: itunesInfo.albumArtworkUrl,
+                        trackViewUrl: itunesInfo.trackViewUrl,
+                        itunesInfo: itunesInfo })
+          song.save(function (err, newSong) {
+            if (err) callback(err);
+
+            // delete file 
+            if (fs.exists(filepath)) fs.unlink(filepath);
+
+            // add song to Echonest
+            SongPool.addSong(newSong)
+            .on('finish', function () {
+              callback(null, newSong);
+              return;
+            })
+            .on('error', function(err) {
+              console.log('echonest error');
+              callback(err);
+              return;
+            });
+          });
+        });
+      });
+    });
+  }
 
   this.getEchonestInfo = function (attrs, callback) {
     echo('song/search').get({ combined: attrs.artist + ' ' + attrs.title
