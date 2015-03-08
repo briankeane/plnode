@@ -5,6 +5,8 @@ var Song = require('../../api/song/song.model');
 var Storage = require('../audioFileStorageHandler/audioFileStorageHandler');
 var SongPool = require('../songPoolHandlerEmitter/songPoolHandlerEmitter');
 
+var testFilesArray = [];
+
 describe('songProcessor', function (done) {
   
   it('gets id3 tags from an mp3 file', function (done) {
@@ -94,41 +96,52 @@ describe('songProcessor', function (done) {
 
   describe('adds a song to the system', function (done) {
 
-    var testFilesArray = [];
-    
     before(function (done) {
       this.timeout(5000);
       var finishedCount = 0;
     
       // copy the file from test folder to unprocessedAudio folder
-      var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestarTest.m4a');
-      var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a');
-      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a');
+
+      var readpath = process.cwd() + '/server/data/testFiles/lonestarTest.m4a';
+      var writepath = process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a';
+      var read = fs.createReadStream(readpath)
+      var write = fs.createWriteStream(writepath);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestarTest.mp3');
+      testFilesArray.push(writepath);
       read.pipe(write)
       .on('finish', function () {
         finishedOperation();
       });
 
       // copy the file from test folder to unprocessedAudio folder
-      var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestar.m4a');
-      var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
-      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a');
-      read.pipe(write)
+      var readpath2 = process.cwd() + '/server/data/testFiles/lonestar.m4a';
+      var writepath2 = process.cwd() + '/server/data/unprocessedAudio/lonestar.m4a';
+      var read2 = fs.createReadStream(readpath2)
+      var write2 = fs.createWriteStream(writepath2);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestar.mp3');
+      testFilesArray.push(writepath2);
+      read2.pipe(write2)
       .on('finish', function () {
         finishedOperation();
       });
 
-      var read3 = fs.createReadStream(process.cwd() + '/server/data/testFiles/downtown.m4p')
-      var write3 = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p');
-      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p');
+      var readpath3 = process.cwd() + '/server/data/testFiles/downtown.m4p';
+      var writepath3 = process.cwd() + '/server/data/unprocessedAudio/downtown.m4p';
+      var read3 = fs.createReadStream(readpath3)
+      var write3 = fs.createWriteStream(writepath3);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/downtown.mp3');
+      testFilesArray.push(writepath3);
       read3.pipe(write3)
       .on('finish', function () {
         finishedOperation();
       });
 
-      var read4 = fs.createReadStream(process.cwd() + '/server/data/testFiles/faithTest.mp3')
-      var write4 = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3');
-      testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3');
+      var readpath4 = process.cwd() + '/server/data/testFiles/faithTest.mp3';
+      var writepath4 = process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3';
+      var read4 = fs.createReadStream(readpath4);
+      var write4 = fs.createWriteStream(writepath4);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/faithTest.mp3');
+      testFilesArray.push(writepath4);
       read4.pipe(write4)
       .on('finish', function () {
         finishedOperation();
@@ -244,7 +257,11 @@ describe('songProcessor', function (done) {
     after(function (done) {
       this.timeout(5000);
       for (var i=0;i<testFilesArray.length;i++) {
-        if (fs.exists(testFilesArray[i])) fs.unlinkSync(testFilesArray[i]);
+        try {
+          fs.unlinkSync(testFilesArray[i]);
+        } catch (e) {
+          // just in case it doesn't exist
+        }
       }
 
       Storage.clearBucket('playolasongstest', function () {

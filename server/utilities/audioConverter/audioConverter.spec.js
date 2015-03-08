@@ -7,33 +7,44 @@ var expect = require('chai').expect;
 var converter = require('./audioConverter');
 var taglib = require('taglib');
 
+var testFilesArray = [];
+
 describe('AudioConverter', function (done) {
-  var testFilesArray = [];
   
   before(function (done) {
     var finishedCount = 0;
     
 
     // copy the file from test folder to unprocessedAudio folder
-    var read = fs.createReadStream(process.cwd() + '/server/data/testFiles/lonestarTest.m4a');
-    var write = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a');
-    testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a');
+    var readpath = process.cwd() + '/server/data/testFiles/lonestarTest.m4a';
+    var writepath = process.cwd() + '/server/data/unprocessedAudio/lonestarTest.m4a';
+    var read = fs.createReadStream(readpath)
+    var write = fs.createWriteStream(writepath);
+    testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestarTest.mp3');
+    testFilesArray.push(writepath);
     read.pipe(write)
     .on('finish', function () {
       finishedOperation();
     });
 
-    var read2 = fs.createReadStream(process.cwd() + '/server/data/testFiles/stepladderTest.wav')
-    var write2 = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/stepladderTest.wav');
-    testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/stepladderTest.wav');
+
+    var readpath2 = process.cwd() + '/server/data/testFiles/stepladderTest.wav';
+    var writepath2 = process.cwd() + '/server/data/unprocessedAudio/stepladderTest.wav';
+    var read2 = fs.createReadStream(readpath2);
+    var write2 = fs.createWriteStream(writepath2);
+    testFilesArray.push(process.cwd() + '/server/data/processedAudio/stepladderTest.mp3');
+    testFilesArray.push(writepath2);
     read2.pipe(write2)
     .on('finish', function () {
       finishedOperation();
     });
 
-    var read3 = fs.createReadStream(process.cwd() + '/server/data/testFiles/downtown.m4p')
-    var write3 = fs.createWriteStream(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p');
-    testFilesArray.push(process.cwd() + '/server/data/unprocessedAudio/downtown.m4p');
+    var readpath3 = process.cwd() + '/server/data/testFiles/downtown.m4p';
+    var writepath3 = process.cwd() + '/server/data/unprocessedAudio/downtown.m4p';
+    var read3 = fs.createReadStream(readpath3)
+    var write3 = fs.createWriteStream(writepath3);
+    testFilesArray.push(process.cwd() + '/server/data/processedAudio/downtown.mp3');
+    testFilesArray.push(writepath3);
     read3.pipe(write3)
     .on('finish', function () {
       finishedOperation();
@@ -87,8 +98,13 @@ describe('AudioConverter', function (done) {
   });
 
   after(function (done) {
+    console.log(testFilesArray);
     for (var i=0;i<testFilesArray.length;i++) {
-      if (fs.exists(testFilesArray[i])) fs.unlinkSync(testFilesArray[i]);
+      try {
+        fs.unlinkSync(testFilesArray[i]);
+      } catch (e) {
+        // just in case it doesn't exist
+      }
     }
     done();
   });
