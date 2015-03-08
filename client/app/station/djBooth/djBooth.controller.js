@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function ($scope, Auth, $location, $window, $timeout, moment, $interval) {
+  .controller('djBoothCtrl', function (AudioPlayer, $scope, Auth, $location, $window, $timeout, moment, $interval) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -16,6 +16,9 @@ angular.module('pl2NodeYoApp')
     var progressUpdater;
     var lastUpdateIndex = 0;
 
+    $timeout(function () {
+      AudioPlayer.loadStation($scope.currentStation._id);
+    }, 1000);
 
     // ******************************************************************
     // *                 Server Request Functions                       *

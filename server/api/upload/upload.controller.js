@@ -22,7 +22,6 @@ exports.show = function(req, res) {
 };
 
 exports.create = function(req, res) {
-  
   SongProcessor.addSongToSystem((process.cwd() + '/server/data/unprocessedAudio/' + req.files.file.name), function (err, newSong) {
     if (err) {
       if (err.message === 'Song info not found') {
@@ -38,6 +37,9 @@ exports.create = function(req, res) {
             return res.send(200, savedUpload);
           });
         })
+      } else if (err.message === 'Song Already Exists') {
+        return res.json(200, { status: 'Song Already Exists',
+                               song: err.song });
       }
     } else {
       return res.send(200, { status: 'added',

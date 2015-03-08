@@ -39,6 +39,11 @@ angular.module('pl2NodeYoApp')
           fileItem.isSuccess = false;
           fileItem.isNeedInfo = true;
           fileItem.uploadId = response._id;
+        } else if (response.status === 'Song Already Exists') {
+          fileItem.status = response.status;
+          fileItem.isSuccess = true;
+          fileItem.songId = response.song._id;
+
         } else if (response.status === 'added') {
           fileItem.status = response.status;
           fileItem.isSuccess = true;

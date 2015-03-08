@@ -14,11 +14,21 @@ var songSchema = AudioBlockSchema.extend({
   albumArtworkUrl:    { type: String },
   trackViewUrl:       { type: String },
   itunesInfo:         {}
+}, {
+  toObject: { getters: true },
+  toJSON: { getters: true }
 });
 
 // ***********************************************************
 // ************************ Statics **************************
 // ***********************************************************
+songSchema.virtual('audioFileUrl').get(function () {
+  if (!this.key) {
+    return null;
+  } else {
+    return 'http://songs.playola.fm/' + this.key;
+  }
+});
 
 songSchema.statics.findAllMatchingTitle = function (title, cb) {
   Song
