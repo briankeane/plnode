@@ -146,6 +146,17 @@ describe('songProcessor', function (done) {
       .on('finish', function () {
         finishedOperation();
       });
+
+      var readpath5 = process.cwd() + '/server/data/testFiles/lonestarTest2.m4a';
+      var writepath5 = process.cwd() + '/server/data/unprocessedAudio/lonestarTest2.m4a';
+      var read5 = fs.createReadStream(readpath5)
+      var write5 = fs.createWriteStream(writepath5);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestarTest2.m4a');
+      testFilesArray.push(writepath5);
+      read5.pipe(write5)
+      .on('finish', function () {
+        finishedOperation();
+      });
       
       Storage.clearBucket('playolasongstest', function () {
         finishedOperation();
@@ -159,7 +170,7 @@ describe('songProcessor', function (done) {
       function finishedOperation() {
         finishedCount++;
 
-        if (finishedCount >= 6) {
+        if (finishedCount >= 7) {
           done();
         }
       }
@@ -253,9 +264,25 @@ describe('songProcessor', function (done) {
         });
       });
     });
+
+    it ('will not add a song already in system', function (done) {
+      this.timeout(10000);
+      Song.create({ title: 'Lone Star Blues',
+                    artist: 'Delbert McClinton',
+                  }, function (err, newSong) {
+        SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/lonestarTest2.m4a', function (err, newSong) {
+          expect(err.message).to.equal('Song Already Exists');
+          expect(err.song.title).to.equal('Lone Star Blues');
+          expect(err.song.artist).to.equal('Delbert McClinton');
+          done();
+        });
+      });
+    });
+
     
     after(function (done) {
       this.timeout(5000);
+      console.log('erasing');
       for (var i=0;i<testFilesArray.length;i++) {
         try {
           fs.unlinkSync(testFilesArray[i]);
