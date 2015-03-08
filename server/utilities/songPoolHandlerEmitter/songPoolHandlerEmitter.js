@@ -9,8 +9,6 @@ var Q = require('q');
 function Handler() {
   var self = this;
   var echo = echojs({ key: process.env.ECHONEST_KEY });
-  console.log('settingupsongPoolHandlerEmitterEchonest key: ');
-  console.log(process.env.ECHONEST_KEY);
 
   this.addSong = function (song) {
     return this.addSongs([song]);

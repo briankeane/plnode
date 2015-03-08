@@ -298,7 +298,7 @@ function Scheduler() {
 
             playlist = partialPlaylist;
 
-            var stationCommercialBlock = new CommercialBlock({ duration: station.secsOfCommercialPerHour/2 });
+            var stationCommercialBlock = new CommercialBlock({ duration: (station.secsOfCommercialPerHour/2)*1000 });
             stationCommercialBlock.save(function (err, savedStationCommercialBlock) {
               stationCommercialBlock = savedStationCommercialBlock;
 

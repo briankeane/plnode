@@ -98,7 +98,6 @@ describe('AudioConverter', function (done) {
   });
 
   after(function (done) {
-    console.log(testFilesArray);
     for (var i=0;i<testFilesArray.length;i++) {
       try {
         fs.unlinkSync(testFilesArray[i]);
