@@ -48,11 +48,18 @@ exports.resubmitWithEchonestId = function(req, res) {
   Upload.findById(req.params.id, function (err, upload) {
     if (!upload) return res.send(404);
 
-    SongProcessor.addSongWithEchonestId({ match: req.query.match,
-                                          tags: req.query.tags,
-                                          filename: process.cwd() + '/server/data/unprocessedAudio/' + upload.filename,
+    SongProcessor.addSongViaEchonestId({ title: req.query.title,
+                                         artist: req.query.artist,
+                                         album: req.query.album,
+                                         duration: upload.tags.duration,
+                                         filepath: process.cwd() + '/server/data/unprocessedAudio/' + upload.filename
                                          }, function (err, newSong) {
-      
+      if (err) {
+        res.json(500, err);
+      } else {
+        res.json(newSong);
+      }
+
     });
   });
 }
