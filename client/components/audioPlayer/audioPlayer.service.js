@@ -84,11 +84,16 @@ angular.module('pl2NodeYoApp')
 
     function advanceSpin() {
       self.nowPlaying = self.playlist.shift();
-      self.nowPlaying.source.start();
+      self.nowPlaying.source.start(0);
       // wait and grab the program
       $timeout(function () {
         refreshProgram();
       }, 2000);
+
+      // set up the next advance
+      self.advanceSpinTimeout = $timeout(function () {
+        advanceSpin();
+      }, new Date(self.nowPlaying.endTime).getTime() - Date.now());
 
     }
 
@@ -103,13 +108,11 @@ angular.module('pl2NodeYoApp')
         // otherwise, just append to playlist and load if necessary
         } else {
 
-          var newPlayist;
+          // for now, just one song. later it will be duration-based
+          self.playlist = [program.playlist[0]];
 
-          // for now, the rule is just one. later it will be a time buffer
-          newPlaylist.push(program.playlist[0]);
-
-          loadAudio(playlist, function () {
-
+          loadAudio(self.playlist, function () {
+            console.log('audioLoaded');
           });
         }
 

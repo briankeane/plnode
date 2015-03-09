@@ -1,5 +1,8 @@
 <div class="audioPlayer navbar-fixed-bottom" 
       ng-controller="AudioPlayerCtrl"
       ng-show="!isCollapsed">
-  <h1 ng-model="test">{{test}}</h1>
+  <div class="col-sm-12 controls">
+    <img class="album-cover" />
+    <h1 ng-model="test">{{player.nowPlaying._audioBlock.title}}</h1>
+  </div>
 </div>

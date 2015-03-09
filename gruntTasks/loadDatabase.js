@@ -7,6 +7,8 @@ var SongPool = require('../server/utilities/songPoolHandlerEmitter/songPoolHandl
 var Helper = require('../server/utilities/helpers/helper');
 var _ = require('lodash');
 var mongoose = require('mongoose');
+var SongProcessor = require('../server/utilities/SongProcessor/SongProcessor');
+var CommercialBlock = require('../server/api/commercialBlock/commercialBlock.model');
 
 module.exports = function(grunt) {
   grunt.registerTask('loadDatabase', function() {
@@ -34,6 +36,92 @@ module.exports = function(grunt) {
             messedUpSongs.push(songObjects.splice(i,1));
           }
         }
+        // add the itunes info
+        for (var i=0;i<songObjects.length;i++) {
+          var completed = 0;
+
+          (function(index) {
+
+            SongProcessor.getItunesInfo(songObjects[index], function (err, info) {
+              if (err) {
+                console.log(err);
+                console.log(songObjects[index]);
+                console.log('index: ' + index);
+              } else {
+                songObjects[index].itunesInfo = info;
+                songObjects[index].albumArtworkUrl = itunesInfo.albumArtworkUrl;
+                songObjects[index].albumArtworkUrlSmall = itunesInfo.artworkUrl100;
+              }
+              completed++;
+
+              // when all have been saved, continue
+              if (completed == songObjects.length) {
+                continueFunction();
+              }
+            });
+          })(i);
+        }
+
+        function continueFunction() {
+          console.log('' + songObjects.length + ' songs found');
+          var songs = _.map(songObjects, function (attrs) { 
+            var newSong = new Song(attrs);
+            newSong.save();
+            return newSong;
+          });
+          console.log(songs[0]);
+
+          console.log("stored songs: " + songs.length);
+          console.log('song1: ');
+          console.log(songs[0]);
+          console.log('songObject1: ');
+          console.log(songObjects[0]);
+          done();
+        }
+      });
+    });
+  });
+
+  grunt.registerTask('updateItunesInfo', function () {
+    console.log('running here')
+
+    var done = this.async();
+    // Connect to database
+    mongoose.connect(config.mongo.uri, config.mongo.options);
+
+    console.log('still running');
+
+
+    Song.all(function (err, songObjects) {
+      // add the itunes info
+      console.log(err);
+      console.log(songObjects.length);
+      for (var i=0;i<songObjects.length;i++) {
+        var completed = 0;
+
+        (function(index) {
+
+          SongProcessor.getItunesInfo(songObjects[index], function (err, info) {
+            if (err) {
+              console.log(err);
+              console.log(songObjects[index]);
+              console.log('index: ' + index);
+            } else {
+              songObjects[index].itunesInfo = info;
+              songObjects[index].albumArtworkUrl = info.albumArtworkUrl;
+              songObjects[index].albumArtworkUrlSmall = info.artworkUrl100;
+            }
+            completed++;
+
+            // when all have been saved, continue
+            if (completed == songObjects.length) {
+              continueFunction();
+            }
+          });
+        })(i);
+      }
+
+      function continueFunction() {
         console.log('' + songObjects.length + ' songs found');
         var songs = _.map(songObjects, function (attrs) { 
           var newSong = new Song(attrs);
@@ -48,7 +136,7 @@ module.exports = function(grunt) {
         console.log('songObject1: ');
         console.log(songObjects[0]);
         done();
-      });
+      }
     });
   });
   

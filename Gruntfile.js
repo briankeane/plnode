@@ -689,6 +689,13 @@ module.exports = function (grunt) {
       'loadEchonestFromDB'
     ]);
   })
+  grunt.registerTask('updateItunes:dev', function () {
+    return grunt.task.run([
+      'env:all',
+      'env:dev',
+      'updateItunesInfo'
+    ]);
+  })
 
 };
 

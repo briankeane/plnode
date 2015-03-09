@@ -9,6 +9,7 @@ var Converter = require('../audioConverter/audioConverter');
 var Storage = require('../audioFileStorageHandler/audioFileStorageHandler');
 var SongPool = require('../songPoolHandlerEmitter/songPoolHandlerEmitter');
 var fs = require('fs');
+var request = require('request');
 
 function SongProcessor() {
   var self = this;
@@ -30,40 +31,35 @@ function SongProcessor() {
   };
 
   this.getItunesInfo = function (attrs, callback) {
-    var httpCallback = function (response) {
-      var string = '';
+    console.log(qs.stringify( { term: ((attrs.artist || '') + ' ' + (attrs.title || '')) }));
+    url = 'https://itunes.apple.com/search?' + qs.stringify( { term: ((attrs.artist || '') + ' ' + (attrs.title || '')) });
 
-      response.on('data', function (chunk) {
-        string += chunk;
-      });
-
-      response.on('end', function () {
-        var responseObj = JSON.parse(string)
-        if (responseObj.resultCount === 0) {
-          var err = new Error('iTunes match not found');
-          callback(err);
-          return;
-        } else {
-          var match = responseObj.results[0];
-        }
-
-        // add the 600x600 albumArtwork
-        if (match.artworkUrl100) {
-          match.albumArtworkUrl = match.artworkUrl100.replace('100x100-75.jpg', '600x600-75.jpg');
-        }
-        callback(null, match);
+    request(url, function (error, response, body) {
+      if (response.statusCode == 403) {
+        console.log(response.statusCode);
+        setTimeout(self.getItunesInfo(attrs, callback), 500);
         return;
-      });
-    }
+      }
 
-    var options = { host: 'itunes.apple.com',
-                  path: '/search?' + qs.stringify( { term: ((attrs.artist || '') + ' ' + (attrs.title || '')) })
-                     };
-    var req = https.get(options, httpCallback);
-    req.on('error', function (err) {
-      if (err) throw err;
-    });
+      console.log(response.statusCode);
+      var responseObj = JSON.parse(body);
+      if (responseObj.resultCount === 0) {
+        var err = new Error('iTunes match not found');
+        callback(err);
+        return;
+      } else {
+        var match = responseObj.results[0];
+      }
+
+      // add the 600x600 albumArtwork
+      if (match.artworkUrl100) {
+        match.albumArtworkUrl = match.artworkUrl100.replace('100x100-75.jpg', '600x600-75.jpg');
+      }
+      callback(null, match);
+      return;
+    })
   };
+
 
   this.getSongMatchPossibilities = function (attrs, callback) {
     echo('song/search').get({ combined: attrs.artist + ' ' + attrs.title 
@@ -157,6 +153,7 @@ function SongProcessor() {
                               echonestId: match.echonestId,
                               key: key,
                               albumArtworkUrl: itunesInfo.albumArtworkUrl,
+                              albumArtworkUrlSmall: itunesInfo.artworkUrl100,
                               trackViewUrl: itunesInfo.trackViewUrl,
                               itunesInfo: itunesInfo })
                 song.save(function (err, newSong) {

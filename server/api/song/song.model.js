@@ -7,13 +7,14 @@ var extend = require('mongoose-schema-extend');
 var AudioBlockSchema = require('../audioBlock/audioBlock.schema');
 
 var songSchema = AudioBlockSchema.extend({
-  artist:             { type: String },
-  title:              { type: String },
-  album:              { type: String },
-  echonestId:         { type: String },
-  albumArtworkUrl:    { type: String },
-  trackViewUrl:       { type: String },
-  itunesInfo:         {}
+  artist:                 { type: String },
+  title:                  { type: String },
+  album:                  { type: String },
+  echonestId:             { type: String },
+  albumArtworkUrl:        { type: String },
+  albumArtworkUrlSmall:   { type: String },
+  trackViewUrl:           { type: String },
+  itunesInfo:             {}
 }, {
   toObject: { getters: true },
   toJSON: { getters: true }
@@ -32,14 +33,14 @@ songSchema.virtual('audioFileUrl').get(function () {
 
 songSchema.statics.findAllMatchingTitle = function (title, cb) {
   Song
-  .find({ title: new RegExp('^'+title, "i") })
+  .find({ _type: 'Song', title: new RegExp('^'+title, "i") })
   .sort('title')
   .exec(cb);
 }
 
 songSchema.statics.findAllMatchingArtist = function (artist, cb) {
   Song
-  .find({ artist: new RegExp('^'+artist, "i") })
+  .find({ _type: 'Song', artist: new RegExp('^'+artist, "i") })
   .sort('title')
   .exec(cb);
 }
@@ -53,7 +54,8 @@ songSchema.statics.keywordSearch = function (keywords, cb) {
   }
 
   // build the query
-  var query = { $and: [] };
+  var query = { '_type': 'Song',
+                $and: [] };
   for (var i=0; i<keywordsRegexs.length; i++) {
     query['$and'].push({ $or: [{ title: keywordsRegexs[i] }, { artist: keywordsRegexs[i] }] });
   }
@@ -66,6 +68,8 @@ songSchema.statics.keywordSearch = function (keywords, cb) {
 }
 
 songSchema.statics.findAllByTitleAndArtist = function (queryObject, cb) {
+  queryObject["_type"] = "Song";
+
   Song
   .find(queryObject)
   .sort({ artist: 1, title: 1 })
@@ -74,7 +78,7 @@ songSchema.statics.findAllByTitleAndArtist = function (queryObject, cb) {
 
 songSchema.statics.all = function (cb) {
   Song
-  .find()
+  .find({ "_type": 'Song' })
   .sort({ artist: 1, title: 1 })
   .exec(cb);
 }
