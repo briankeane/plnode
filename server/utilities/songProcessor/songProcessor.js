@@ -31,7 +31,6 @@ function SongProcessor() {
   };
 
   this.getItunesInfo = function (attrs, callback) {
-    console.log(qs.stringify( { term: ((attrs.artist || '') + ' ' + (attrs.title || '')) }));
     url = 'https://itunes.apple.com/search?' + qs.stringify( { term: ((attrs.artist || '') + ' ' + (attrs.title || '')) });
 
     request(url, function (error, response, body) {
@@ -41,7 +40,6 @@ function SongProcessor() {
         return;
       }
 
-      console.log(response.statusCode);
       var responseObj = JSON.parse(body);
       if (responseObj.resultCount === 0) {
         var err = new Error('iTunes match not found');

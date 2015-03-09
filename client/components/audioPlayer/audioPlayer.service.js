@@ -13,6 +13,7 @@ angular.module('pl2NodeYoApp')
     self.nowPlaying;
     self.playlist;
     self.requests = [];
+    self.volume = 1;
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -66,6 +67,13 @@ angular.module('pl2NodeYoApp')
         });
       });
     };
+
+    this.setVolume = function (volume) {
+      self.volume = volume;
+      if (!self.muted) {
+        self.gainNode.gain.value = self.volume;
+      }
+    }
     
     this.clearPlayer = function () {
       // stop the source if it's playing

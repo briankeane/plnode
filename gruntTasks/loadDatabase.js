@@ -110,33 +110,20 @@ module.exports = function(grunt) {
               songObjects[index].itunesInfo = info;
               songObjects[index].albumArtworkUrl = info.albumArtworkUrl;
               songObjects[index].albumArtworkUrlSmall = info.artworkUrl100;
+              songObjects[index].save();
+              console.log(songObjects[index].title + ' saved');;
             }
             completed++;
 
             // when all have been saved, continue
             if (completed == songObjects.length) {
-              continueFunction();
+              console.log('done');
+              done();
             }
           });
         })(i);
       }
 
-      function continueFunction() {
-        console.log('' + songObjects.length + ' songs found');
-        var songs = _.map(songObjects, function (attrs) { 
-          var newSong = new Song(attrs);
-          newSong.save();
-          return newSong;
-        });
-        console.log(songs[0]);
-
-        console.log("stored songs: " + songs.length);
-        console.log('song1: ');
-        console.log(songs[0]);
-        console.log('songObject1: ');
-        console.log(songObjects[0]);
-        done();
-      }
     });
   });
   

@@ -13,5 +13,6 @@ angular.module('pl2NodeYoApp')
     $scope.isAdmin = Auth.isAdmin;
     $scope.getCurrentUser = Auth.getCurrentUser();
     console.log('right here');
-    $scope.player = AudioPlayer
+    $scope.player = AudioPlayer;
+    $scope.volume;
   });

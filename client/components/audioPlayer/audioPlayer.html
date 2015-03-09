@@ -1,8 +1,15 @@
-<div class="audioPlayer navbar-fixed-bottom" 
-      ng-controller="AudioPlayerCtrl"
-      ng-show="!isCollapsed">
-  <div class="col-sm-12 controls">
-    <img class="album-cover" />
-    <h1 ng-model="test">{{player.nowPlaying._audioBlock.title}}</h1>
+<div class="audioPlayer navbar-fixed-bottom">
+  <div class="row"
+        ng-controller="AudioPlayerCtrl"
+        ng-show="!isCollapsed">
+    <div class="row controls">
+      <img class="album-cover col-sm-2" src="{{player.nowPlaying._audioBlock.albumArtworkUrlSmall}}"/>
+      <h4 class="title col-sm-2">{{player.nowPlaying._audioBlock.title}}</h4>
+      <h4 class="artist col-sm-2">{{player.nowPlaying._audioBlock.artist}}</h4>
+     <!--  <div class="fa fa-compress fa-lg" ng-click="isCollapsed=true;"></div> -->
+     <label>volume: <input min="0" max="1" step="0.01" type="range" ng-model="player.volume" ng-change="player.setVolume(player.volume)" /></label>
+    </div>
+
+<!--     <div class="fa fa-expand audio-player-expander" ng-click="isCollapsed=false;"></div> -->
   </div>
 </div>
