@@ -12,6 +12,7 @@ angular.module('pl2NodeYoApp')
     self.advanceSpinTimeout;
     self.nowPlaying;
     self.playlist;
+    self.requests = [];
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -60,44 +61,90 @@ angular.module('pl2NodeYoApp')
             // set next advance
             self.advanceSpinTimeout = $timeout(function () {
               advanceSpin();
-            });
+            }, new Date(self.playlist[0].airtime) - Date.now());
           });
         });
       });
     };
     
     this.clearPlayer = function () {
-      console.log('clearPlayer() called');
-    }
+      // stop the source if it's playing
+      if (self.nowPlaying && self.nowPlaying.source) {
+        self.nowPlaying.source.stop();
+      }
+
+      // stop the next advance
+      if (self.advanceSpinTimeout) self.advanceSpinTimeout.cancel();
+      
+      // clear the queues
+      self.nowPlaying = null;
+      self.playlist = null;
+    };
+
+
     function advanceSpin() {
-      console.log('advance spin function called');
+      self.nowPlaying = self.playlist.shift();
+      self.nowPlaying.source.start();
+      // wait and grab the program
+      $timeout(function () {
+        refreshProgram();
+      }, 2000);
+
     }
 
+    function refreshProgram() {
+      Auth.getProgram({  id: self.stationId }, function (err, program) {
+        if (err) console.log(err);
+
+        // if the wrong station is now playing, reset it
+        if (self.nowPlaying._audioBlock._id != program.nowPlaying._audioBlock._id) {
+          self.loadStation(self.stationId);
+        
+        // otherwise, just append to playlist and load if necessary
+        } else {
+
+          var newPlayist;
+
+          // for now, the rule is just one. later it will be a time buffer
+          newPlaylist.push(program.playlist[0]);
+
+          loadAudio(playlist, function () {
+
+          });
+        }
+
+        //
+      });
+    }
+
+    // loadAudio only works for 1 element arrays right now
     function loadAudio(spins, callback) {
       var context = self.context;
       
 
       // load each element
       for (var i=0;i<spins.length;i++) {
-        var request = new XMLHttpRequest();
-        request.open('GET', spins[i]._audioBlock.audioFileUrl, true);
-        request.responseType = 'arraybuffer';
+        // if it hasn't been done already... 
+        if (!spins[i].source) {
+          var request = new XMLHttpRequest();
+          request.open('GET', spins[i]._audioBlock.audioFileUrl, true);
+          request.responseType = 'arraybuffer';
 
-        // decode
-        (function (i) {
+          // decode
+          (function (i) {
+            request.onload = function () {
+              context.decodeAudioData(request.response, function (buffer) {
+                var source = context.createBufferSource();
+                source.buffer = buffer;
+                source.connect(self.gainNode);
 
-        request.onload = function () {
-          context.decodeAudioData(request.response, function (buffer) {
-            var source = context.createBufferSource();
-            source.buffer = buffer;
-            source.connect(self.gainNode);
+                spins[i].source = source;
+                callback();
+              });
+            };
+          }(i));
+        }
 
-            spins[i].source = source;
-            callback();
-
-          });
-        };
-        }(i));
         request.send();
 
       }
