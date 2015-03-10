@@ -62,6 +62,7 @@ angular.module('pl2NodeYoApp')
             // set next advance
             self.advanceSpinTimeout = $timeout(function () {
               advanceSpin();
+              return false;
             }, new Date(self.playlist[0].airtime) - Date.now());
           });
         });
@@ -109,20 +110,13 @@ angular.module('pl2NodeYoApp')
       Auth.getProgram({  id: self.stationId }, function (err, program) {
         if (err) console.log(err);
 
-        // if the wrong station is now playing, reset it
-        if (self.nowPlaying._audioBlock._id != program.nowPlaying._audioBlock._id) {
-          self.loadStation(self.stationId);
-        
-        // otherwise, just append to playlist and load if necessary
-        } else {
+        // for now, just one song. later it will be duration-based
+        self.playlist = [program.playlist[0]];
 
-          // for now, just one song. later it will be duration-based
-          self.playlist = [program.playlist[0]];
+        loadAudio(self.playlist, function () {
+          console.log('audioLoaded');
+        });
 
-          loadAudio(self.playlist, function () {
-            console.log('audioLoaded');
-          });
-        }
 
         //
       });
