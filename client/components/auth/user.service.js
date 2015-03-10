@@ -29,6 +29,13 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'setZipcode'
         }
+      },
+      getTwitterFriends: {
+        method: 'GET',
+        params: {
+          controller: 'twitterFriends',
+          _id: '@_id'
+        }
       }
 	  });
   });

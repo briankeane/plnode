@@ -133,6 +133,16 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      getTwitterFriends: function (callback) {
+        var cb = callback || angular.noop;
+
+        return User.getTwitterFriends({},{ _id: currentUser._id },function (result) {
+          return cb(null, result);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       createStation: function (stationObject, callback) {
         var cb = callback || angular.noop;
 

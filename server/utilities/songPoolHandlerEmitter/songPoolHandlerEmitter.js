@@ -204,86 +204,91 @@ function Handler() {
 
 
     // get suggestsions from echonest
-
-    echo('playlist/static').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
-                                bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
-      if (err) { 
-        return;
-      }
-
-      var songsJson = json.response["songs"];
-      var songEchonestIds = _.map(songsJson, function (song) {return song["id"] });
-      var songs = [];
-      var finalList = [];
-      var count = 0;
-
-      // pre-grab songs from artists
-      var grabSongFunctions = [];
-      for (var i=0;i<artists.length;i++) {
-        grabSongFunctions.push((function () {
-          var deferred = Q.defer();
-          Song.findAllMatchingArtist(artists[i], function (err, artistSongs) {
-            if (err) {
-              deferred.reject(new Error(error));
-            } else {
-              deferred.resolve(artistSongs);
-            }
-          });
-          return deferred.promise;
-        })(i));
-      }
-      Q.all(grabSongFunctions)
-      .done(function (results) {
-        // add the songs
-        for(var i=0;i<results.length;i++) {
-          // add up to 4 songs from each artist
-          for(var j=0;((j<4) && (j<results[i].length));j++) {
-            finalList.push(results[i][j]);
-
-            // remove duplicate if it exists
-            var index = songEchonestIds.indexOf(results[i][j].echonestId);
-            if (index > -1) {
-              songEchonestIds.splice(index,1);
-            }
-          }  
+    function makeEchonestRequest() {
+      console.log('made it here');
+      echo('playlist/static').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
+                                  bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
+        if (err) { 
+          console.log(err);
+          setTimeout(makeEchonestRequest, 1000);
+          return;
         }
-        // build a query object
-        var query = _.map(songEchonestIds, function (echonestId) {
-          return { echonestId: echonestId }
-        });
-        // grab all the suggested songs from their echonestIds
-        Song.find({ $or: query }, function (err, suggestedSongs) {
-          finalList = finalList.concat(suggestedSongs);
 
-          // if there's enough, exit
-          if (finalList.length > 57) {
-            callback(null, finalList);
-          } else {
-            // for now, fill with random songs
-            Song.findRandom({}, {}, { limit: 57 }, function (err, randomSongs) {
-              if (err) throw err;
-              var i=0;
-              while (finalList.length < 57) {
-                var alreadyIncluded = false;
-                for (j=0; j<finalList.length; j++) {
-                  if (finalList[j].echonestId === randomSongs[i].echonestId) {
-                    alreadyIncluded = true;
-                    break;
+        var songsJson = json.response["songs"];
+        var songEchonestIds = _.map(songsJson, function (song) {return song["id"] });
+        var songs = [];
+        var finalList = [];
+        var count = 0;
+
+        // pre-grab songs from artists
+        var grabSongFunctions = [];
+        for (var i=0;i<artists.length;i++) {
+          grabSongFunctions.push((function () {
+            var deferred = Q.defer();
+            Song.findAllMatchingArtist(artists[i], function (err, artistSongs) {
+              if (err) {
+                deferred.reject(new Error(error));
+              } else {
+                deferred.resolve(artistSongs);
+              }
+            });
+            return deferred.promise;
+          })(i));
+        }
+        Q.all(grabSongFunctions)
+        .done(function (results) {
+          // add the songs
+          for(var i=0;i<results.length;i++) {
+            // add up to 4 songs from each artist
+            for(var j=0;((j<4) && (j<results[i].length));j++) {
+              finalList.push(results[i][j]);
+
+              // remove duplicate if it exists
+              var index = songEchonestIds.indexOf(results[i][j].echonestId);
+              if (index > -1) {
+                songEchonestIds.splice(index,1);
+              }
+            }  
+          }
+          // build a query object
+          var query = _.map(songEchonestIds, function (echonestId) {
+            return { echonestId: echonestId }
+          });
+          // grab all the suggested songs from their echonestIds
+          Song.find({ $or: query }, function (err, suggestedSongs) {
+            finalList = finalList.concat(suggestedSongs);
+
+            // if there's enough, exit
+            if (finalList.length > 57) {
+              callback(null, finalList);
+            } else {
+              // for now, fill with random songs
+              Song.findRandom({}, {}, { limit: 57 }, function (err, randomSongs) {
+                if (err) throw err;
+                var i=0;
+                while (finalList.length < 57) {
+                  var alreadyIncluded = false;
+                  for (j=0; j<finalList.length; j++) {
+                    if (finalList[j].echonestId === randomSongs[i].echonestId) {
+                      alreadyIncluded = true;
+                      break;
+                    }
+                  }
+                  if (!alreadyIncluded) {
+                    finalList.push(randomSongs[i]);
+                    i++;
                   }
                 }
-                if (!alreadyIncluded) {
-                  finalList.push(randomSongs[i]);
-                  i++;
-                }
-              }
 
-              // callback with list
-              callback(null, finalList);
-            });
-          }
+                // callback with list
+                callback(null, finalList);
+              });
+            }
+          });
         });
       });
-    });
+    }
+    makeEchonestRequest();
   };
 
 

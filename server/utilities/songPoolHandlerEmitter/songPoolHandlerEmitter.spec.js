@@ -124,9 +124,14 @@ describe('songPoolHandler', function (done) {
       var data = fs.readFileSync(process.cwd() + '/server/data/testFiles/echonest_cat.json', 'utf8');
       SongPool.clearAllSongs()
       .on('finish', function () {
+        console.log('cleared');
         echo('tasteprofile/update').post({ id: 'CAIQEUO1473A654C51', data: data }, function (err, json) {
+          if (err) console.log(err);
+          console.log('waiting');
           waitAndGetSongs(json.response["ticket"], function (err, allSongsAsObjects) {
+            console.log('done waiting');
             // seed the db
+            if (err) console.log(err);
             var allSongs = _.map(allSongsAsObjects, function(attrs) { return new Song(attrs); });
               SpecHelper.saveAll(allSongs, function(err, songs) {
                 Song.find({}, function (err, allSongs) {

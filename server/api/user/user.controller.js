@@ -49,6 +49,33 @@ exports.show = function (req, res, next) {
   });
 };
 
+exports.twitterFriends = function(req,res) {
+  User.findById(req.params.id, function (err, user) {
+    if (err) return next(err);
+    if (!user) return res.send(401);
+
+    // build the query
+    var query = { $or: [] };
+    for (var i=0;i<user.twitter.friends.length;i++) {
+      query["$or"].push({ twitterHandle: user.twitter.friends[i].screen_name });
+    }
+
+    // if none are on playola, return blank array
+    if (!query["$or"].length) {
+      return res.json(200, { friends: [] });
+    
+    // otherwise grab the stations
+    } else {
+      User
+      .find(query)
+      .populate('_station')
+      .exec(function (err, users) {
+        return res.json(200, { friends: users });
+      })
+    }
+  });
+};
+
 // Updates an existing user in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }

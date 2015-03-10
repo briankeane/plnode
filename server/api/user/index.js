@@ -10,6 +10,7 @@ router.get('/', auth.hasRole('admin'), controller.index);
 router.delete('/:id', auth.hasRole('admin'), controller.destroy);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.put('/:id/password', auth.isAuthenticated(), controller.changePassword);
+router.get('/:id/twitterFriends', auth.isAuthenticated(), controller.twitterFriends);
 router.get('/:id', auth.isAuthenticated(), controller.show);
 router.post('/', controller.create);
 router.put('/:id/update', auth.isAuthenticated(), controller.update);

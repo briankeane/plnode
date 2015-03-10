@@ -208,7 +208,7 @@ describe('more user CRUD', function () {
     });
   });
 
-  xit ('gets its station', function (done) {
+  xit ('returns a list of twitter friends', function (done) {
     // to do
   });
 });

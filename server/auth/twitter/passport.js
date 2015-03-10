@@ -17,8 +17,9 @@ exports.setup = function (User, config) {
       }
       if (!user) {
         getFriends(token, tokenSecret, profile, function (err, friends) {
+          console.log(profile);
           user = new User({
-            twitterHandle: profile.displayName,
+            twitterHandle: profile.screen_name,
             twitterUID: profile.id,
             role: 'user',
             provider: 'twitter',
@@ -39,9 +40,6 @@ exports.setup = function (User, config) {
         });
       }
     });
-
-
-
 
 
     function getFriends (token, tokenSecret, profile, callback) {
