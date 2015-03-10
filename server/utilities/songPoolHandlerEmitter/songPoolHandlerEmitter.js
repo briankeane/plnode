@@ -208,6 +208,7 @@ function Handler() {
       console.log('made it here');
       echo('playlist/static').get({ artist: artists, type: 'artist-radio', results: 100, limit: true,
                                   bucket: 'id:' + config.ECHONEST_TASTE_PROFILE_ID } ,function (err, json) {
+        console.log('request came back');
         if (err) { 
           console.log(err);
           setTimeout(makeEchonestRequest, 1000);
@@ -235,8 +236,11 @@ function Handler() {
             return deferred.promise;
           })(i));
         }
+
+        console.log('calling q to get songs');
         Q.all(grabSongFunctions)
         .done(function (results) {
+          console.log('q finished');
           // add the songs
           for(var i=0;i<results.length;i++) {
             // add up to 4 songs from each artist
@@ -250,12 +254,15 @@ function Handler() {
               }
             }  
           }
+          console.log('building query object');
           // build a query object
           var query = _.map(songEchonestIds, function (echonestId) {
             return { echonestId: echonestId }
           });
+          console.log('grabbing suggested songs');
           // grab all the suggested songs from their echonestIds
           Song.find({ $or: query }, function (err, suggestedSongs) {
+            console.log('songs grabbed');
             finalList = finalList.concat(suggestedSongs);
 
             // if there's enough, exit
@@ -265,7 +272,9 @@ function Handler() {
               // for now, fill with random songs
               Song.findRandom({}, {}, { limit: 57 }, function (err, randomSongs) {
                 if (err) throw err;
+                console.log('random Songs size: ' + randomSongs.length);
                 var i=0;
+
                 while (finalList.length < 57) {
                   var alreadyIncluded = false;
                   for (j=0; j<finalList.length; j++) {
@@ -276,8 +285,9 @@ function Handler() {
                   }
                   if (!alreadyIncluded) {
                     finalList.push(randomSongs[i]);
-                    i++;
                   }
+                  
+                  i++;
                 }
 
                 // callback with list
