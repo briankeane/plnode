@@ -166,7 +166,11 @@ angular.module('pl2NodeYoApp')
       getProgram: function(attrs, callback) {
         var cb = callback || angular.noop;
 
-        return Station.getProgram({ id: currentStation._id },attrs, function (program) {
+        if (!attrs.id) {
+          attrs.id = currentStation._id;
+        }
+
+        return Station.getProgram({ id: attrs.id },attrs, function (program) {
           return cb(null, program);
         }, function (err) {
           return cb(err);

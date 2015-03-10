@@ -83,7 +83,7 @@ angular.module('pl2NodeYoApp')
       }
 
       // stop the next advance
-      if (self.advanceSpinTimeout) self.advanceSpinTimeout.cancel();
+      if (self.advanceSpinTimeout) $timeout.cancel(self.advanceSpinTimeout);
       
       // clear the queues
       self.nowPlaying = null;

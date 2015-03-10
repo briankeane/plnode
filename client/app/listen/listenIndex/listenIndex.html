@@ -2,36 +2,27 @@
 
   <h1 class="headline">Listen</h1>
   
-
   <tabset class="tabs" id="findStationsPanel" justified="true">
-    <tab heading="Top Stations">
+    <tab heading="Twitter Friends" ng-controller="ListenIndexCtrl">
       <div class="content active" id="twitter-friends">
         <div class="row small-9">
-          <% twitter_friends_stations.each do |station| %>
-            <a ng-repeat="friend in twitterFriends" href="">
-              <article class="top-station station-square small-6 medium-3">
-                <img class="twitter-pic" src="<%= station.user.profile_image_url %>" />
-                <div class="overlay">
-                <h3 class="overlay-twitter-handle">@<%= station.user.twitter %></h3>
+          <a ng-repeat="friend in twitterFriends" ng-href="#" ng-click="playStation(friend._station._id);">
+            <article class="top-station station-square col-sm-6 col-md-3">
+              <img class="twitter-pic" src="{{friend.profileImageUrl}}" />
+              <div class="overlay">
+              <h3 class="overlay-twitter-handle">@{{friend.twitterHandle}}</h3>
 
-                <h3 class="overlay-now-playing-label">Now Playing:</h3>
+              <h3 class="overlay-now-playing-label">Now Playing:</h3>
 
-                <% if station.now_playing.is_commercial_block %>
-                  <p class="now-playing-title"><b>Commercial Block</b></p>
-
-                <% else %>
-
-                  <p class="now-playing-title"><%= station.now_playing.audio_block.title || 'Commercial Break' %></p>
-                  <p class="now-playing-artist"><%= station.now_playing.audio_block.artist || '' %></p>
-                <% end %>
-                </div>
-              </article>
-            </a>
-          <% end %>
+              <p class="now-playing-title"><%= station.now_playing.audio_block.title || 'Commercial Break' %></p>
+              <p class="now-playing-artist"><%= station.now_playing.audio_block.artist || '' %></p>
+              </div>
+            </article>
+          </a>
         </div>
       </div>
     
-
+<!-- 
     <dd class="active"><a href="#twitter-friends">Your Twitter Friends</a></dd>
     <dd><a href="#top-stations">Top Stations</a></dd>
     <dd><a href="#preset-stations">Your Presets</a></dd>
@@ -96,6 +87,6 @@
     <div class="content" id="search-stations">
       <h1 class="headline">Coming Soon</h1>
     </div>
-
-  </div>
+ -->
+  </tabset>
 </div>

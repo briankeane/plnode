@@ -14,7 +14,6 @@ var UserSchema = new Schema({
   gender:             { type: String },
   zipcode:            { type: String },
   timezone:           { type: String }, 
-  profileImageUrl:    { type: String },
   _station:           { type: Schema.ObjectId, ref: 'Station' },
   name:               { type: String },
   role:               { type: String, default: 'user'},
@@ -22,6 +21,9 @@ var UserSchema = new Schema({
   provider:           { type: String },
   salt:               { type: String },
   twitter:                  {}
+}, {
+  toObject: { getters: true },
+  toJSON: { virtuals: true }
 });
 
 /**
@@ -37,6 +39,26 @@ UserSchema
   .get(function() {
     return this._password;
   });
+
+UserSchema
+  .virtual('profileImageUrl')
+  .get(function() {
+    if (this.twitter && this.twitter.profile_image_url) {
+      return this.twitter.profile_image_url.replace('_normal', '');
+    } else {
+      return null;
+    }
+  })
+
+UserSchema
+  .virtual('profileImageUrlSmall')
+  .get(function() {
+    if (this.twitter) {
+      return this.twitter.profileImageUrl;
+    } else {
+      return null;
+    }
+  })
 
 // Public profile information
 UserSchema
