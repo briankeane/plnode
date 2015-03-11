@@ -5,6 +5,7 @@ angular.module('pl2NodeYoApp')
 
     // initialize variables
     var self = this;
+    self.currentUser = Auth.getCurrentUser();
     self.muted = false;
     self.volumeLevel = 1;
     self.musicStarted = false;
@@ -14,6 +15,9 @@ angular.module('pl2NodeYoApp')
     self.requests = [];
     self.volume = 1;
     self.timeouts = [];
+    self.loading = true;
+    self.initialLoad = true;
+    self.stationId;
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -38,7 +42,15 @@ angular.module('pl2NodeYoApp')
     this.loadStation = function (stationId) {
       self.clearPlayer();
 
+      self.loading = true;
+
       self.stationId = stationId;
+
+      // if it's the initial load, set up listeningSession reporting
+      if (self.initialLoad) {
+        self.initialLoad = false;
+        createListeningSession();
+      }
 
       Auth.getProgram({  id: stationId }, function (err, program) {
         if (err) console.log(err);
@@ -50,7 +62,7 @@ angular.module('pl2NodeYoApp')
           if (err) console.log(err);
 
           // if it took to long to load the first song, start load process over
-          if (Date.now() < self.nowPlaying.endTime) {
+          if (self.nowPlaying.endTime && (Date.now() < self.nowPlaying.endTime)) {
             self.loadStation(stationId);
             return;
           }
@@ -58,6 +70,9 @@ angular.module('pl2NodeYoApp')
           // start music, load next songs.
           var msAlreadyElapsed = (Date.now() - new Date(self.nowPlaying.airtime).getTime())/1000;
           self.nowPlaying.source.start(0, msAlreadyElapsed);
+
+          self.loading = false;
+
           loadAudio(self.playlist, function (err) {
             // set next advance
             var newTimeout = $timeout(function () {
@@ -85,13 +100,10 @@ angular.module('pl2NodeYoApp')
       }
 
       // stop any advances
-      console.log('timeouts before');
-      console.log(self.timeouts);
-      console.log('timeouts after');
-      console.log(self.timeouts);
-
-      $timeout.cancel(self.timeouts);
-
+      for(var i=0;i<self.timeouts.length;i++) {
+        $timeout.cancel(self.timeouts[i]);
+      }
+      self.timeouts = [];
       
       // clear the queues
       self.nowPlaying = null;
@@ -101,7 +113,11 @@ angular.module('pl2NodeYoApp')
 
     function advanceSpin() {
       self.nowPlaying = self.playlist.shift();
-      self.nowPlaying.source.start(0);
+
+      // play next song now or when it's done loading
+      if (self.nowPlaying && self.nowPlaying.source) {
+        self.nowPlaying.source.start(0);
+      }
       
       // wait and grab the program
       $timeout(function () {
@@ -129,6 +145,30 @@ angular.module('pl2NodeYoApp')
           console.log('audioLoaded');
         });
       });
+    }
+
+    function createListeningSession() {
+      Auth.createListeningSession({ _station: self.stationId,
+                                    _user: self.currentUser.id 
+                                  }, function (err, listeningSession) {
+        self.listeningSessionId = listeningSession._id;
+        
+        // start updating in 1 minute
+        $timeout(function () {
+          updateListeningSession();
+        }, 60*1000)
+      });
+    }
+
+    function updateListeningSession() {
+      Auth.updateListeningSession({ id: self.listeningSessionId,
+                                    _station: self.stationId 
+                                  }, function (err, listeningSession) {
+        self.listeningSessionId = listeningSession._id;
+      });
+      
+      // update again in 60 secs
+      $timeout(updateListeningSession, 60*1000);
     }
 
     // loadAudio only works for 1 element arrays right now
@@ -160,7 +200,6 @@ angular.module('pl2NodeYoApp')
         }
 
         request.send();
-
       }
     }
   });

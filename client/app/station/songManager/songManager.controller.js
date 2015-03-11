@@ -138,7 +138,7 @@ angular.module('pl2NodeYoApp')
     }
 
     $scope.currentStation = Auth.getCurrentStation()
-    console.log($scope.currentStation);
+
     $scope.currentUser = Auth.getCurrentUser();
 
     if (!$scope.currentStation._id) {

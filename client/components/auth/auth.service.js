@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Upload, Song, Spin, $cookieStore, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Upload, Song, Spin, ListeningSession, $cookieStore, $q) {
     var currentUser = {};
     var currentStation = {};
     if($cookieStore.get('token')) {
@@ -154,6 +154,27 @@ angular.module('pl2NodeYoApp')
           return cb(err);
         }).$promise;
       },
+
+      createListeningSession: function (attrs, callback) {
+        var cb = callback || angular.noop;
+
+        return ListeningSession.create({}, attrs, function (listeningSession) {
+          return cb(null, listeningSession);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      updateListeningSession: function (attrs, callback) {
+        var cb = callback || angular.noop;
+
+        return ListeningSession.update({ _id: attrs.id }, attrs, function (listeningSession) {
+          return cb(null, listeningSession);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
 
       getCurrentStation: function() {
         return currentStation;

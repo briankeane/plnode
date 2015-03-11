@@ -8,7 +8,6 @@ angular.module('pl2NodeYoApp')
 
     $timeout(function () {
       Auth.getTwitterFriends(function (err, result) {
-        console.log(result.friends);
         $scope.twitterFriends = result.friends;
 
         // grab the program for each station
@@ -34,7 +33,10 @@ angular.module('pl2NodeYoApp')
       });
     }
 
+    // cancel any pending updates
     $scope.$on('destroy', function (event) {
-      $timeout.cancel($scope.timeouts);
-    })
+      for (var i=0;i<$scope.timeouts.length;i++) {
+        $timeout.cancel($scope.timeouts[i]);
+      }
+    });
   });
