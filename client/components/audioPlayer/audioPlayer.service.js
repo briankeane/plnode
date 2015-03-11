@@ -127,7 +127,7 @@ angular.module('pl2NodeYoApp')
       // set up the next advance
       var newTimeout = $timeout(function () {
         advanceSpin();
-      }, new Date(self.nowPlaying.endTime).getTime() - Date.now());
+      }, new Date(self.playlist[0].startTime).getTime() - Date.now());
 
       // store it in a list so it can be cancelled
       self.timeouts.push(newTimeout);
@@ -164,7 +164,9 @@ angular.module('pl2NodeYoApp')
       Auth.updateListeningSession({ id: self.listeningSessionId,
                                     _station: self.stationId 
                                   }, function (err, listeningSession) {
-        self.listeningSessionId = listeningSession._id;
+        if (listeningSession) {
+          self.listeningSessionId = listeningSession._id;
+        }
       });
       
       // update again in 60 secs

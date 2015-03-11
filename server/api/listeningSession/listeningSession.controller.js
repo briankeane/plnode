@@ -27,9 +27,30 @@ exports.create = function(req, res) {
   attrs.startTime = new Date();
   attrs.endTime = new Date(new Date().getTime() + 60*1000);
 
-  ListeningSession.create(attrs, function(err, listeningSession) {
-    if(err) { return handleError(res, err); }
-    return res.json(201, listeningSession);
+  // check for already existing listeningSession
+  ListeningSession.findOne({ _station: attrs._station,
+                          startTime: {
+                            $gte: new Date(new Date().getTime() - 90*1000)
+                          }
+                        }, function (err, currentListeningSession) {
+    if (err) { return handleError(res, err); }
+    
+    // IF one is found, update it
+    if (currentListeningSession) {
+      var updated = currentListeningSession;
+      updated.endTime = attrs.endTime;
+      updated.save(function (err) {
+        if (err) { return handleError(res, err); }
+        return res.json(200, updated);
+      });
+
+    // ELSE create a new one
+    } else {
+      ListeningSession.create(attrs, function(err, listeningSession) {
+        if(err) { return handleError(res, err); }
+        return res.json(201, listeningSession);
+      }); 
+    }
   });
 };
 
@@ -41,9 +62,9 @@ exports.update = function(req, res) {
     if(!listeningSession) { return res.send(404); }
 
     // if station has changed, create a new listeningSession
-    if (listeningSession._station.equals(req.params._station)) {
+    if (listeningSession._station.equals(req.body._station)) {
 
-      var attrs = req.params;
+      var attrs = req.body;
       attrs.startTime = new Date();
       attrs.endTime = new Date(new Date().getTime() + 60*1000);
       attrs._user = listeningSession._user;

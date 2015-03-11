@@ -13,10 +13,7 @@ angular.module('pl2NodeYoApp')
         }
       },
       update: {
-        method: 'PUT',
-        params: {
-          controller:'update'
-        }
+        method: 'PUT'
       },
       create: {
         method: 'POST'

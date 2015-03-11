@@ -168,7 +168,7 @@ angular.module('pl2NodeYoApp')
       updateListeningSession: function (attrs, callback) {
         var cb = callback || angular.noop;
 
-        return ListeningSession.update({ _id: attrs.id }, attrs, function (listeningSession) {
+        return ListeningSession.update(attrs, attrs, function (listeningSession) {
           return cb(null, listeningSession);
         }, function (err) {
           return cb(err);
