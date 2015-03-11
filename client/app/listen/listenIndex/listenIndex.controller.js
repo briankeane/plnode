@@ -28,7 +28,13 @@ angular.module('pl2NodeYoApp')
 
         var newTimeout = $timeout(function () {
           refreshProgram(friend);
-        }, new Date(program.nowPlaying.endTime).getTime() - Date.now());
+        }, new Date(program.nowPlaying.endTime).getTime() - Date.now() + 2000);   // add 2 secs to make sure nowPlaying has actually changed
+
+        $scope.timeouts.push(newTimeout);
       });
     }
+
+    $scope.$on('destroy', function (event) {
+      $timeout.cancel($scope.timeouts);
+    })
   });

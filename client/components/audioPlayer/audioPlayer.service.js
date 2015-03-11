@@ -9,11 +9,11 @@ angular.module('pl2NodeYoApp')
     self.volumeLevel = 1;
     self.musicStarted = false;
     self.audioQueue = [];
-    self.advanceSpinTimeout;
     self.nowPlaying;
     self.playlist;
     self.requests = [];
     self.volume = 1;
+    self.timeouts = [];
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -60,10 +60,12 @@ angular.module('pl2NodeYoApp')
           self.nowPlaying.source.start(0, msAlreadyElapsed);
           loadAudio(self.playlist, function (err) {
             // set next advance
-            self.advanceSpinTimeout = $timeout(function () {
+            var newTimeout = $timeout(function () {
               advanceSpin();
               return false;
             }, new Date(self.playlist[0].airtime) - Date.now());
+
+            self.timeouts.push(newTimeout);
           });
         });
       });
@@ -82,8 +84,14 @@ angular.module('pl2NodeYoApp')
         self.nowPlaying.source.stop();
       }
 
-      // stop the next advance
-      if (self.advanceSpinTimeout) $timeout.cancel(self.advanceSpinTimeout);
+      // stop any advances
+      console.log('timeouts before');
+      console.log(self.timeouts);
+      console.log('timeouts after');
+      console.log(self.timeouts);
+
+      $timeout.cancel(self.timeouts);
+
       
       // clear the queues
       self.nowPlaying = null;
@@ -94,15 +102,19 @@ angular.module('pl2NodeYoApp')
     function advanceSpin() {
       self.nowPlaying = self.playlist.shift();
       self.nowPlaying.source.start(0);
+      
       // wait and grab the program
       $timeout(function () {
         refreshProgram();
       }, 2000);
 
       // set up the next advance
-      self.advanceSpinTimeout = $timeout(function () {
+      var newTimeout = $timeout(function () {
         advanceSpin();
       }, new Date(self.nowPlaying.endTime).getTime() - Date.now());
+
+      // store it in a list so it can be cancelled
+      self.timeouts.push(newTimeout);
 
     }
 
@@ -110,15 +122,12 @@ angular.module('pl2NodeYoApp')
       Auth.getProgram({  id: self.stationId }, function (err, program) {
         if (err) console.log(err);
 
-        // for now, just one song. later it will be duration-based
+        // for now, just one song. later the number of songs will be changed to duration-based
         self.playlist = [program.playlist[0]];
 
         loadAudio(self.playlist, function () {
           console.log('audioLoaded');
         });
-
-
-        //
       });
     }
 
