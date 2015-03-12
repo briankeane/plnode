@@ -364,6 +364,23 @@ function Scheduler() {
               if(err) callback(err);
               LogEntry.getMostRecent(station.id, function (err, nowPlaying) {
                 if (err) callback(err);
+
+                // if a commercialBlock is in the playlist
+                if (nowPlaying.commercialsFollow) {
+                  
+                  // create the new commercialBlock
+                  var newCommercialBlock = new CommercialBlock({ startTime: nowPlaying.endTime,
+                                                                    endTime: playlist[0].airtime });
+                  
+                  // if it's supposed to be nowPlaying insert it there
+                  if (Date.now() > new Date(nowPlaying.endTime)) {
+                    nowPlaying = newCommercialBlock;
+                  
+                  // if it's supposed to be first in the playlist
+                  } else {
+                    playlist.unshift(newCommercialBlock);
+                  }
+                }
                 callback(null, {playlist: playlist, nowPlaying: nowPlaying});
               });
             });

@@ -6,6 +6,7 @@ var extend = require('mongoose-schema-extend');
 var AudioBlockSchema = require('../audioBlock/audioBlock.schema');
 
 var commercialBlockSchema = AudioBlockSchema.extend({
+  precedingPlaylistPosition:        { type: Number }
 });
 
 var CommercialBlock = mongoose.model('CommercialBlock', commercialBlockSchema);

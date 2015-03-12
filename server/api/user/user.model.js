@@ -7,20 +7,21 @@ var authTypes = ['twitter'];
 var timestamps = require('mongoose-timestamp');
 
 var UserSchema = new Schema({
-  twitterHandle:      { type: String },
-  twitterUID:         { type: String },
-  email:              { type: String },
-  birthYear:          { type: Number },
-  gender:             { type: String },
-  zipcode:            { type: String },
-  timezone:           { type: String }, 
-  _station:           { type: Schema.ObjectId, ref: 'Station' },
-  name:               { type: String },
-  role:               { type: String, default: 'user'},
-  hashedPassword:     { type: String },
-  provider:           { type: String },
-  salt:               { type: String },
-  twitter:                  {}
+  twitterHandle:          { type: String },
+  twitterUID:             { type: String },
+  email:                  { type: String },
+  birthYear:              { type: Number },
+  gender:                 { type: String },
+  zipcode:                { type: String },
+  timezone:               { type: String }, 
+  _station:               { type: Schema.ObjectId, ref: 'Station' },
+  name:                   { type: String },
+  role:                   { type: String, default: 'user'},
+  hashedPassword:         { type: String },
+  provider:               { type: String },
+  salt:                   { type: String },
+  lastHeardCommercial:    { type: Number, default: 0 },
+  twitter:                {}
 }, {
   toObject: { getters: true },
   toJSON: { virtuals: true }
