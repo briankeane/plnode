@@ -3,9 +3,9 @@
   <h1 class="headline">Listen</h1>
   
   <tabset class="tabs" id="findStationsPanel" justified="true">
-    <tab heading="Twitter Friends" ng-controller="ListenIndexCtrl">
+    <tab heading="Your Twitter Friends" ng-controller="ListenIndexCtrl">
       <div class="content active" id="twitter-friends">
-        <div class="row small-9">
+        <div class="row">
           <a ng-repeat="friend in twitterFriends" ng-href="#" ng-click="playStation(friend._station._id);">
             <article class="top-station station-square col-sm-6 col-md-3">
               <img class="twitter-pic" src="{{friend.profileImageUrl}}" />
@@ -21,72 +21,24 @@
           </a>
         </div>
       </div>
-    
-<!-- 
-    <dd class="active"><a href="#twitter-friends">Your Twitter Friends</a></dd>
-    <dd><a href="#top-stations">Top Stations</a></dd>
-    <dd><a href="#preset-stations">Your Presets</a></dd>
-    <dd><a href="#search-stations">Search</a></dd>
-  </dl>
-
-  <div class="tabs-content">
-
-
-    <div class="content" id="top-stations">
-      <div class="row small-9">
-        <% @top_stations.each do |station| %>
-          <a href="/stations/<%= station.id %>">
-            <article data-id="<%= station.id %>" class="top-station station-square small-6 medium-3">
-              <img class="twitter-pic" src="<%= station.user.profile_image_url %>" />
+    </tab>
+    <tab heading="Top Stations" ng-controller="ListenIndexCtrl"></tab>
+      <div class="content" id="top-stations">
+        <div class="row">
+          <a ng-repeat="station in topStations" ng-href="#" ng-click="playStation(station._id);">
+            <article class="top-station station-square col-sm-6 col-md-3">
+              <img class="twitter-pic" src="{{station._user.profileImageUrl}}" />
               <div class="overlay">
-              <h3 class="overlay-twitter-handle">@<%= station.user.twitter %></h3>
+              <h3 class="overlay-twitter-handle">@{{station._user.twitterHandle}}</h3>
 
               <h3 class="overlay-now-playing-label">Now Playing:</h3>
-
-              <% if station.now_playing.is_commercial_block %>
-                <p class="now-playing-title"><b>Commercial Block</b></p>
-
-              <% else %>
-
-                <p class="now-playing-title"><%= station.now_playing.audio_block.title || 'Commercial Break' %></p>
-                <p class="now-playing-artist"><%= station.now_playing.audio_block.artist || '' %></p>
-              <% end %>
+              <p class="now-playing-title">{{station.program.nowPlaying._audioBlock.title}}</p>
+              <p class="now-playing-artist">{{station.program.nowPlaying._audioBlock.artist}}</p>
               </div>
             </article>
           </a>
-        <% end %>
+        </div>      
       </div>
-    </div>
-
-    <div class="content" id="preset-stations">
-      <div class="row small-9">
-        <% @preset_stations.each do |station| %>
-          <a href="/stations/<%= station.id %>">
-            <article class="top-station station-square small-6 medium-3">
-              <img class="twitter-pic" src="<%= station.user.profile_image_url %>" />
-              <div class="overlay">
-              <h3 class="overlay-twitter-handle">@<%= station.user.twitter %></h3>
-
-              <h3 class="overlay-now-playing-label">Now Playing:</h3>
-
-              <% if station.now_playing.is_commercial_block %>
-                <p class="now-playing-title"><b>Commercial Block</b></p>
-
-              <% else %>
-
-                <p class="now-playing-title"><%= station.now_playing.audio_block.title || 'Commercial Break' %></p>
-                <p class="now-playing-artist"><%= station.now_playing.audio_block.artist || '' %></p>
-              <% end %>
-              </div>
-            </article>
-          </a>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="content" id="search-stations">
-      <h1 class="headline">Coming Soon</h1>
-    </div>
- -->
+    </tab>
   </tabset>
 </div>

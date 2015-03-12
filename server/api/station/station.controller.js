@@ -77,6 +77,13 @@ exports.create = function(req, res) {
   });
 };
 
+exports.topStations = function(req, res) {
+  Station.listByRank({}, function (err, topStations) {
+    if (err) { return handleError(res, err); }
+    return res.json(200, { topStations: topStations });
+  });
+}
+
 // Updates an existing station in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }

@@ -92,6 +92,8 @@ StationSchema.statics.listByRank = function (attrs, callback) {
 
       Station
         .find({})
+        .limit(30)
+        .populate('_user')
         .sort('-dailyListenTimeMS')
         .exec(callback);
     });

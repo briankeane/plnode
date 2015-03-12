@@ -56,6 +56,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'getProgram'
         }
+      },
+      getTopStations: {
+        method: 'GET',
+        params: {
+          controller: 'topStations'
+        }
       }
     });
   });

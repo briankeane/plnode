@@ -175,6 +175,15 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      getTopStations: function (attrs, callback) {
+        var cb = callback || angular.noop;
+
+        return Station.getTopStations({},{}, function (topStations) {
+          return cb(null, topStations);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
 
       getCurrentStation: function() {
         return currentStation;

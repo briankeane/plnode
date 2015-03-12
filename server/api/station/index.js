@@ -7,6 +7,7 @@ var auth = require('../../auth/auth.service');
 var router = express.Router();
 
 router.get('/', controller.index);
+router.get('/topStations', auth.isAuthenticated(), controller.topStations);
 router.get('/me', auth.isAuthenticated(), controller.me);
 router.get('/:id/getRotationItems', auth.isAuthenticated(), controller.getRotationItems)
 router.get('/:id/getProgram', auth.isAuthenticated(), controller.getProgram)
