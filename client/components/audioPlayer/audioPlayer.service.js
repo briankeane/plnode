@@ -15,9 +15,10 @@ angular.module('pl2NodeYoApp')
     self.requests = [];
     self.volume = 1;
     self.timeouts = [];
-    self.loading = true;
+    self.isLoading = true;
     self.initialLoad = true;
     self.stationId;
+    self.isPlaying = false;
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -42,7 +43,8 @@ angular.module('pl2NodeYoApp')
     this.loadStation = function (stationId) {
       self.clearPlayer();
 
-      self.loading = true;
+      self.isLoading = true;
+      self.isPlaying = true;
 
       self.stationId = stationId;
 
@@ -71,14 +73,15 @@ angular.module('pl2NodeYoApp')
           var msAlreadyElapsed = (Date.now() - new Date(self.nowPlaying.airtime).getTime())/1000;
           self.nowPlaying.source.start(0, msAlreadyElapsed);
 
-          self.loading = false;
+          self.isLoading = false;
 
           loadAudio(self.playlist, function (err) {
+
             // set next advance
             var newTimeout = $timeout(function () {
               advanceSpin();
               return false;
-            }, new Date(self.playlist[0].airtime) - Date.now());
+            }, new Date(self.nowPlaying.endTime) - Date.now());
 
             self.timeouts.push(newTimeout);
           });
@@ -127,7 +130,7 @@ angular.module('pl2NodeYoApp')
       // set up the next advance
       var newTimeout = $timeout(function () {
         advanceSpin();
-      }, new Date(self.playlist[0].startTime).getTime() - Date.now());
+      }, new Date(self.nowPlaying.endTime).getTime() - Date.now());
 
       // store it in a list so it can be cancelled
       self.timeouts.push(newTimeout);

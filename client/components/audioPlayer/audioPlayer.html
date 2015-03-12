@@ -1,7 +1,7 @@
 <div class="audioPlayer navbar-fixed-bottom">
   <div class="row"
         ng-controller="AudioPlayerCtrl"
-        ng-show="!isCollapsed">
+        ng-show="!isCollapsed && player.isPlaying">
     <div class="row controls">
       <img class="album-cover col-sm-2" src="{{player.nowPlaying._audioBlock.albumArtworkUrlSmall}}"/>
       <h4 class="title col-sm-2">{{player.nowPlaying._audioBlock.title}}</h4>
