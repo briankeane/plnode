@@ -100,19 +100,19 @@ describe('station rankings', function (done) {
     }
 
     SpecHelper.saveAll(stations, function (err, savedStations) {
-      listeningSessions.push(new ListeningSession({ _station: savedStations[0]._id,
+      listeningSessions.push(new ListeningSession({ _station: stations[0]._id,
                                                     startTime: new Date(2000, 3, 15, 13),
                                                     endTime: new Date(2000, 3, 15, 14) }));
-      listeningSessions.push(new ListeningSession({ _station: savedStations[0]._id,
+      listeningSessions.push(new ListeningSession({ _station: stations[0]._id,
                                                     startTime: new Date(2000, 3, 15, 13),
                                                     endTime: new Date(2000, 3, 15, 14) }));
-      listeningSessions.push(new ListeningSession({ _station: savedStations[1]._id,
+      listeningSessions.push(new ListeningSession({ _station: stations[1]._id,
                                                     startTime: new Date(2000, 3, 15, 13),
                                                     endTime: new Date(2000, 3, 15, 16) }));
-      listeningSessions.push(new ListeningSession({ _station: savedStations[2]._id,
+      listeningSessions.push(new ListeningSession({ _station: stations[2]._id,
                                                     startTime: new Date(2000, 3, 15, 13),
                                                     endTime: new Date(2000, 3, 15, 13, 30) }));
-      listeningSessions.push(new ListeningSession({ _station: savedStations[3]._id,
+      listeningSessions.push(new ListeningSession({ _station: stations[3]._id,
                                                     startTime: new Date(2000, 3, 15, 13),
                                                     endTime: new Date(2000, 3, 15, 13, 1) }));
       SpecHelper.saveAll(listeningSessions, function (err, savedListeningSessions) {
@@ -124,8 +124,14 @@ describe('station rankings', function (done) {
   it('returns a list of stations in order of most listened to', function (done) {
     tk.travel(new Date(2000,3,16,12));
     Station.listByRank({}, function (err, stationList) {
-      console.log('finished');
-      expect(stationList[0]._id.equals(stations[0]._id)).to.equal(true);
+      console.log(stationList);
+      console.log(stations);
+      expect(stationList[0]._id.equals(stations[1]._id)).to.equal(true);
+      // TODO, test for calculation date
+      expect(stationList[0].dailyListenTimeMS).to.equal(10800000);
+      expect(stationList[1]._id.equals(stations[0]._id)).to.equal(true);
+      expect(stationList[1].dailyListenTimeMS).to.equal(7200000);
+      expect(stationList[2]._id.equals(stations[2]._id)).to.equal(true);
       done();
     });
   });
