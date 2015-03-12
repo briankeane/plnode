@@ -9,6 +9,9 @@ var Station = require('../station/station.model');
 var expect = require('chai').expect;
 var async = require('async');
 var SpecHelper = require('../../utilities/helpers/specHelper');
+var ListeningSession = require('../listeningSession/listeningSession.model');
+var tk = require('timekeeper');
+
 
 
 describe('GET /api/v1/stations', function() {
@@ -66,17 +69,12 @@ describe('a station', function () {
       Station.findByIdAndUpdate(station.id, { $set: { _user: user2.id, 
                                                     secsOfCommercialPerHour: 10,
                                                     lastAccuratePlaylistPosition: 1,
-                                                    averageDailyListeners: 2,
-                                                    timezone: 'UK Central Time',
-                                                    averageDailyListenersCalculationDate: new Date(2014,1,1) } },
+                                                    timezone: 'UK Central Time' } },
                                   function (err, updatedStation) {
         expect(updatedStation.secsOfCommercialPerHour).to.equal(10)
         expect(updatedStation._user.equals(user2.id)).to.equal(true);
         expect(updatedStation.timezone).to.equal('UK Central Time');
         expect(updatedStation.lastAccuratePlaylistPosition).to.equal(1);
-        expect(updatedStation.averageDailyListeners).to.equal(2);
-        expect(updatedStation.averageDailyListenersCalculationDate.getTime()).to.equal(new Date(2014,1,1).getTime());
-
         done();
       });
       
@@ -85,12 +83,62 @@ describe('a station', function () {
 
   xit ('returns a genre hash', function (done) {
 
-  })
+  });
+});
 
-  describe ('make_log_current', function () {
 
-    xit ('gets the average number of listeners', function (done) {
+describe('station rankings', function (done) {
+  var stations = [];
+  var listeningSessions = [];
+  
+  before(function (done) {
 
+
+    tk.freeze(new Date(2000,3,16, 12,30));
+    for(var i=0;i<5;i++) {
+      stations.push(new Station({ dailyListenTimeCalculationDate: new Date() }));
+    }
+
+    SpecHelper.saveAll(stations, function (err, savedStations) {
+      listeningSessions.push(new ListeningSession({ _station: savedStations[0]._id,
+                                                    startTime: new Date(2000, 3, 15, 13),
+                                                    endTime: new Date(2000, 3, 15, 14) }));
+      listeningSessions.push(new ListeningSession({ _station: savedStations[0]._id,
+                                                    startTime: new Date(2000, 3, 15, 13),
+                                                    endTime: new Date(2000, 3, 15, 14) }));
+      listeningSessions.push(new ListeningSession({ _station: savedStations[1]._id,
+                                                    startTime: new Date(2000, 3, 15, 13),
+                                                    endTime: new Date(2000, 3, 15, 16) }));
+      listeningSessions.push(new ListeningSession({ _station: savedStations[2]._id,
+                                                    startTime: new Date(2000, 3, 15, 13),
+                                                    endTime: new Date(2000, 3, 15, 13, 30) }));
+      listeningSessions.push(new ListeningSession({ _station: savedStations[3]._id,
+                                                    startTime: new Date(2000, 3, 15, 13),
+                                                    endTime: new Date(2000, 3, 15, 13, 1) }));
+      SpecHelper.saveAll(listeningSessions, function (err, savedListeningSessions) {
+        done();
+      });
     });
+  });
+    
+  it('returns a list of stations in order of most listened to', function (done) {
+    tk.travel(new Date(2000,3,16,12));
+    Station.listByRank({}, function (err, stationList) {
+      console.log('finished');
+      expect(stationList[0]._id.equals(stations[0]._id)).to.equal(true);
+      done();
+    });
+  });
+
+  after(function (done) {
+    tk.reset();
+    done();
+  });
+});
+
+describe ('make_log_current', function () {
+
+  xit ('gets the average number of listeners', function (done) {
+
   });
 });

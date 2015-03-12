@@ -86,7 +86,6 @@ describe('a user', function () {
     expect(user.birthYear).to.equal(1977);
     expect(user.gender).to.equal('male');
     expect(user.zipcode).to.equal('78748');
-    expect(user.profileImageUrl).to.equal('http://badass.jpg');
     done();
   });
 
@@ -100,7 +99,6 @@ describe('a user', function () {
         expect(gottenUser.email).to.equal('lonesomewhistle@gmail.com');
         expect(gottenUser.birthYear).to.equal(1977);
         expect(gottenUser.gender).to.equal('male');
-        expect(gottenUser.profileImageUrl).to.equal('http://badass.jpg');
         done();
       });
     });
@@ -157,7 +155,6 @@ describe('a user', function () {
         expect(updatedUser.birthYear).to.equal(1990);
         expect(updatedUser.zipcode).to.equal('37217');
         expect(updatedUser.gender).to.equal('chick');
-        expect(updatedUser.profileImageUrl).to.equal('http://dumbass.jpg');
         done();
       });
     });

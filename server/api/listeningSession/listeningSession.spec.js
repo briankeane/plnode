@@ -6,7 +6,7 @@ var request = require('supertest');
 
 describe('GET /api/listeningSessions', function() {
 
-  it('should respond with JSON array', function(done) {
+  xit('should respond with JSON array', function(done) {
     request(app)
       .get('/api/listeningSessions')
       .expect(200)
@@ -16,5 +16,13 @@ describe('GET /api/listeningSessions', function() {
         res.body.should.be.instanceof(Array);
         done();
       });
+  });
+
+  xit('test update listeningSessions', function (done) {
+
+  });
+
+  xit('test create listeningSessions', function (done) {
+
   });
 });
