@@ -198,6 +198,7 @@ User
   .find(query)
   .sort('twitterHandle')
   .limit(20)
+  .populate('_station')
   .exec(cb);
 }
 
