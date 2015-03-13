@@ -20,6 +20,7 @@ exports.setup = function (User, config) {
           user = new User({
             twitterHandle: profile.username,
             twitterUID: profile.id,
+            name: profile.name,
             role: 'user',
             provider: 'twitter',
             twitter: profile._json,

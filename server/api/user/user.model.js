@@ -180,6 +180,27 @@ UserSchema.methods = {
   }
 };
 
+UserSchema.statics.keywordSearch = function (keywords, cb) {
+  // create an array of regex's
+  var keywordsArray = keywords.split(' ');
+  var keywordsRegexs = [];
+  for (var i=0; i<keywordsArray.length; i++) {
+    keywordsRegexs.push(new RegExp(keywordsArray[i], "i"));
+  }
+
+  // build the query
+  var query = { $and: [] };
+  for (var i=0; i<keywordsRegexs.length; i++) {
+    query['$and'].push({ $or: [{ twitterHandle: keywordsRegexs[i] }, { name: keywordsRegexs[i] }] });
+  }
+
+User
+  .find(query)
+  .sort('twitterHandle')
+  .limit(20)
+  .exec(cb);
+}
+
 UserSchema.plugin(timestamps);
 var User = mongoose.model('User', UserSchema);
 module.exports = User;

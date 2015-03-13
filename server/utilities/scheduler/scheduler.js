@@ -401,7 +401,7 @@ function Scheduler() {
   this.getCommercialBlockLink = function (attrs, callback) {
     User.findById(attrs._user, function (err, user) {
       if (err) return (err);
-
+      
       // find CommercialBlockNumber 
       var commercialBlockNumber = Math.floor(new Date(attrs.airtime).getTime()/1800000.0);
 
@@ -410,7 +410,7 @@ function Scheduler() {
         user.lastCommercial = { audioFileId: 1 };
       }
 
-      // IF it's already been determined
+      // IF it's already been adjusted for this block
       if (user.lastCommercial && user.lastCommercial.commercialBlockNumber && (user.lastCommercial.commercialBlockNumber == commercialBlockNumber)) {
         callback(null, user.lastCommercial.audioFileUrl);
       } else {

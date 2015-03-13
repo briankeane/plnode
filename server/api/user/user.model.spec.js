@@ -205,6 +205,27 @@ describe('more user CRUD', function () {
     });
   });
 
+  it('searches users by keyword', function (done) {
+    User.keywordSearch('bo', function (err, list) {
+      expect(list.length).to.equal(10);
+      User.keywordSearch('bob3', function (err, list2) {
+        expect(list2.length).to.equal(1);
+        expect(list2[0].twitterHandle).to.equal('bob3');
+        User.keywordSearch('bi', function (err, list3) {
+          expect(list3.length).to.equal(10);
+          User.keywordSearch('bill4', function (err, list4) {
+            expect(list4.length).to.equal(1);
+            expect(list4[0].name).to.equal('bill4');
+            User.keywordSearch('aaaa', function (err, list5) {
+              expect(list5.length).to.equal(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
   xit ('returns a list of twitter friends', function (done) {
     // to do
   });
@@ -216,7 +237,8 @@ function loadUsers (desiredLength, callback) {
 
   // make 10 users and store their 'save' functions
   for (var i=0; i<desiredLength; i++) {
-    newUsers.push(new User({twitterHandle: 'bob' + i }));
+    newUsers.push(new User({twitterHandle: 'bob' + i ,
+                            name: 'bill' + i }));
     newUserFunctions.push((function (user) {
       return function (callback) {
         user.save(callback);
