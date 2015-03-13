@@ -407,7 +407,7 @@ function Scheduler() {
 
       // IF there's no lastCommercial, set it as a blank object
       if (!user.lastCommercial) {
-        user.lastCommercial = { audioFileId: 1 };
+        user.lastCommercial = { audioFileId: 0 };
       }
 
       // IF it's already been adjusted for this block
