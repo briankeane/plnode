@@ -187,7 +187,30 @@ exports.updateRotationWeight = function (req,res,next) {
 exports.getProgram = function (req,res,next) {
   Scheduler.getProgram({ stationId: req.params.id }, function (err, programObject) {
     if (err) return next(err);
-    return res.json(programObject);
+
+    if ((programObject.nowPlaying._audioBlock._type === 'CommercialBlock') || (programObject.playlist[0]._audioBlock._type === 'CommercialBlock')) {
+      if (!req.query._user) {
+        return res.json(200, programObject);
+      } else {
+        if (programObject.nowPlaying._audioBlock._type === 'CommercialBlock') {
+          Scheduler.getCommercialBlockLink({ _user: req.query._user,
+                                              airtime: programObject.nowPlaying._audioBlock.airtime
+                                            }, function (err, link) {
+            programObject.nowPlaying._audioBlock.audioFileUrl = link;
+            return res.json(200, programObject);
+          });
+        } else {
+          Scheduler.getCommercialBlockLink({ _user: req.query._user,
+                                              airtime: programObject.playlist[0]._audioBlock.airtime
+                                            }, function (err, link) {
+            programObject.playlist[0]._audioBlock.audioFileUrl = link;
+            return res.json(200, programObject);
+          });
+        }
+      }
+    } else {
+      return res.json(200, programObject);
+    }
   });
 };
 

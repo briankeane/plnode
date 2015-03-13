@@ -20,7 +20,7 @@ var UserSchema = new Schema({
   hashedPassword:         { type: String },
   provider:               { type: String },
   salt:                   { type: String },
-  lastHeardCommercial:    { type: Number, default: 0 },
+  lastCommercial:         {},
   twitter:                {}
 }, {
   toObject: { getters: true },

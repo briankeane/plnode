@@ -1,3 +1,5 @@
+
+
 var Station = require('../../api/station/station.model');
 var AudioBlock = require('../../api/audioBlock/audioBlock.model');
 var LogEntry = require('../../api/logEntry/logEntry.model');
@@ -369,8 +371,14 @@ function Scheduler() {
                 if (nowPlaying.commercialsFollow) {
                   
                   // create the new commercialBlock
-                  var newCommercialBlock = new CommercialBlock({ startTime: nowPlaying.endTime,
-                                                                    endTime: playlist[0].airtime });
+                  var newCommercialBlock = {  _audioBlock: { 
+                                                title: 'Commercial Block',
+                                                _type: 'CommercialBlock',
+                                                duration: station.secsOfCommercialPerHour/2*1000 
+                                              },
+                                              airtime: nowPlaying.endTime,
+                                              endTime: playlist[0].airtime 
+                                            };
                   
                   // if it's supposed to be nowPlaying insert it there
                   if (Date.now() > new Date(nowPlaying.endTime)) {
@@ -389,6 +397,48 @@ function Scheduler() {
       });
     });
   }
+
+  this.getCommercialBlockLink = function (attrs, callback) {
+    User.findById(attrs._user, function (err, user) {
+      if (err) return (err);
+
+      // find CommercialBlockNumber 
+      var commercialBlockNumber = Math.floor(new Date(attrs.airtime).getTime()/1800000.0);
+
+      // IF there's no lastCommercial, set it as a blank object
+      if (!user.lastCommercial) {
+        user.lastCommercial = { audioFileId: 1 };
+      }
+
+      // IF it's already been determined
+      if (user.lastCommercial && user.lastCommercial.commercialBlockNumber && (user.lastCommercial.commercialBlockNumber == commercialBlockNumber)) {
+        callback(null, user.lastCommercial.audioFileUrl);
+      } else {
+        user.lastCommercial.commercialBlockNumber = commercialBlockNumber;
+        
+        if (user.lastCommercial.audioFileId === 27) {
+          user.lastCommercial.audioFileId = 1;
+          user.lastCommercial.audioFileUrl = 'http://commercialblocks.playola.fm/0001_commercial_block.mp3';
+        } else {
+          user.lastCommercial.audioFileId += 1
+        }
+        user.lastCommercial.audioFileId += 1;
+        // build link
+        user.lastCommercial.audioFileUrl = "http://commercialblocks.playola.fm/" + pad(user.lastCommercial.audioFileId, 4) + "_commercial_block.mp3";
+        user.save(function (err) {
+          if (err) callback(err);
+          callback(null, user.lastCommercial.audioFileUrl);
+        });
+      }
+    })
+    
+    // taken from StackOverflow: http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
+    function pad(n, width, z) {
+      z = z || '0';
+      n = n + '';
+      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+  };
 
   // moves a spin
   this.moveSpin = function(attrs, callback) {

@@ -31,7 +31,7 @@ StationSchema.statics.listByRank = function (attrs, callback) {
         // if it was calculated today, just use what's there
         var deferred = Q.defer();
         if (fullList[index].dailyListenTimeCalculationDate < lastNightMidnightMs) {
-          return Q.fcall(fullList[index]);
+          return deferred.resolve(fullList[index]);
         } else {
           new Date(lastNightMidnightMs - 24*60*60*1000)
           ListeningSession.find({ $and: [ 

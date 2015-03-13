@@ -401,19 +401,18 @@ describe('playlist functions', function (done) {
   });
 
   xit('brings the station current if nowPlaying follows a commercialBlock', function (done) {
-
   });
 
   xit('getProgram gets a program', function (done) {
-
   });
 
   xit('moveSpin tests', function (done) {
-
   });
 
   xit('insertSpin tests', function (done) {
+  });
 
+  xit('getCommercialBlock tests', function (done) {
   });
 
   after(function (done) {

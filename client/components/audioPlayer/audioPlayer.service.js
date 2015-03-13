@@ -54,7 +54,7 @@ angular.module('pl2NodeYoApp')
         createListeningSession();
       }
 
-      Auth.getProgram({  id: stationId }, function (err, program) {
+      Auth.getProgram({ id: stationId }, function (err, program) {
         if (err) console.log(err);
 
         self.nowPlaying = program.nowPlaying;

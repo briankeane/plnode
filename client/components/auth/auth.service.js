@@ -200,7 +200,7 @@ angular.module('pl2NodeYoApp')
           attrs.id = currentStation._id;
         }
 
-        return Station.getProgram({ id: attrs.id },attrs, function (program) {
+        return Station.getProgram({ id: attrs.id, _user: currentUser._id }, attrs, function (program) {
           return cb(null, program);
         }, function (err) {
           return cb(err);

@@ -43,8 +43,9 @@ angular.module('pl2NodeYoApp')
         }, new Date(program.nowPlaying.endTime).getTime() - Date.now() + 2000);   // add 2 secs to make sure nowPlaying has actually changed
 
         $scope.timeouts.push(newTimeout);
-      })
+      });
     }
+    
     function refreshProgram(friend) {
       Auth.getProgram({  id: friend._station._id }, function (err, program) {
         friend.program = program;
