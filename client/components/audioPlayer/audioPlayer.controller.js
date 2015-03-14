@@ -32,13 +32,18 @@ angular.module('pl2NodeYoApp')
     };
 
     function getRotationItems() {
-      Auth.getRotationItems($scope.currentStation._id, function (err, rotationItems) {
-        $scope.rotationItems = rotationItems;
-        $scope.rotationItemAudioBlockIds = [];
-        for(var i=0;i<rotationItems.active.length;i++) {
-          $scope.rotationItemAudioBlockIds.push(rotationItems.active[i]._song._id);
-        }
-      });
+      if ($scope.currentStation._id) {
+
+        Auth.getRotationItems($scope.currentStation._id, function (err, rotationItems) {
+          $scope.rotationItems = rotationItems;
+          $scope.rotationItemAudioBlockIds = [];
+          for(var i=0;i<rotationItems.active.length;i++) {
+            $scope.rotationItemAudioBlockIds.push(rotationItems.active[i]._song._id);
+          }
+        });
+      } else {
+        $timeout(getRotationItems, 5000);
+      }
     }
 
 

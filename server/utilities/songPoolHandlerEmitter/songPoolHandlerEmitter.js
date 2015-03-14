@@ -235,7 +235,6 @@ function Handler() {
           })(i));
         }
 
-        console.log('calling q to get songs');
         Q.all(grabSongFunctions)
         .done(function (results) {
           // add the songs

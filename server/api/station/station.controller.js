@@ -194,14 +194,14 @@ exports.getProgram = function (req,res,next) {
       } else {
         if (programObject.nowPlaying._audioBlock._type === 'CommercialBlock') {
           Scheduler.getCommercialBlockLink({ _user: req.query._user,
-                                              airtime: programObject.nowPlaying._audioBlock.airtime
+                                              airtime: programObject.nowPlaying.airtime
                                             }, function (err, link) {
             programObject.nowPlaying._audioBlock.audioFileUrl = link;
             return res.json(200, programObject);
           });
         } else {
           Scheduler.getCommercialBlockLink({ _user: req.query._user,
-                                              airtime: programObject.playlist[0]._audioBlock.airtime
+                                              airtime: programObject.playlist[0].airtime
                                             }, function (err, link) {
             programObject.playlist[0]._audioBlock.audioFileUrl = link;
             return res.json(200, programObject);

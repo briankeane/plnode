@@ -24,5 +24,11 @@ angular.module('pl2NodeYoApp')
         templateUrl: 'app/account/getUserInfo/getUserInfo.html',
         controller: 'GetUserInfoCtrl',
         authenticate: true
+      })
+      .state('getInitialInfo', {
+        url: '/getInitialInfo',
+        templateUrl: 'app/account/getInitialInfo/getInitialInfo.html',
+        controller: 'GetInitialInfoCtrl',
+        authenticate: true
       });
   });

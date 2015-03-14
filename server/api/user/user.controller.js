@@ -151,6 +151,15 @@ exports.me = function(req, res, next) {
   });
 };
 
+exports.search = function (req, res, next) {
+  var keywordString = req.keywordString
+  User.keywordSearch(req.keywordString, function (err, list) {
+    if (err) return next(err);
+    if (!list) return res.send(200, { users: [] });
+    return res.json(200, { users: list });
+  });
+}
+
 /**
  * Authentication callback
  */
