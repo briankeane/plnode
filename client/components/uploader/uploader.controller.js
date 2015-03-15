@@ -78,23 +78,35 @@ angular.module('pl2NodeYoApp')
             scope: $scope,
 
             $scope.item = item;
-            $scope.selectedSong = '';
+            $scope.selectedSong = {}
+            $scope.selectedSong.index = '';
 
             $scope.cancel = function () {
               $modalInstance.dismiss('cancel');
             };
 
+            $scope.setValue = function () {
+              $scope.selectedSong.index = 'ECHONESTIDNOTFOUND';
+            }
+
             $scope.submitSongWithEchonestId = function (form) {
               $scope.submitted = true;
 
               if (form.$valid) {
-                if ($scope.selectedSong === 'ECHONESTIDNOTFOUND') {
+                if ($scope.selectedSong.index === 'ECHONESTIDNOTFOUND') {
+                  alert('ACTIVATED')
                   // have user check spelling and resubmit
+                  $modal.open({
+                    templateUrl: 'components/uploader/noMatchUpload.modal.html',
+                    size: 'lg',
+                    controller: function ($scope, $modalInstance) {
 
+                    }
+                  })
 
                 // if echonestID was provided, resubmit upload
                 } else {
-                  var index = parseInt($scope.selectedSongIndex);
+                  var index = parseInt($scope.selectedSong.index);
                   var uploadInfo = { artist: item.possibleMatches[index].artist,
                                       title: item.possibleMatches[index].title,
                                       echonestId: item.possibleMatches[index].echonestId,
@@ -107,7 +119,7 @@ angular.module('pl2NodeYoApp')
 
                   });
                 }
-                alert('you chose ' + $scope.selectedSong);
+                alert('you chose ' + $scope.selectedSong.index);
               }
             };
 
