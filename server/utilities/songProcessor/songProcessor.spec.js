@@ -151,9 +151,31 @@ describe('songProcessor', function (done) {
       var writepath5 = process.cwd() + '/server/data/unprocessedAudio/lonestarTest2.m4a';
       var read5 = fs.createReadStream(readpath5)
       var write5 = fs.createWriteStream(writepath5);
-      testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestarTest2.m4a');
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestarTest2.mp3');
       testFilesArray.push(writepath5);
       read5.pipe(write5)
+      .on('finish', function () {
+        finishedOperation();
+      });
+
+      var readpath6 = process.cwd() + '/server/data/testFiles/lonestarTest2.m4a';
+      var writepath6 = process.cwd() + '/server/data/unprocessedAudio/lonestarTest3.m4a';
+      var read6 = fs.createReadStream(readpath6)
+      var write6 = fs.createWriteStream(writepath6);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/lonestarTest3.mp3');
+      testFilesArray.push(writepath6);
+      read6.pipe(write6)
+      .on('finish', function () {
+        finishedOperation();
+      });
+
+      var readpath7 = process.cwd() + '/server/data/testFiles/faithTest.mp3';
+      var writepath7 = process.cwd() + '/server/data/unprocessedAudio/faithTest2.mp3';
+      var read7 = fs.createReadStream(readpath7)
+      var write7 = fs.createWriteStream(writepath7);
+      testFilesArray.push(process.cwd() + '/server/data/processedAudio/faithTest2.mp3');
+      testFilesArray.push(writepath7);
+      read7.pipe(write7)
       .on('finish', function () {
         finishedOperation();
       });
@@ -170,11 +192,48 @@ describe('songProcessor', function (done) {
       function finishedOperation() {
         finishedCount++;
 
-        if (finishedCount >= 7) {
+        if (finishedCount >= 9) {
           done();
         }
       }
     });
+
+    it ('writes id3 tags', function (done) {
+      this.timeout(5000);
+      var filepath = process.cwd() + '/server/data/unprocessedAudio/faithTest2.mp3'
+      SongProcessor.writeTags({ filepath: filepath,
+                                  title: 'titleGoesHere',
+                                  artist: 'artistGoesHere',
+                                  album: 'albumGoesHere'
+                              }, function (err, tags) {
+        
+        // proper tags are returned from function
+        expect(tags.title).to.equal('titleGoesHere');
+        expect(tags.artist).to.equal('artistGoesHere');
+        expect(tags.album).to.equal('albumGoesHere');
+
+        SongProcessor.getTags(filepath, function (err, storedTags) {
+
+          // and actually stored in the file
+          expect(storedTags.title).to.equal('titleGoesHere');
+          expect(storedTags.artist).to.equal('artistGoesHere');
+          expect(storedTags.album).to.equal('albumGoesHere');
+
+          SongProcessor.writeTags({ filepath: filepath,
+                                    artist: 'New Artist',
+                                  }, function (err, newTags) {
+            expect(newTags.title).to.equal('titleGoesHere');
+            expect(newTags.artist).to.equal('New Artist');
+            expect(newTags.album).to.equal('albumGoesHere');
+            done();
+          });
+        });
+      })  
+    });
+
+    xit('writes id4 tags', function (done) {
+      
+    })
 
     it('adds a song to the system (db, echonest, AWS', function (done) {
       this.timeout(40000);
@@ -210,6 +269,7 @@ describe('songProcessor', function (done) {
     });
 
     it('responds to no echonest song info', function (done) {
+      this.timeout(5000);
       SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/faithTest.mp3', function (err, newSong) {
         expect(err.message).to.equal('Song info not found');
         expect(err.tags.artist).to.equal('Sting');

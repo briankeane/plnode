@@ -68,6 +68,17 @@ exports.resubmitWithEchonestId = function(req, res) {
   });
 }
 
+exports.resubmitWithUpdatedTags = function (req, res) {
+  Upload.findById(req.params.id, function (err, upload) { 
+    
+    SongProcessor.getSongMatchPossiblilities({ artist: req.params.tags.artist,
+                                                title: req.params.tags.title
+                                              }, function (err, matches) {
+
+    })
+  })
+}
+
 // Updates an existing thing in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }

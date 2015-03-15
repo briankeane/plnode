@@ -30,6 +30,26 @@ function SongProcessor() {
     });
   };
 
+  this.writeTags = function (attrs, callback) {
+    taglib.tag(attrs.filepath, function (err, tag) {
+      if (err) callback(err);
+
+      // prevent overwriting with a blank string ''
+      if (!attrs.artist) delete attrs.artist;
+      if (!attrs.title) delete attrs.title;
+      if (!attrs.album) delete attrs.album;
+
+
+      tag.artist = attrs.artist || tag.artist;
+      tag.title = attrs.title || tag.title;
+      tag.album = attrs.album || tag.album;
+      tag.save(function (err) {
+        if (err) callback(err);
+        callback(null, tag);
+      });
+    });
+  };
+
   this.getItunesInfo = function (attrs, callback) {
     url = 'https://itunes.apple.com/search?' + qs.stringify( { term: ((attrs.artist || '') + ' ' + (attrs.title || '')) });
 

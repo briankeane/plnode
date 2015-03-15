@@ -121,7 +121,7 @@ angular.module('pl2NodeYoApp')
                                  tags: item.tags
                                 };
               
-              Auth.resubmitUploadWithUpdatedTags($scope.item, function (err, response) {
+              Auth.resubmitUploadWithUpdatedTags(uploadInfo, function (err, response) {
                 console.log(response);
               });
             }
