@@ -231,8 +231,37 @@ describe('songProcessor', function (done) {
       })  
     });
 
-    xit('writes id4 tags', function (done) {
-      
+    it('writes id4 tags', function (done) {
+            this.timeout(5000);
+      var filepath = process.cwd() + '/server/data/unprocessedAudio/lonestarTest3.m4a'
+      SongProcessor.writeTags({ filepath: filepath,
+                                  title: 'titleGoesHere',
+                                  artist: 'artistGoesHere',
+                                  album: 'albumGoesHere'
+                              }, function (err, tags) {
+        
+        // proper tags are returned from function
+        expect(tags.title).to.equal('titleGoesHere');
+        expect(tags.artist).to.equal('artistGoesHere');
+        expect(tags.album).to.equal('albumGoesHere');
+
+        SongProcessor.getTags(filepath, function (err, storedTags) {
+
+          // and actually stored in the file
+          expect(storedTags.title).to.equal('titleGoesHere');
+          expect(storedTags.artist).to.equal('artistGoesHere');
+          expect(storedTags.album).to.equal('albumGoesHere');
+
+          SongProcessor.writeTags({ filepath: filepath,
+                                    artist: 'New Artist',
+                                  }, function (err, newTags) {
+            expect(newTags.title).to.equal('titleGoesHere');
+            expect(newTags.artist).to.equal('New Artist');
+            expect(newTags.album).to.equal('albumGoesHere');
+            done();
+          });
+        });
+      });      
     })
 
     it('adds a song to the system (db, echonest, AWS', function (done) {

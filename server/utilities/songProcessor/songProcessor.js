@@ -39,10 +39,10 @@ function SongProcessor() {
       if (!attrs.title) delete attrs.title;
       if (!attrs.album) delete attrs.album;
 
-
       tag.artist = attrs.artist || tag.artist;
       tag.title = attrs.title || tag.title;
       tag.album = attrs.album || tag.album;
+      tag.saveSync();                       // INSERTED TO DEAL WITH TAGLIB KNOWN BUG. WORKAROUND OR FIX NEEDED
       tag.save(function (err) {
         if (err) callback(err);
         callback(null, tag);
