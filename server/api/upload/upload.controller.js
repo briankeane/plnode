@@ -70,14 +70,43 @@ exports.resubmitWithEchonestId = function(req, res) {
 
 exports.resubmitWithUpdatedTags = function (req, res) {
   Upload.findById(req.params.id, function (err, upload) { 
-    
-    SongProcessor.getSongMatchPossiblilities({ artist: req.params.tags.artist,
-                                                title: req.params.tags.title
-                                              }, function (err, matches) {
+    if (!upload) return res.send(404);
 
-    })
-  })
-}
+    var tags = JSON.parse(req.query.tags);
+
+    SongProcessor.writeTags({ filepath: process.cwd() + '/server/data/unprocessedAudio/' + upload.filename,
+                              artist: tags.artist,
+                              title: tags.title,
+                              album: tags.album 
+                            }, function (err, newTags) {
+      SongProcessor.addSongToSystem(process.cwd() + '/server/data/unprocessedAudio/' + upload.filename, function (err, newSong) {
+        if (err) {
+          if (err.message === 'Song info not found') {
+            // get possible matches for response
+            SongProcessor.getSongMatchPossibilities({ artist: err.tags.artist,
+                                                      title: err.tags.title 
+                                                    }, function (matchErr, matches) {
+              upload.tags =  err.tags;
+              upload.possibleMatches = matches;
+              upload.save(function (err, savedUpload) {
+                return res.send(200, savedUpload);
+              });
+            });
+
+          } else if (err.message === 'Song Already Exists') {
+            return res.json(200, { status: 'Song Already Exists',
+                                   song: err.song });
+          }
+
+        // song has been added
+        } else {
+          return res.send(200, { status: 'added',
+                                  song: newSong });
+        }
+      });
+    });
+  });
+};
 
 // Updates an existing thing in the DB.
 exports.update = function(req, res) {

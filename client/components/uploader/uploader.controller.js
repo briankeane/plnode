@@ -114,7 +114,6 @@ angular.module('pl2NodeYoApp')
 
           }
         }).result.then(function () {
-          debugger;
           if ($scope.selectedSong.index === 'ECHONESTIDNOTFOUND') {
             if ($scope.tagsChanged) {
               var uploadInfo = { uploadId: item.uploadId,
@@ -122,7 +121,26 @@ angular.module('pl2NodeYoApp')
                                 };
               
               Auth.resubmitUploadWithUpdatedTags(uploadInfo, function (err, response) {
-                console.log(response);
+                if (response.status === 'info needed') {
+                  item.status = response.status;
+                  item.possibleMatches = response.possibleMatches;
+                  item.tags = response.tags;
+                  item.filename = response.filename;
+                  item.isSuccess = false;
+                  item.isNeedInfo = true;
+                  item.uploadId = response._id;
+                } else if (response.status === 'Song Already Exists') {
+                  item.isNeedInfo = false;
+                  item.status = response.status;
+                  item.isSuccess = true;
+                  item.songId = response.song._id;
+
+                } else if (response.status === 'added') {
+                  item.isNeedInfo = false;
+                  item.status = response.status;
+                  item.isSuccess = true;
+                  item.songId = response.song._id;
+                }
               });
             }
             // $modal.open({

@@ -232,7 +232,7 @@ describe('songProcessor', function (done) {
     });
 
     it('writes id4 tags', function (done) {
-            this.timeout(5000);
+      this.timeout(5000);
       var filepath = process.cwd() + '/server/data/unprocessedAudio/lonestarTest3.m4a'
       SongProcessor.writeTags({ filepath: filepath,
                                   title: 'titleGoesHere',
