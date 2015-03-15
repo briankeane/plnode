@@ -17,6 +17,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'resubmitWithEchonestId'
         }
+      },
+      resubmitWithUpdatedTags: {
+        method: 'PUT',
+        params: {
+          controller: 'resubmitWithUpdatedTags'
+        }
       }
     });
   });

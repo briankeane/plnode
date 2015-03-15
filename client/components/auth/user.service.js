@@ -36,6 +36,13 @@ angular.module('pl2NodeYoApp')
           controller: 'twitterFriends',
           _id: '@_id'
         }
+      },
+      findByKeywords: {
+        method: 'GET',
+        params: {
+          controller: 'twitterFriends',
+          _id: '@_id'
+        }
       }
 	  });
   });

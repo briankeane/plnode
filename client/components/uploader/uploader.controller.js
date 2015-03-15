@@ -74,12 +74,17 @@ angular.module('pl2NodeYoApp')
         $modal.open({
           templateUrl: 'components/uploader/getMatch.modal.html',
           size: 'lg',
-          controller: function ($scope, $modalInstance) {
-            scope: $scope,
+          scope: $scope,  
+          controller: function ($modalInstance) {
 
             $scope.item = item;
             $scope.selectedSong = {}
             $scope.selectedSong.index = '';
+            $scope.oldTitle = item.tags.title;
+            $scope.oldAlbum = item.tags.album;
+            $scope.oldArtist = item.tags.artist;
+            $scope.tagsChanged = false;
+            $scope.tags = item.tags;
 
             $scope.cancel = function () {
               $modalInstance.dismiss('cancel');
@@ -94,18 +99,40 @@ angular.module('pl2NodeYoApp')
 
               if (form.$valid) {
                 if ($scope.selectedSong.index === 'ECHONESTIDNOTFOUND') {
-                  alert('ACTIVATED')
-                  // have user check spelling and resubmit
-                  $modal.open({
-                    templateUrl: 'components/uploader/noMatchUpload.modal.html',
-                    size: 'lg',
-                    controller: function ($scope, $modalInstance) {
-
-                    }
-                  })
+                  $modalInstance.close();
 
                 // if echonestID was provided, resubmit upload
                 } else {
+
+                  Auth.resubmitUploadWithEchonestId(uploadInfo, function (err, result) {
+
+                  });
+                }
+                
+              }
+            };
+
+          }
+        }).result.then(function () {
+          debugger;
+          if ($scope.selectedSong.index === 'ECHONESTIDNOTFOUND') {
+            if ($scope.tagsChanged) {
+              var uploadInfo = { uploadId: item.uploadId,
+                                 tags: item.tags
+                                };
+              
+              Auth.resubmitUploadWithUpdatedTags($scope.item, function (err, response) {
+                console.log(response);
+              });
+            }
+            // $modal.open({
+            //   templateUrl: 'components/uploader/getSongWithoutEchonest.modal.html',
+
+            // });
+
+
+
+          } else {
                   var index = parseInt($scope.selectedSong.index);
                   var uploadInfo = { artist: item.possibleMatches[index].artist,
                                       title: item.possibleMatches[index].title,
@@ -115,15 +142,8 @@ angular.module('pl2NodeYoApp')
                                       tags: item.tags
                                     };
 
-                  Auth.resubmitUploadWithEchonestId(uploadInfo, function (err, result) {
-
-                  });
-                }
-                alert('you chose ' + $scope.selectedSong.index);
-              }
-            };
-
           }
+
         });
       };
 

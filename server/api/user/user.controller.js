@@ -90,6 +90,13 @@ exports.update = function(req, res) {
   });
 };
 
+exports.findByKeywords = function (req, res) {
+  User.keywordSearch(req.query.searchString, function (err, searchResults) {
+    if (err) { return res.send(500, err); }
+    return res.json(200, { searchResults: searchResults });
+  });
+};
+
 /**
  * Deletes a user
  * restriction: 'admin'

@@ -289,10 +289,30 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      resubmitUploadWithUpdatedTags: function (item, callback) {
+        var cb = callback || angular.noop;
+
+        return new Upload.resubmitWithUpdatedTags(item, { _id: item.uploadId }, function (result) {
+          return cb(null, result);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       findSongsByKeywords: function (searchString, callback) {
         var cb = callback || angular.noop;
 
         return Song.findByKeywords({ searchString: searchString }, { searchString: searchString }, function (results) {
+          return cb(null, results.searchResults);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      findUsersByKeywords: function (searchString, callback) {
+        var cb = callback || angular.noop;
+
+        return User.findByKeywords({ searchString: searchString }, {searchString: searchString }, function (results) {
           return cb(null, results.searchResults);
         }, function (err) {
           return cb(err);
