@@ -252,7 +252,7 @@ angular.module('pl2NodeYoApp')
       moveSpin: function (moveSpinObject, callback) {
         var cb = callback || angular.noop;
 
-        return new Spin.move({ id: moveSpinObject.spin._id }, moveSpinObject, function (updatedProgram) {
+        return new Spin.move({ id: moveSpinObject.spinId }, moveSpinObject, function (updatedProgram) {
           return cb(null, updatedProgram);
         }, function (err) {
           return cb(err);

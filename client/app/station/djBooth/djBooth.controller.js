@@ -197,10 +197,11 @@ angular.module('pl2NodeYoApp')
         // get the newPlaylistPosition
         var movedAmount = (newIndex - oldIndex);
         var newPlaylistPosition = spin.playlistPosition + movedAmount;
+        var oldPlaylistPosition = spin.playlistPosition;
 
         $scope.refreshProgramWithoutServer();
 
-        Auth.moveSpin({ spin: spin, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
+        Auth.moveSpin({ spinId: spin.id, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
           if (err) { return false; }
           $scope.playlist = newProgram.playlist;
         });

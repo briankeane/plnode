@@ -442,72 +442,79 @@ function Scheduler() {
 
   // moves a spin
   this.moveSpin = function(attrs, callback) {
-    // throw an error if the same position is called for
-    if (attrs.spin.playlistPosition == attrs.newPlaylistPosition) {
-      callback (new Error('Spin is already at the requested playlistPosition'));
-      return;
-    }
-
-    var minPlaylistPosition = Math.min(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
-    var maxPlaylistPosition = Math.max(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
-
-    var movingEarlier;
-    if (minPlaylistPosition === attrs.newPlaylistPosition) {
-      movingEarlier = true;
-    }
-    Spin.getFullPlaylist(attrs.spin._station, function (err, beforePlaylist) {
-      if (err) callback(err);
-    
-      // find the relevant indexes
-      var minIndex;
-      var maxIndex;
-      var oldIndex;
-      var newIndex;
-
-      for (i=0;i<beforePlaylist.length;i++) {
-        if (beforePlaylist[i].playlistPosition === minPlaylistPosition) {
-          minIndex = i;
-        } else if (beforePlaylist[i].playlistPosition === maxPlaylistPosition) {
-          maxIndex = i;
-          break;
-        }
-      }
-
-      // if the requested playlistPosition is too early,
-      if (minIndex === 0) {
-        callback(new Error('Invalid newPlaylistPosition -- airs too soon'));
-        return;
-
-      // or too late
-      } else if (attrs.newPlaylistPosition > beforePlaylist[beforePlaylist.length-1].playlistPosition) {
-        callback(new Error('Invalid newPlaylistPosition -- after end of playlist'));
+    Spin.findById(attrs.spinId, function (err, spin) {
+      if (err) {
+        callback(new Error('Spin not found'));
         return;
       }
 
-      // rearrange the array
-      if (movingEarlier) {
-        beforePlaylist.splice(minIndex, 0, beforePlaylist.splice(maxIndex, 1)[0]);
-      } else {
-        beforePlaylist.splice(maxIndex, 0, beforePlaylist.splice(minIndex, 1)[0]);
+      // throw an error if the same position is called for
+      if (spin.playlistPosition == attrs.newPlaylistPosition) {
+        callback (new Error('Spin is already at the requested playlistPosition'));
+        return;
       }
 
-      // step through the array and replace playlistPositions
-      var playlistPositionTracker = beforePlaylist[minIndex-1].playlistPosition + 1
-      var spinsToSave = [];
+      var minPlaylistPosition = Math.min(spin.playlistPosition, attrs.newPlaylistPosition);
+      var maxPlaylistPosition = Math.max(spin.playlistPosition, attrs.newPlaylistPosition);
 
-      for (var i=minIndex; i<=maxIndex; i++) {
-        beforePlaylist[i].playlistPosition = playlistPositionTracker;
-        playlistPositionTracker++;
-        spinsToSave.push(beforePlaylist[i]);
+      var movingEarlier;
+      if (minPlaylistPosition === attrs.newPlaylistPosition) {
+        movingEarlier = true;
       }
+      Spin.getFullPlaylist(spin._station, function (err, beforePlaylist) {
+        if (err) callback(err);
       
-      Helper.saveAll(spinsToSave, function (err, updatedSpins) {  
-        Station.findByIdAndUpdate(attrs.spin._station, { lastAccuratePlaylistPosition: minPlaylistPosition - 1 
-                                                        }, function (err, updatedStation) {
-          if (err) callback(err);
-          self.updateAirtimes({ station: updatedStation, playlistPosition: maxPlaylistPosition + 1 }, function (err, updatedStation) {
-            callback(null, { station: updatedStation,
-                            updatedSpins: updatedSpins });
+        // find the relevant indexes
+        var minIndex;
+        var maxIndex;
+        var oldIndex;
+        var newIndex;
+
+        for (i=0;i<beforePlaylist.length;i++) {
+          if (beforePlaylist[i].playlistPosition === minPlaylistPosition) {
+            minIndex = i;
+          } else if (beforePlaylist[i].playlistPosition === maxPlaylistPosition) {
+            maxIndex = i;
+            break;
+          }
+        }
+
+        // if the requested playlistPosition is too early,
+        if (minIndex === 0) {
+          callback(new Error('Invalid newPlaylistPosition -- airs too soon'));
+          return;
+
+        // or too late
+        } else if (attrs.newPlaylistPosition > beforePlaylist[beforePlaylist.length-1].playlistPosition) {
+          callback(new Error('Invalid newPlaylistPosition -- after end of playlist'));
+          return;
+        }
+
+        // rearrange the array
+        if (movingEarlier) {
+          beforePlaylist.splice(minIndex, 0, beforePlaylist.splice(maxIndex, 1)[0]);
+        } else {
+          beforePlaylist.splice(maxIndex, 0, beforePlaylist.splice(minIndex, 1)[0]);
+        }
+
+        // step through the array and replace playlistPositions
+        var playlistPositionTracker = beforePlaylist[minIndex-1].playlistPosition + 1
+        var spinsToSave = [];
+
+        for (var i=minIndex; i<=maxIndex; i++) {
+          beforePlaylist[i].playlistPosition = playlistPositionTracker;
+          playlistPositionTracker++;
+          spinsToSave.push(beforePlaylist[i]);
+        }
+        
+        Helper.saveAll(spinsToSave, function (err, updatedSpins) {  
+          Station.findByIdAndUpdate(spin._station, { lastAccuratePlaylistPosition: minPlaylistPosition - 1 
+                                                          }, function (err, updatedStation) {
+            if (err) callback(err);
+            self.updateAirtimes({ station: updatedStation, playlistPosition: maxPlaylistPosition + 1 }, function (err, updatedStation) {
+              callback(null, { station: updatedStation,
+                              updatedSpins: updatedSpins });
+            });
           });
         });
       });
