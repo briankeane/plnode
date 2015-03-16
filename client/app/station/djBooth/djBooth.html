@@ -28,29 +28,23 @@
       </ul> 
 
 
-      <ul id="station-list">
+      <ul ui-tree callbacks="playlistOptions" id="station-list">
         <!-- Leading Commercial Block if nowPlaying.commercialsFollow -->
         <li class='commercialBlock disabled' ng-show="nowPlaying.commercialsFollow">
           <span class="songlist-title">Commercial Block</span>
           <span class="songlist-airtime">{{ formatTime(nowPlaying.endTime) }}</span>
         </li>
         <!-- ******************************************************** -->
-        <div dnd-list="playlist" dnd-drop="audioDropped(event, index, item, type);">
-          <div ng-repeat="spin in playlist">
-            <div class="dragGroup"
-              dnd-dragstart="console.log('dragstart');"
-              dnd-disable-if="determineDisable(spin, $index);"
-              dnd-draggable="spin" 
-              dnd-effect-allowed="move"
-              dnd-moved="playlist.splice($index, 1); movedSpin($index, event, spin);" 
-              ng-show="(spin._audioBlock._type==='Song')">
+        <div ui-tree-nodes ng-model="playlist">
+          <div ng-repeat="spin in playlist" ui-tree-node >
+            <div class="dragGroup">
               <li class='song'>
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
                 <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
                 <a class="close" title="delete" ng-click="removeSpin(spin, $index);">×</a>
               </li>
-              <li class='commentary' dnd-draggable="spin" ng-show="(spin._audioBlock._type==='Commentary')">
+              <li class='commentary' ng-show="(spin._audioBlock._type==='Commentary')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
                 <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>

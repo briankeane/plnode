@@ -20,6 +20,16 @@ angular.module('pl2NodeYoApp')
       AudioPlayer.loadStation($scope.currentStation._id);
     }, 1000);
 
+    $scope.playlistOptions = {
+      dropped: function (event) {
+        alert('dropped');
+      },
+      beforeDrag: function (sourceNodeScope) {
+        console.log('hi');
+        return true;
+      }
+    };
+
     // ******************************************************************
     // *                 Server Request Functions                       *
     // ******************************************************************
@@ -100,6 +110,10 @@ angular.module('pl2NodeYoApp')
     $scope.formatTime = function (time) {
       return moment(time).format("MMM Do, h:mm:ss a")
     };
+
+    $scope.printSomething = function (string) {
+      console.log(string);
+    }
 
     $scope.updateProgressBar = function () {
       var elapsedTime = Date.now() - new Date($scope.nowPlaying.airtime).getTime();
@@ -192,6 +206,7 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+
     $scope.removeSpin = function (spin, index) {
       $scope.playlist.splice(index,1);
 
@@ -203,7 +218,7 @@ angular.module('pl2NodeYoApp')
       })
     }
 
-    $scope.audioDropped = function (event, index, item, type) {
+    $scope.audioDropped = function (event, index, item, type, oldIndex) {
       // grab the start time
       if (item._type === 'Song') {
         
@@ -236,7 +251,10 @@ angular.module('pl2NodeYoApp')
         console.log('DROPPED A COMMENTARY BITCH');
         
 
-      } // ENDIF
+      // ELSE IF it's just a moved spin
+      } else if (item._audioBlock) {
+        //$scope.movedSpin(index, event, item);
+      }// ENDIF
     };
 
     // for now disable 1st two elements
