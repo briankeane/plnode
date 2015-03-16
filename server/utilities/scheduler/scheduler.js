@@ -442,6 +442,12 @@ function Scheduler() {
 
   // moves a spin
   this.moveSpin = function(attrs, callback) {
+    // throw an error if the same position is called for
+    if (attrs.spin.playlistPosition == attrs.newPlaylistPosition) {
+      callback (new Error('Spin is already at the requested playlistPosition'));
+      return;
+    }
+
     Spin.getFullPlaylist(attrs.spin._station, function (err, beforePlaylist) {
       if (err) callback(err);
   

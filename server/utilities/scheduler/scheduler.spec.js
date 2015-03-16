@@ -469,19 +469,90 @@ describe('moving spin tests', function (done) {
     });
   });
   
-  it('moves a spin forwards', function (done) {
+  it('moves a spin earlier', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
       beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
       Scheduler.moveSpin({ spin: beforePlaylist[10], newPlaylistPosition: 4 
                         }, function (err, attrs) {
         Spin.getFullPlaylist(station.id, function (err, afterPlaylist) {
-          expect(afterPlaylist[2].id).to.equal(beforePlaylistIds[10]);
-          console.log(_.map(afterPlaylist, function (spin) { return spin.playlistPosition }));
-          done();
-        })
-      });
+          
+          // unadjusted front spins
+          expect(afterPlaylist[0].id).to.equal(beforePlaylist[0].id);
+          expect(afterPlaylist[1].id).to.equal(beforePlaylist[1].id);
 
+          //moved spin
+          expect(afterPlaylist[2].id).to.equal(beforePlaylist[10].id);
+
+          // adjusted spins
+          for (var i=3;i<=10;i++) {
+            expect(afterPlaylist[i].id).to.equal(beforePlaylistIds[i-1]);
+          }
+
+          // unadjusted after spins
+          for(var i=11;i<afterPlaylist.length;i++) {
+            expect(afterPlaylist[i].id).to.equal(beforePlaylist[i].id);
+          }
+
+          // playlistPositions
+          for (var i=0;i<afterPlaylist.length;i++) {
+            expect(afterPlaylist[i].playlistPosition).to.equal(i+2);
+          }
+          done();
+        });
+      });
+    });
+  });
+
+  it('moves a spin later', function (done) {
+    Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
+      beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
+      beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
+      Scheduler.moveSpin({ spin: beforePlaylist[2], newPlaylistPosition: 12
+                        }, function (err, attrs) {
+        Spin.getFullPlaylist(station.id, function (err, afterPlaylist) {
+          
+          // unadjusted front spins
+          expect(afterPlaylist[0].id).to.equal(beforePlaylist[0].id);
+          expect(afterPlaylist[1].id).to.equal(beforePlaylist[1].id);
+
+          //moved spin
+          expect(afterPlaylist[10].id).to.equal(beforePlaylist[2].id);
+
+          // adjusted spins
+          for (var i=2;i<=9;i++) {
+            expect(afterPlaylist[i].id).to.equal(beforePlaylistIds[i+1]);
+          }
+
+          // unadjusted after spins
+          for(var i=11;i<afterPlaylist.length;i++) {
+            expect(afterPlaylist[i].id).to.equal(beforePlaylist[i].id);
+          }
+
+          // playlistPositions all in the right order
+          expect(afterPlaylist[0].playlistPosition).to.equal(2);
+
+          for (var i=0;i<afterPlaylist.length;i++) {
+            expect(afterPlaylist[i].playlistPosition).to.equal(i+2);
+          }
+          done();
+        });
+      });
+    });
+  });
+
+  it('calls bullshit if spin is located in the same position', function (done) {
+    Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
+      Scheduler.moveSpin({ spin: beforePlaylist[2], newPlaylistPosition: 4 }, function (err, attrs) {
+        expect(err.message).to.equal('Spin is already at the requested playlistPosition');
+        Spin.getFullPlaylist(station.id, function (err, newPlaylist) {
+          for(var i=0;i<newPlaylist.length;i++) {
+            expect(newPlaylist[i].id).to.equal(beforePlaylist[i].id);
+            expect(newPlaylist[i].playlistPosition).to.equal(beforePlaylist[i].playlistPosition);
+          }
+          done();
+        });
+      });
     });
   });
 
