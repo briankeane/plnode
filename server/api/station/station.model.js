@@ -55,7 +55,6 @@ StationSchema.statics.listByRank = function (attrs, callback) {
 
             // sum the total ms of listening time
             var totalMS = 0;
-            console.log(listeningSessions.length);
 
             for(var j=0;j<listeningSessions.length;j++) {
               var startTime = new Date(listeningSessions[j].startTime);
@@ -88,7 +87,6 @@ StationSchema.statics.listByRank = function (attrs, callback) {
     }  // ENDFOR
     Q.all(getRankFunctions)
     .done(function (results) {
-      console.log('done');
 
       Station
         .find({})

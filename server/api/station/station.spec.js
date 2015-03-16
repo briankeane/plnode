@@ -124,8 +124,6 @@ describe('station rankings', function (done) {
   it('returns a list of stations in order of most listened to', function (done) {
     tk.travel(new Date(2000,3,16,12));
     Station.listByRank({}, function (err, stationList) {
-      console.log(stationList);
-      console.log(stations);
       expect(stationList[0]._id.equals(stations[1]._id)).to.equal(true);
       // TODO, test for calculation date
       expect(stationList[0].dailyListenTimeMS).to.equal(10800000);

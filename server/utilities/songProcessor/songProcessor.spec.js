@@ -270,7 +270,6 @@ describe('songProcessor', function (done) {
         if (err) console.log(err);
         Song.findOne({ artist: 'Delbert McClinton',
                     title: 'Lone Star Blues' }, function (err, song) {
-          console.log(song);
           expect(song.title).to.equal('Lone Star Blues');
           expect(song.artist).to.equal('Delbert McClinton');
           expect(song.duration).to.equal(4000);
@@ -371,7 +370,6 @@ describe('songProcessor', function (done) {
     
     after(function (done) {
       this.timeout(5000);
-      console.log('erasing');
       for (var i=0;i<testFilesArray.length;i++) {
         try {
           fs.unlinkSync(testFilesArray[i]);

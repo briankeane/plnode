@@ -406,8 +406,6 @@ describe('playlist functions', function (done) {
   xit('getProgram gets a program', function (done) {
   });
 
-  xit('moveSpin tests', function (done) {
-  });
 
   xit('insertSpin tests', function (done) {
   });
@@ -419,4 +417,72 @@ describe('playlist functions', function (done) {
     tk.reset();
     done();
   });
+});
+
+describe('moving spin tests', function (done) {
+  var spins;
+  var user;
+  var station;
+
+  beforeEach(function (done) {
+    user = new User({ twitter: 'BrianKeaneTunes',
+                      twitterUID: '756',
+                      email: 'lonesomewhistle@gmail.com',
+                      birthYear: 1977,
+                      gender: 'male',
+                      zipcode: '78748',
+                      profileImageUrl: 'http://badass.jpg' });
+    station = new Station({ _user: user.id,
+                          lastAccuratePlaylistPosition: 1,
+                          lastAccurateAirtime: new Date(1983,3,15,12),
+                            secsOfCommercialPerHour: 360 });
+    station.save(function (err, savedStation) {
+
+      song = new Song({ duration: 180000 })
+      song.save(function (err, newSong) {
+
+        var modelsToSave = [];
+        var timeTracker = new Date(1983, 3, 15, 12);
+
+        // 1 log entry
+        modelsToSave.push( new LogEntry({ _station: station.id,
+                                          _audioBlock: song.id,
+                                          airtime: timeTracker,
+                                          duration: 180000,
+                                          playlistPosition: 1 }));
+
+
+        for (var i=2;i<22;i++) {
+          timeTracker = new Date(timeTracker.getTime() + 180000);
+          modelsToSave.push(new Spin({ _station: station.id,
+                                _audioBlock: song.id,
+                                playlistPosition: i,
+                                duration: 180000,
+                                airtime: timeTracker }));
+        }
+        Helper.saveAll(modelsToSave, function (err, models) {
+          Scheduler.updateAirtimes({ station: station }, function (err, updatedStation) {
+            done();
+          });
+        });
+      });
+    });
+  });
+  
+  it('moves a spin forwards', function (done) {
+    Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
+      beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
+      beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
+      Scheduler.moveSpin({ spin: beforePlaylist[10], newPlaylistPosition: 4 
+                        }, function (err, attrs) {
+        Spin.getFullPlaylist(station.id, function (err, afterPlaylist) {
+          expect(afterPlaylist[2].id).to.equal(beforePlaylistIds[10]);
+          console.log(_.map(afterPlaylist, function (spin) { return spin.playlistPosition }));
+          done();
+        })
+      });
+
+    });
+  });
+
 });

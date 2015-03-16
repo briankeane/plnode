@@ -20,15 +20,6 @@ angular.module('pl2NodeYoApp')
       AudioPlayer.loadStation($scope.currentStation._id);
     }, 1000);
 
-    $scope.playlistOptions = {
-      dropped: function (event) {
-        alert('dropped');
-      },
-      beforeDrag: function (sourceNodeScope) {
-        console.log('hi');
-        return true;
-      }
-    };
 
     // ******************************************************************
     // *                 Server Request Functions                       *
@@ -173,30 +164,40 @@ angular.module('pl2NodeYoApp')
       $timeout($scope.advanceSpin, msTillNextAdvance);
     }
 
+    $scope.playlistOptions = {
+      beforeDrag: function (sourceNodeScope) {
 
-    $scope.movedSpin = function (oldIndex, event, spin) {
-      oldIndex = oldIndex - 1;   // adjustment for leading commercialBlock
-      // find new index
-      var newPlaylistPosition;
-      var newIndex;
-
-      for (var i=0;i<$scope.playlist.length;i++) {
-        if ($scope.playlist[i]._id === spin._id) {
-          newIndex = i;
-
-          // adjustment for strange newIndex offset
-          if (newIndex > oldIndex) {
-            oldIndex++;
-          }
-          var movedAmount = (newIndex - oldIndex);
-          newPlaylistPosition = spin.playlistPosition + movedAmount;
-          break;
+        // don't allow the first play to be picked up
+        if (sourceNodeScope.index() === 0) {
+          return false;
+        } else {
+          return true;
         }
-      }
+      },
 
-      if (movedAmount === 0) { 
-        return false; 
-      } else {
+      accept: function (sourceNodeScope, destNodesScope, destIndex) {
+        // Don't let it drop in the front
+        if (destIndex === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+
+      dropped: function (event) {
+        var oldIndex = event.source.index;
+        var newIndex = event.dest.index;
+        var spin = event.source.nodeScope.$modelValue
+
+        // if dropped in the same spot do nothing
+        if (oldIndex === newIndex) {
+          return;
+        }
+
+        // get the newPlaylistPosition
+        var movedAmount = (newIndex - oldIndex);
+        var newPlaylistPosition = spin.playlistPosition + movedAmount;
+
         $scope.refreshProgramWithoutServer();
 
         Auth.moveSpin({ spin: spin, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
@@ -204,8 +205,7 @@ angular.module('pl2NodeYoApp')
           $scope.playlist = newProgram.playlist;
         });
       }
-    }
-
+    };
 
     $scope.removeSpin = function (spin, index) {
       $scope.playlist.splice(index,1);

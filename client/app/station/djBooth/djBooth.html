@@ -29,16 +29,10 @@
 
 
       <ul ui-tree callbacks="playlistOptions" id="station-list">
-        <!-- Leading Commercial Block if nowPlaying.commercialsFollow -->
-        <li class='commercialBlock disabled' ng-show="nowPlaying.commercialsFollow">
-          <span class="songlist-title">Commercial Block</span>
-          <span class="songlist-airtime">{{ formatTime(nowPlaying.endTime) }}</span>
-        </li>
-        <!-- ******************************************************** -->
         <div ui-tree-nodes ng-model="playlist">
-          <div ng-repeat="spin in playlist" ui-tree-node >
-            <div class="dragGroup">
-              <li class='song'>
+          <div ng-repeat="spin in playlist" >
+            <div class="dragGroup" ui-tree-node>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
                 <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
@@ -49,6 +43,10 @@
                 <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
                 <a href="#" class="close" title="delete" ng-click="removeSpin(spin, $index);">×</a>
+              </li>
+              <li class='commercialBlock disabled' ng-show="(spin._audioBlock._type === 'CommercialBlock')">
+                <span class="songlist-title">Commercial Block</span>
+                <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
               </li>
             </div>
             <li class='commercialBlock disabled' ng-show="spin.commercialsFollow">
