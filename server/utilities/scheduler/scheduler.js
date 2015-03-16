@@ -448,50 +448,60 @@ function Scheduler() {
       return;
     }
 
+    var minPlaylistPosition = Math.min(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
+    var maxPlaylistPosition = Math.max(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
+
+    var movingEarlier;
+    if (minPlaylistPosition === attrs.newPlaylistPosition) {
+      movingEarlier = true;
+    }
     Spin.getFullPlaylist(attrs.spin._station, function (err, beforePlaylist) {
       if (err) callback(err);
-  
-      var minPlaylistPosition = Math.min(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
-      var maxPlaylistPosition = Math.max(attrs.spin.playlistPosition, attrs.newPlaylistPosition);
-  
-      // set flag for moving forward or backwards
-      var movingForward = false;
-      if (attrs.spin.playlistPosition < attrs.newPlaylistPosition) {
-        movingForward = true;
-      }
     
-      var lastAccurateAirtime;
-      var spinsToUpdate = [];
-      for (var i=0;i<beforePlaylist.length;i++) {
-        // if it's the first spin, grab the lastAccurateAirtime
-        if(beforePlaylist[i].playlistPosition === minPlaylistPosition) {
-          if (i != 0) {
-            lastAccurateAirtime = beforePlaylist[i-1].airtime;
-          } else {
+      // find the relevant indexes
+      var minIndex;
+      var maxIndex;
+      var oldIndex;
+      var newIndex;
 
-          }
-        }
-
-        // if it's the moved spin, set the newPlaylistPosition
-        if (beforePlaylist[i]._id.equals(attrs.spin._id)) {
-          beforePlaylist[i].playlistPosition = attrs.newPlaylistPosition;
-          spinsToUpdate.push(beforePlaylist[i]);
-  
-        // ELSE IF it's within the range  
-        } else if ((beforePlaylist[i].playlistPosition >= minPlaylistPosition) &&
-                    (beforePlaylist[i].playlistPosition <= maxPlaylistPosition)) {
-          
-          
-          if(movingForward) {
-            beforePlaylist[i].playlistPosition = beforePlaylist[i].playlistPosition - 1;
-          } else {
-            beforePlaylist[i].playlistPosition = beforePlaylist[i].playlistPosition + 1;
-          }
-          spinsToUpdate.push(beforePlaylist[i]);
+      for (i=0;i<beforePlaylist.length;i++) {
+        if (beforePlaylist[i].playlistPosition === minPlaylistPosition) {
+          minIndex = i;
+        } else if (beforePlaylist[i].playlistPosition === maxPlaylistPosition) {
+          maxIndex = i;
+          break;
         }
       }
-  
-      Helper.saveAll(spinsToUpdate, function (err, updatedSpins) {  
+
+      // if the requested playlistPosition is too early,
+      if (minIndex === 0) {
+        callback(new Error('Invalid newPlaylistPosition -- airs too soon'));
+        return;
+
+      // or too late
+      } else if (attrs.newPlaylistPosition > beforePlaylist[beforePlaylist.length-1].playlistPosition) {
+        callback(new Error('Invalid newPlaylistPosition -- after end of playlist'));
+        return;
+      }
+
+      // rearrange the array
+      if (movingEarlier) {
+        beforePlaylist.splice(minIndex, 0, beforePlaylist.splice(maxIndex, 1)[0]);
+      } else {
+        beforePlaylist.splice(maxIndex, 0, beforePlaylist.splice(minIndex, 1)[0]);
+      }
+
+      // step through the array and replace playlistPositions
+      var playlistPositionTracker = beforePlaylist[minIndex-1].playlistPosition + 1
+      var spinsToSave = [];
+
+      for (var i=minIndex; i<=maxIndex; i++) {
+        beforePlaylist[i].playlistPosition = playlistPositionTracker;
+        playlistPositionTracker++;
+        spinsToSave.push(beforePlaylist[i]);
+      }
+      
+      Helper.saveAll(spinsToSave, function (err, updatedSpins) {  
         Station.findByIdAndUpdate(attrs.spin._station, { lastAccuratePlaylistPosition: minPlaylistPosition - 1 
                                                         }, function (err, updatedStation) {
           if (err) callback(err);
