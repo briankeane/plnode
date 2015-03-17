@@ -255,6 +255,7 @@ angular.module('pl2NodeYoApp')
     }
 
     $scope.removeSpin = function (spin, index) {
+
       $scope.playlist.splice(index,1);
 
       $scope.refreshProgramWithoutServer();
@@ -263,6 +264,14 @@ angular.module('pl2NodeYoApp')
         if (err) return false;
         $scope.playlist = newProgram.playlist;
       })
+    }
+
+    $scope.removable = function (spin, index) {
+      if (index === 0) {
+        return false;
+      } else {
+        return true;
+      }
     }
 
 
