@@ -567,9 +567,12 @@ function Scheduler() {
       
       // update the rest of the playlist
       var modelsToSave = [];
+
+      var playlistPositionTracker = partialPlaylist[0].playlistPosition + 1;
       for (var i=0;i<partialPlaylist.length;i++) {
-        partialPlaylist[i].playlistPosition += 1;
+        partialPlaylist[i].playlistPosition = playlistPositionTracker;
         modelsToSave.push(partialPlaylist[i]);
+        playlistPositionTracker++;
       }
 
       // create the new spin
