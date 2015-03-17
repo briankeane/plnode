@@ -175,7 +175,10 @@ angular.module('pl2NodeYoApp')
         }
       },
 
-      accept: function (sourceNodeScope, destNodesScope, destIndex) {
+      accept: function (sourceNodeScope, destNodeScope, destIndex) {
+        console.log(sourceNodeScope);
+        console.log(destNodeScope);
+        console.log(destIndex);
         // Don't let it drop in the front
         if (destIndex === 0) {
           return false;
@@ -208,6 +211,49 @@ angular.module('pl2NodeYoApp')
       }
     };
 
+    $scope.catalogList = {
+      accept: function (sourceNodeScope, destNodeScope, destIndex) {
+        return false;
+      },
+
+      dropped: function (event) {
+        console.log(event);
+        var item = event.source.nodeScope.$modelValue;
+        var index = event.dest.index;
+        // grab the start time
+        if (item._type === 'Song') {
+          
+          // create the new spin object
+          var newSpin = { _audioBlock: item,
+                          duration: item.duration,
+                          durationOffset: 0,
+                          playlistPosition: $scope.playlist[index].playlistPosition
+                        }
+
+          // insert the new spin
+          $scope.playlist.splice(index, 0, newSpin);
+
+          // update playlistPositions
+          for (var i=index+1;i<$scope.playlist.length;i++) {
+            $scope.playlist[i].playlistPosition += 1;
+          }
+
+          $scope.refreshProgramWithoutServer();
+
+          // notify server and refresh list
+          Auth.insertSpin({ playlistPosition: newSpin.playlistPosition,
+                            _audioBlock: newSpin._audioBlock._id,
+                            _station: $scope.currentStation._id 
+                          }, function (err, newProgram) {
+            if (err) { return false; }
+            $scope.playlist = newProgram.playlist;
+          });
+        } else if (item._type === 'Commentary')  {
+          console.log('DROPPED A COMMENTARY BITCH');
+        }
+      }
+    }
+
     $scope.removeSpin = function (spin, index) {
       $scope.playlist.splice(index,1);
 
@@ -219,44 +265,6 @@ angular.module('pl2NodeYoApp')
       })
     }
 
-    $scope.audioDropped = function (event, index, item, type, oldIndex) {
-      // grab the start time
-      if (item._type === 'Song') {
-        
-        // create the new spin object
-        var newSpin = { _audioBlock: item,
-                        duration: item.duration,
-                        durationOffset: 0,
-                        playlistPosition: $scope.playlist[index].playlistPosition
-                      }
-
-        // insert the new spin
-        $scope.playlist.splice(index, 0, newSpin);
-
-        // update playlistPositions
-        for (var i=index+1;i<$scope.playlist.length;i++) {
-          $scope.playlist[i].playlistPosition += 1;
-        }
-
-        $scope.refreshProgramWithoutServer();
-
-        // notify server and refresh list
-        Auth.insertSpin({ playlistPosition: newSpin.playlistPosition,
-                          _audioBlock: newSpin._audioBlock._id,
-                          _station: $scope.currentStation._id 
-                        }, function (err, newProgram) {
-          if (err) { return false; }
-          $scope.playlist = newProgram.playlist;
-        });
-      } else if (item._type === 'Commentary')  {
-        console.log('DROPPED A COMMENTARY BITCH');
-        
-
-      // ELSE IF it's just a moved spin
-      } else if (item._audioBlock) {
-        //$scope.movedSpin(index, event, item);
-      }// ENDIF
-    };
 
     // for now disable 1st two elements
     $scope.determineDisable = function (spin, index) {

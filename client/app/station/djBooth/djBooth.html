@@ -28,7 +28,7 @@
       </ul> 
 
 
-      <ul ui-tree="playlistOptions" callbacks="playlistOptions" id="station-list">
+      <ul ui-tree="playlistOptions" callbacks="playlistOptions" id="station-list" data-empty-place-holder-enabled="false">
         <div ui-tree-nodes ng-model="playlist">
           <div ng-repeat="spin in playlist" >
             <div class="dragGroup" ui-tree-node>
@@ -66,19 +66,20 @@
         <tab heading="Add Songs">
           <div class="content active" id="all-songs-source-container">
             <span for="searchbox">Search Text:</span>
-              <span id="onlyMySongs-label">My Songs Only</span>
-              <input id="onlyMySongs" class="switch" type="checkbox">
-              <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
+            <span id="onlyMySongs-label">My Songs Only</span>
+            <input id="onlyMySongs" class="switch" type="checkbox">
+            <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
 
 
-              <div id="catalog-list" ui-tree>
+            <div id="catalog-list" ui-tree="catalogList" data-empty-place-holder-enabled="false">
               <ol ui-tree-nodes ng-model="catalogSearchResults" class="song-manager-page">
                 <li ng-repeat="song in catalogSearchResults" 
-                    ui-tree-node>
-                <span class="songlist-title">{{ song.title }}</span>
-                <span class="songlist-artist">{{ song.artist }}</span>
-              </li>
-            </ul>
+                  ui-tree-node>
+                  <span class="songlist-title">{{ song.title }}</span>
+                  <span class="songlist-artist">{{ song.artist }}</span>
+                </li>
+              </ol>
+            </div>
           </div>
         </tab>
         <tab heading="Record">
