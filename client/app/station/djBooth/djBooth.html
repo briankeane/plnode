@@ -68,14 +68,13 @@
             <span for="searchbox">Search Text:</span>
               <span id="onlyMySongs-label">My Songs Only</span>
               <input id="onlyMySongs" class="switch" type="checkbox">
-            <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
-            <ul id="catalog-list" class="song-manager-page" dnd-list="catalogSearchResults">
-              <li ng-repeat="song in catalogSearchResults" 
-              dnd-draggable="song" 
-              dnd-moved="catalogSearchResults.splice($index, 1)" 
-              dnd-effect-allowed="move" 
-              dnd-selected="catalogSearchResults.selected = item" 
-              ng-class="{'selected': models.selected === song}">
+              <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
+
+
+              <div id="catalog-list" ui-tree>
+              <ol ui-tree-nodes ng-model="catalogSearchResults" class="song-manager-page">
+                <li ng-repeat="song in catalogSearchResults" 
+                    ui-tree-node>
                 <span class="songlist-title">{{ song.title }}</span>
                 <span class="songlist-artist">{{ song.artist }}</span>
               </li>
