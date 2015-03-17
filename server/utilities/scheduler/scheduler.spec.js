@@ -407,8 +407,6 @@ describe('playlist functions', function (done) {
   });
 
 
-  xit('insertSpin tests', function (done) {
-  });
 
   xit('getCommercialBlock tests', function (done) {
   });
@@ -471,9 +469,9 @@ describe('moving spin tests', function (done) {
   
   it('moves a spin earlier', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
-      beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
-      beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
-      Scheduler.moveSpin({ spin: beforePlaylist[10], newPlaylistPosition: 4 
+      var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
+      var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
+      Scheduler.moveSpin({ spinId: beforePlaylist[10].id, newPlaylistPosition: 4 
                         }, function (err, attrs) {
         Spin.getFullPlaylist(station.id, function (err, afterPlaylist) {
           
@@ -506,9 +504,9 @@ describe('moving spin tests', function (done) {
 
   it('moves a spin later', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
-      beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
-      beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
-      Scheduler.moveSpin({ spin: beforePlaylist[2], newPlaylistPosition: 12
+      var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
+      var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
+      Scheduler.moveSpin({ spinId: beforePlaylist[2].id, newPlaylistPosition: 12
                         }, function (err, attrs) {
         Spin.getFullPlaylist(station.id, function (err, afterPlaylist) {
           
@@ -540,10 +538,41 @@ describe('moving spin tests', function (done) {
       });
     });
   });
+  
+  it('insertSpin tests', function (done) {
+    var songToInsert = new Song({ duration: 1000 });
+      songToInsert.save(function (err) {
+        Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
+          var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
+          var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
+          Scheduler.insertSpin({ playlistPosition: 4,
+                                  _station: station.id,
+                                  _audioBlock: songToInsert.id
+                                }, function (err, updatedStation) {
+          Spin.getFullPlaylist(station.id, function (err, afterPlaylist) {
+            expect(afterPlaylist.length).to.equal(beforePlaylist.length + 1);
+
+            // unadjusted front spins
+            expect(afterPlaylist[0].id).to.equal(beforePlaylistIds[0]);
+            expect(afterPlaylist[1].id).to.equal(beforePlaylistIds[1]);
+
+            // inserted spin
+            expect(afterPlaylist[2]._audioBlock.id).to.equal(songToInsert.id);
+
+            // adjusted spins
+            for (var i=3; i<beforePlaylistIds.length; i++) {
+              expect(beforePlaylist[i].id).to.equal(afterPlaylist[i+1].id);
+            }
+            done();
+          });
+        });
+      });
+    });
+  });
 
   it('calls bullshit if spin is located in the same position', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
-      Scheduler.moveSpin({ spin: beforePlaylist[2], newPlaylistPosition: 4 }, function (err, attrs) {
+      Scheduler.moveSpin({ spinId: beforePlaylist[2].id, newPlaylistPosition: 4 }, function (err, attrs) {
         expect(err.message).to.equal('Spin is already at the requested playlistPosition');
         Spin.getFullPlaylist(station.id, function (err, newPlaylist) {
           for(var i=0;i<newPlaylist.length;i++) {
