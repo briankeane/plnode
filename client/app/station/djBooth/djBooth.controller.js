@@ -176,9 +176,6 @@ angular.module('pl2NodeYoApp')
       },
 
       accept: function (sourceNodeScope, destNodeScope, destIndex) {
-        console.log(sourceNodeScope);
-        console.log(destNodeScope);
-        console.log(destIndex);
         // Don't let it drop in the front
         if (destIndex === 0) {
           return false;

@@ -15,6 +15,7 @@ var StationSchema = new Schema({
   lastAccurateAirtime:                    { type: Date                        },
   dailyListenTimeMS:                      { type: Number, default: 0          },
   timezone:                               { type: String                      },
+  commentaryCounter:                      { type: Number, default: 0          },
   dailyListenTimeCalculationDate:           { type: Date, default: Date.now() }
 });
 

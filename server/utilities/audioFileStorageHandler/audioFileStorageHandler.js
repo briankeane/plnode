@@ -169,6 +169,7 @@ console.log('store song end');
       });
     });    
   };
+
   this.getUnprocessedSong = function (key, callback) {
     var filepath = process.cwd() + '/server/data/' + key
     var downloader = s3HighLevel.downloadFile({   localFile: filepath,

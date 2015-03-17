@@ -2,6 +2,10 @@
 
 var _ = require('lodash');
 var Commentary = require('./commentary.model');
+var AudioConverter = require('../../utilities/audioConverter/audioConverter');
+var fs = require('fs');
+var AudioFileStorageHandler = require('../../utilities/audioFileStorageHandler/audioFileStorageHandler');
+var Scheduler = require('../../utilities/scheduler/scheduler');
 
 // Get list of commentarys
 exports.index = function(req, res) {
@@ -19,6 +23,38 @@ exports.show = function(req, res) {
     return res.json(commentary);
   });
 };
+
+exports.acceptUpload = function (req, res) {
+  var oldFilepath = process.cwd() + '/server/data/unprocessedAudio/' + req.files.file.name;
+  var newFilepath = oldFilepath + '.wav';
+  fs.rename(oldFilepath, newFilepath, function (err) {
+    if (err) { return handleError(res, err); }
+    AudioConverter.convertFile(process.cwd() + '/server/data/unprocessedAudio/' + req.files.file.name + '.wav', function (err, convertedFilepath) {
+      if (err) { return handleError(res, err); }
+      AudioFileStorageHandler.storeCommentary({ duration: req.body.duration,
+                                                stationId: req.body._station,
+                                                filepath: convertedFilepath 
+                                              }, function (err, key) {
+        if (err) { return handleError(res, err); }
+        Commentary.create({ key: key,
+                            _station: req.body._station,
+                            duration: parseInt(req.body.duration) 
+                          }, function (err, createdCommentary) {
+          if (err) { return handleError(res, err); }
+          Scheduler.insertSpin({ playlistPosition: parseInt(req.body.playlistPosition),
+                                  _station: req.body._station,
+                                  _audioBlock: createdCommentary.id 
+                                }, function (err, updatedStation) {
+            Scheduler.getProgram({ stationId: req.body._station }, function (err, program) {
+              if (err) { return handleError(res, err); }
+              return res.send(200, program);
+            });
+          });
+        });
+      });
+    });
+  });
+}
 
 // Creates a new commentary in the DB.
 exports.create = function(req, res) {

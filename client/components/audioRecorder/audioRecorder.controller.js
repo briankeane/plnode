@@ -1,10 +1,33 @@
 angular.module('pl2NodeYoApp')
-  .controller('AudioRecorderCtrl', function ($scope, $location, Auth) {
+  .controller('AudioRecorderCtrl', function ($scope, $location, Auth, $sce, FileUploader) {
+
+    $scope.FileUploader = FileUploader;
+    $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
+                                          autoUpload: true });
+
+    $scope.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+          console.info('onWhenAddingFileFailed', item, filter, options);
+    };
+    $scope.uploader.onAfterAddingFile = function(fileItem) {
+      console.info('onAfterAddingFile', fileItem);
+    };
+    $scope.uploader.onAfterAddingAll = function(addedFileItems) {
+      console.info('onAfterAddingAll', addedFileItems);
+    };
+    $scope.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+        item._file = $scope.blobs[0].blob;
+        item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
+                            _station: Auth.getCurrentStation()._id,
+                            playlistPosition: $scope.mostRecentCommentary.playlistPosition });
+
+    };
 
     $scope.stopDisabled = true;
     $scope.recordButtonDisabled = false;
     $scope.recordedCommentaryObject;
-
+    $scope.recordings = [];
+    $scope.blobs = [];
 
     $scope.startRecordingPressed = function () {
       startRecording();
@@ -18,6 +41,18 @@ angular.module('pl2NodeYoApp')
       $(document).trigger('recordingStopped');
       $scope.stopDisabled = true;
     };
+
+    $scope.recordingList = {
+      dropped: function (event) {
+        var commentary = new $scope.FileUploader.FileLikeObject(event.source.nodeScope.$modelValue.blob);
+        commentary.lastModifiedDate = new Date();
+        var targetPlaylistPosition = event.dest.nodesScope.$modelValue[event.dest.index + 1].playlistPosition;
+        $scope.mostRecentCommentary = { fileLikeObject: commentary,
+                                        model: event.source.nodeScope.$modelValue,
+                                        playlistPosition: targetPlaylistPosition };
+        $scope.uploader.addToQueue([commentary]);
+      }
+    }
 
 
     var audio_context;
@@ -101,16 +136,22 @@ angular.module('pl2NodeYoApp')
         var li = $('#recording li');
         var au = document.createElement('audio');
         var hf = document.createElement('a');
-        var recordingList = $('#recording');
+        var recordingList = $('#recordings');
         var template = $('#recording li').html();
 
         // store the blob and it's info
         au.onloadeddata = function () {
-          $scope.recordedCommentaryObject = { _type: 'Commentary',
+          $scope.recordings.push({ _type: 'Commentary',
                                               blob: blob,
-                                              src: au.src,
-                                              duration: au.duration * 1000 };
-          console.log($scope.recordedCommentaryObject);
+                                              url: $sce.trustAsResourceUrl(url),
+                                              src: $sce.trustAsResourceUrl(au.src),
+                                              duration: au.duration * 1000 });
+          $scope.blobs.push({ _type: 'Commentary',
+                                              blob: blob,
+                                              url: $sce.trustAsResourceUrl(url),
+                                              src: $sce.trustAsResourceUrl(au.src),
+                                              duration: au.duration * 1000 });
+          console.log($scope.recordings);
         }
 
         // add the element to the screen
@@ -118,10 +159,10 @@ angular.module('pl2NodeYoApp')
         au.src = url;
         hf.href = url;
         //hf.download = new Date().toISOString() + '.wav';
-        hf.innerHTML = hf.download;
-        li.append(au);
-        li.append(hf);
-        recordingList.append(template);
+        // hf.innerHTML = hf.download;
+        // li.append(au);
+        // li.append(hf);
+        // recordingList.append(template);
 
         // Possibly a better way to do this in the future?
 

@@ -164,6 +164,4 @@ angular.module('pl2NodeYoApp')
 
         });
       };
-
-      console.info('uploader', uploader);
   });
