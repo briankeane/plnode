@@ -188,7 +188,7 @@ exports.getProgram = function (req,res,next) {
   Scheduler.getProgram({ stationId: req.params.id }, function (err, programObject) {
     if (err) return next(err);
 
-    if ((programObject.nowPlaying._audioBlock._type === 'CommercialBlock') || (programObject.playlist[0]._audioBlock._type === 'CommercialBlock')) {
+    if ((programObject.nowPlaying._audioBlock._type === 'CommercialBlock') || (programObject.playlist.length && (programObject.playlist[0]._audioBlock._type === 'CommercialBlock'))) {
       if (!req.query._user) {
         return res.json(200, programObject);
       } else {

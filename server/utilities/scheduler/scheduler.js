@@ -410,24 +410,28 @@ function Scheduler() {
         user.lastCommercial = { audioFileId: 0 };
       }
 
+      
       // IF it's already been adjusted for this block
       if (user.lastCommercial && user.lastCommercial.commercialBlockNumber && (user.lastCommercial.commercialBlockNumber == commercialBlockNumber)) {
         callback(null, user.lastCommercial.audioFileUrl);
+        return;
       } else {
-        user.lastCommercial.commercialBlockNumber = commercialBlockNumber;
+        var newLastCommercial = {};
+        newLastCommercial.commercialBlockNumber = commercialBlockNumber;
         
         if (user.lastCommercial.audioFileId === 27) {
-          user.lastCommercial.audioFileId = 1;
-          user.lastCommercial.audioFileUrl = 'http://commercialblocks.playola.fm/0001_commercial_block.mp3';
+          newLastCommercial.audioFileId = 1;
+          newLastCommercial.audioFileUrl = 'http://commercialblocks.playola.fm/0001_commercial_block.mp3';
         } else {
-          user.lastCommercial.audioFileId += 1
+          newLastCommercial.audioFileId = user.lastCommercial.audioFileId + 1;
         }
-        user.lastCommercial.audioFileId += 1;
+
         // build link
-        user.lastCommercial.audioFileUrl = "http://commercialblocks.playola.fm/" + pad(user.lastCommercial.audioFileId, 4) + "_commercial_block.mp3";
-        user.save(function (err) {
+        newLastCommercial.audioFileUrl = "http://commercialblocks.playola.fm/" + pad(newLastCommercial.audioFileId, 4) + "_commercial_block.mp3";
+
+        User.findByIdAndUpdate(user.id, { lastCommercial: newLastCommercial }, function (err, newUser) {
           if (err) callback(err);
-          callback(null, user.lastCommercial.audioFileUrl);
+          callback(null, newLastCommercial.audioFileUrl);
         });
       }
     })
