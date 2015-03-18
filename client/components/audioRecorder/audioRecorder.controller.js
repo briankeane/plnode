@@ -80,23 +80,68 @@ angular.module('pl2NodeYoApp')
       volumeAnimateNode.connect(audio_context.destination);
       volumeAnalyser = audio_context.createAnalyser();
       volumeAnalyser.smoothingTimeConstant = 0/3;
-      volumeAnalyser.fftSize = 1024;
+      volumeAnalyser.fftSize = 2048;
 
       input.connect(volumeAnalyser);
       volumeAnalyser.connect(volumeAnimateNode);
 
 
 
-      // THE FOLLOWING 2 WERE GRABBED FROM: http://css.dzone.com/articles/exploring-html5-web-audio
-      volumeAnimateNode.onaudioprocess = function() {
-        var array = new Uint8Array(volumeAnalyser.frequencyBinCount);
-        volumeAnalyser.getByteFrequencyData(array);
-        var average = getAverageVolume(array);
+    // THE FOLLOWING 2 WERE GRABBED FROM: http://css.dzone.com/articles/exploring-html5-web-audio
+      var bufferLength = volumeAnalyser.fftSize;
+      var dataArray = new Uint8Array(bufferLength);
 
-        ctx.clearRect(0,0,300,100);
-        ctx.fillStyle="gradient";
-        ctx.fillRect(0,0, average*2, 100);
-      };
+      ctx.clearRect(0,0, canvas.width, canvas.height);
+
+      function draw() {
+        var drawVisual = requestAnimationFrame(draw);
+        volumeAnalyser.getByteTimeDomainData(dataArray);
+        ctx.fillStyle = 'rgb(1000,1000,1000)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgb(0,0,0)';
+        ctx.beginPath();
+
+        var sliceWidth = canvas.width * 1.0/bufferLength;
+        var x = 0;
+
+        for (var i=0; i<bufferLength; i++) {
+          var v=dataArray[i]/128.0;
+          var y = v*canvas.height/2;
+
+          if (i===0) {
+            ctx.moveTo(x,y);
+          } else {
+            ctx.lineTo(x,y);
+          }
+
+          x += sliceWidth;
+        }
+
+        ctx.lineTo(canvas.width, canvas.height/2);
+        ctx.stroke();
+
+      }
+
+      draw();
+
+
+
+
+
+
+
+
+
+
+        // var array = new Uint8Array(volumeAnalyser.frequencyBinCount);
+        // volumeAnalyser.getByteFrequencyData(array);
+        // var average = getAverageVolume(array);
+
+        // ctx.clearRect(0,0,300,100);
+        // ctx.fillStyle="gradient";
+        // ctx.fillRect(0,0, average*2, 100);
+
 
       function getAverageVolume(array) {
         var values = 0;

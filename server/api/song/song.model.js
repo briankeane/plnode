@@ -14,6 +14,9 @@ var songSchema = AudioBlockSchema.extend({
   albumArtworkUrl:        { type: String },
   albumArtworkUrlSmall:   { type: String },
   trackViewUrl:           { type: String },
+  eoi:                    { type: Number },
+  eom:                    { type: Number },
+  boo:                    { type: Number },
   itunesInfo:             {}
 }, {
   toObject: { getters: true },

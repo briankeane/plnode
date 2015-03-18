@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function (AudioPlayer, $scope, Auth, $location, $window, $timeout, moment, $interval, $sce) {
+  .controller('djBoothCtrl', function (AudioPlayer, $scope, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -63,6 +63,17 @@ angular.module('pl2NodeYoApp')
         }
       });
     };
+
+    $scope.markupSong = function (song) {
+      $modal.open({
+        controller: 'MarkupSongModalCtrl',
+        templateUrl: 'components/markupSong/markupSong.modal.html'      
+      });
+    }
+
+    $scope.needsMarkup = function (song) {
+      return (!song.eom || !song.boo || !song.eoi);
+    }
 
     $scope.refreshProgramFromServer = function () {
       Auth.getProgram({}, function (err, program) {

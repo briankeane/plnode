@@ -1,0 +1,8 @@
+<div class="col-md-12">
+  <div ng-repeat="song in songsToMarkup">
+    <div id="{{'song' + $index}}" ng-init="loadWaveform($index, song.audioFileUrl)">
+    </div>
+    <div>{{song.title}}</div>
+  </div>
+This is the songMarkup view.
+</div>
