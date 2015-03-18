@@ -1,6 +1,7 @@
 angular.module('pl2NodeYoApp')
   .controller('AudioRecorderCtrl', function ($scope, $location, Auth, $sce, FileUploader) {
 
+    $scope.refreshProgramFromServer;      // filled with reference when needed
     $scope.FileUploader = FileUploader;
     $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
                                           autoUpload: true });
@@ -22,6 +23,9 @@ angular.module('pl2NodeYoApp')
                             playlistPosition: $scope.mostRecentCommentary.playlistPosition });
 
     };
+    $scope.uploader.onCompleteItem = function (item) {
+      $scope.refreshProgramFromServer();
+    }
 
     $scope.stopDisabled = true;
     $scope.recordButtonDisabled = false;
@@ -51,6 +55,7 @@ angular.module('pl2NodeYoApp')
                                         model: event.source.nodeScope.$modelValue,
                                         playlistPosition: targetPlaylistPosition };
         $scope.uploader.addToQueue([commentary]);
+        $scope.refreshProgramFromServer = event.dest.nodesScope.refreshProgramFromServer;
       }
     }
 
@@ -141,11 +146,17 @@ angular.module('pl2NodeYoApp')
 
         // store the blob and it's info
         au.onloadeddata = function () {
-          $scope.recordings.push({ _type: 'Commentary',
-                                              blob: blob,
-                                              url: $sce.trustAsResourceUrl(url),
-                                              src: $sce.trustAsResourceUrl(au.src),
-                                              duration: au.duration * 1000 });
+          $scope.recordings.push({  _audioBlock: { 
+                                      _type: 'Commentary',
+                                      audioFileUrl: url, 
+                                      duration: au.duration * 1000,
+                                      airtime: null,
+                                      title: 'Commentary'
+                                    },
+                                  blob: blob,
+                                  url: $sce.trustAsResourceUrl(url),
+                                  src: $sce.trustAsResourceUrl(au.src),
+                                  duration: au.duration * 1000 });
           $scope.blobs.push({ _type: 'Commentary',
                                               blob: blob,
                                               url: $sce.trustAsResourceUrl(url),

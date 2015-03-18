@@ -42,6 +42,7 @@ angular.module('pl2NodeYoApp')
     $scope.safeLink = function (url) {
       return $sce.trustAsResourceUrl(url);
     }
+    
     $scope.setPlaylist = function () {
       Auth.getProgram({}, function (err, program) {
         if (err) {
