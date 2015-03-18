@@ -40,7 +40,7 @@
               </li>
               <li class='commentary' ng-show="(spin._audioBlock._type==='Commentary')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
-                <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
+                <span class="songlist-artist"><audio controls src="{{safeLink(spin._audioBlock.audioFileUrl)}}" /></span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
                 <a href="#" class="close" title="delete" data-nodrag ng-show="removable(spin, $index);" ng-click="removeSpin(spin, $index);">×</a>
               </li>

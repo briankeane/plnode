@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function (AudioPlayer, $scope, Auth, $location, $window, $timeout, moment, $interval) {
+  .controller('djBoothCtrl', function (AudioPlayer, $scope, Auth, $location, $window, $timeout, moment, $interval, $sce) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -39,6 +39,9 @@ angular.module('pl2NodeYoApp')
       }
     };
 
+    $scope.safeLink = function (url) {
+      return $sce.trustAsResourceUrl(url);
+    }
     $scope.setPlaylist = function () {
       Auth.getProgram({}, function (err, program) {
         if (err) {
