@@ -237,6 +237,16 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      updateSong: function (songInfo, callback) {
+        var cb = callback || angular.noop;
+
+        return Song.update({ id: songInfo._id }, songInfo, function (updatedSong) {
+          return cb(null, updatedSong.updatedSong);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       createRotationItem: function (rotationItemObject, callback) {
         var cb = callback || angular.noop;
 

@@ -17,6 +17,9 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'findByKeywords'
         }
+      },
+      update: {
+        method: 'PUT'
       }
     });
   });
