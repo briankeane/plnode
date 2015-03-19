@@ -7,6 +7,6 @@ var SpecHelper = require('../../utilities/helpers/specHelper');
 
 describe('GET /api/v1/uploads', function() {
 
-  xit('to do', function (done) {
+  xit('Test ', function (done) {
   });
 });

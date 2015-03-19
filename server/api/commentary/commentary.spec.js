@@ -68,4 +68,7 @@ describe('a commentary', function (done) {
       done();
     });
   });
+
+  xit('accept upload', function (done) {
+  });
 });

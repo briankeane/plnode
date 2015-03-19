@@ -1,5 +1,3 @@
-
-
 var Station = require('../../api/station/station.model');
 var AudioBlock = require('../../api/audioBlock/audioBlock.model');
 var LogEntry = require('../../api/logEntry/logEntry.model');
@@ -98,16 +96,8 @@ function Scheduler() {
             recentlyPlayedSongs.push(currentPlaylist[i]._audioBlock);
           }
 
-          // if (recentlyPlayedSongs.length < 20) {
-          //   // add until there's 20 or the logEntries are all used
-          //   var songsRemaining = Math.max(currentLogEntries.length-1, 20 - recentlyPlayedSongs.length);
-          //   for (var i=songsRemaining; i>=0; i--) {
-          //     recentlyPlayedSongs.push(currentLogEntries[i]._audioBlock);
-          //   }
-          // }
-
+          // generate the playlist
           var spins = [];
-
           while(timeTracker.isBefore(playlistEndTime) || timeTracker.isSame(playlistEndTime)) {
             song = _.sample(sampleArray);
 
@@ -133,7 +123,7 @@ function Scheduler() {
 
             timeTracker = timeTracker.add(song.duration, 'ms');
 
-           // eventually change to "if spin.commercialsFollow"
+           // TEMPORARY -- eventually change to "if spin.commercialsFollow" after all spins built out
            if (Math.floor(spin.airtime.getTime()/1800000.0) != Math.floor(timeTracker.toDate().getTime()/1800000.0)) {
             timeTracker = timeTracker.add(station.secsOfCommercialPerHour/2, 'seconds');
            }
@@ -324,6 +314,7 @@ function Scheduler() {
                 
                 playlist.forEach(function (spin) {
                   playedLogEntries.push(LogEntry.newFromSpin(spin));
+                  
                   // if there's a commercial next and the commercial is not in the future
                   if (spin.commercialsFollow && (spin.endTime < new Date())) {
                     playedLogEntries.push( new LogEntry({ playlistPosition: spin.playlistPosition,

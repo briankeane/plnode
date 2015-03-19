@@ -19,7 +19,7 @@ var StationSchema = new Schema({
   dailyListenTimeCalculationDate:           { type: Date, default: Date.now() }
 });
 
-// calculates amount of listening for station rank
+// lists Stations by dailyListenTimeMS.  Calculates dailyListenTimeMS if it has not been updated yet today
 StationSchema.statics.listByRank = function (attrs, callback) {
   Station.find({}, function (err, fullList) {
     var lastNightMidnightMs = new Date().setHours(0,0,0,0);
@@ -29,11 +29,14 @@ StationSchema.statics.listByRank = function (attrs, callback) {
     for(var i=0;i<fullList.length;i++) {
       getRankFunctions.push((function(index) {
 
-        // if it was calculated today, just use what's there
+        // IF it was calculated today, just use what's there
         var deferred = Q.defer();
         if (fullList[index].dailyListenTimeCalculationDate < lastNightMidnightMs) {
           return deferred.resolve(fullList[index]);
+
+        // ELSE 
         } else {
+          // Query for all MS that users were listening to this station
           new Date(lastNightMidnightMs - 24*60*60*1000)
           ListeningSession.find({ $and: [ 
                                     { _station: fullList[index]._id },
@@ -86,7 +89,10 @@ StationSchema.statics.listByRank = function (attrs, callback) {
         }  //ENDIF
       })(i));
     }  // ENDFOR
+
+    // run that shit
     Q.all(getRankFunctions)
+    
     .done(function (results) {
 
       Station

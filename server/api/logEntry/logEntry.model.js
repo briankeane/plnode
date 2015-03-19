@@ -21,7 +21,9 @@ var logEntrySchema = new Schema({
   toJSON:   { getters: true }
 });
 
-
+// *******************************************************
+// * endTime -- calculates the end of the log entry      *
+// *******************************************************
 logEntrySchema.virtual('endTime').get(function () {
   // if it's missing the audioBlock, duration, or airtime, return null
   if (!((this.airtime) && (this._audioBlock) && (this._audioBlock.duration))) {
@@ -31,6 +33,9 @@ logEntrySchema.virtual('endTime').get(function () {
   }
 });
 
+// *************************************************************
+// * duration -- calculates the duration of the log entry      *
+// *************************************************************
 logEntrySchema.virtual('duration').get(function () {
   // if something is stored in _audioBlock
   if (this._audioBlock) {
@@ -44,6 +49,10 @@ logEntrySchema.virtual('duration').get(function () {
   }
 });
 
+
+// ***********************************************************
+// ******************** Common Queries ***********************
+// ***********************************************************
 logEntrySchema.statics.getRecent = function (attrs, callback) {
   // if there's no count, set the limit 
   if (!attrs.count) { 
@@ -127,6 +136,10 @@ logEntrySchema.statics.getEntryByPlaylistPosition = function (attrs, callback) {
   .exec(callback);
 };
 
+// ***********************************************************************
+// * newFromSpin -- creates a log entry from a spin. Does not delete the *
+// * spin.                                                               *
+// ***********************************************************************
 logEntrySchema.statics.newFromSpin = function (spin) {
   return new LogEntry({ _station: (spin._station._id || spin._station),
                         playlistPosition: spin.playlistPosition,

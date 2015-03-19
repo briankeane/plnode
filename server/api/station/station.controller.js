@@ -37,31 +37,38 @@ exports.create = function(req, res) {
       if (err) { 
         return res.json(500, err); 
       } else {
+
+        // load the station with rotationItems based on the artists they suggested
         SongPool.getSongSuggestions(req.body.artists, function (err, songSuggestions) {
           if (err) { return res.json(500, err); }
           console.log("song Suggestions length: " + songSuggestions.length);
           for (var i=0;i<songSuggestions.length;i++) {
+            // put the first 13 in heavy rotation
             if (i<13) {
-              RotationItem.create({ _song: songSuggestions[i]._id,
+              RotationItem.create({ _song: songSuggestions[i]._id, 
                                     _station: station._id,
                                     bin: 'active',
                                     weight: 27 });
+            // these go in medium rotation
             } else if (i<40) {
               RotationItem.create({ _song: songSuggestions[i]._id,
                                     _station: station._id,
                                     bin: 'active',
                                     weight: 17 });
+            // for now these also go in medium rotation
             } else if (i<57) {
               RotationItem.create({ _song: songSuggestions[i]._id,
                                     _station: station._id,
                                     bin: 'active',
                                     weight: 17 });
+            
+            // we don't need the rest   
             } else {
-              // we don't need the rest
               break;
             }
           }
 
+          // update the user with the new station's id
           user.update({ _station: station._id }, function (err, updatedUser) {
             if (err) { 
               return res.json(500, err) 
@@ -188,10 +195,14 @@ exports.getProgram = function (req,res,next) {
   Scheduler.getProgram({ stationId: req.params.id }, function (err, programObject) {
     if (err) return next(err);
 
+    // if a CommercialBlock is about to be broadcast, grab the proper CommercialBlock for the requesting user
     if ((programObject.nowPlaying._audioBlock._type === 'CommercialBlock') || (programObject.playlist.length && (programObject.playlist[0]._audioBlock._type === 'CommercialBlock'))) {
+      // if no user is provided, just return the program with the empty commercial blocks
       if (!req.query._user) {
         return res.json(200, programObject);
+
       } else {
+        // Replace nowPlaying if necessary
         if (programObject.nowPlaying._audioBlock._type === 'CommercialBlock') {
           Scheduler.getCommercialBlockLink({ _user: req.query._user,
                                               airtime: programObject.nowPlaying.airtime
@@ -199,6 +210,8 @@ exports.getProgram = function (req,res,next) {
             programObject.nowPlaying._audioBlock.audioFileUrl = link;
             return res.json(200, programObject);
           });
+
+        // ELSE freplace playlist[0] if it's the commercial block
         } else {
           Scheduler.getCommercialBlockLink({ _user: req.query._user,
                                               airtime: programObject.playlist[0].airtime

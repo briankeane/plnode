@@ -9,11 +9,12 @@ function AudioConverter() {
     var newFilepath = process.cwd() + '/server/data/processedAudio/' + path.basename(filepath)
     var duration;
 
-    // fix the extension
+    // fix the extension for the output
     newFilepath = newFilepath.replace('.m4a','.mp3');
     newFilepath = newFilepath.replace('.wav', '.mp3');
     newFilepath = newFilepath.replace('.m4p', '.mp3');
 
+    // run the conversion
     ffmpeg(filepath)
     .audioCodec('libmp3lame')
     .output(newFilepath)

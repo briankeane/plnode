@@ -58,6 +58,7 @@ rotationItemSchema.statics.updateBySongId = function (attrs, callback) {
 
     // otherwise if the song has been in rotation before
     } else {
+      // IF both weight and bin are provided... update them
       if (attrs.weight && attrs.bin) {
         rotationItem.updateWeightAndBin(attrs.weight, attrs.bin, function (err, updatedRotationItem) {
           if (err) {
@@ -66,6 +67,8 @@ rotationItemSchema.statics.updateBySongId = function (attrs, callback) {
             callback(null, updatedRotationItem);
           }
         });
+
+      // ELSE IF just the weight is provided... update it
       } else if (attrs.weight) {
         rotationItem.updateWeight(attrs.weight, function (err, updatedRotationItem) {
           if (err) {
@@ -74,6 +77,8 @@ rotationItemSchema.statics.updateBySongId = function (attrs, callback) {
             callback(null, updatedRotationItem);
           }
         });
+
+      // ELSE IF just the bin is provided... update it
       } else if (attrs.bin) {
         rotationItem.updateBin(attrs.bin, function (err, updatedRotationItem) {
           if (err) {

@@ -9,6 +9,7 @@ var unidecode = require('unidecode');
 function Handler() {
   var self = this;
 
+  // makes sure filenames are legal
   this.cleanFilename = function (filename) {
     var cleanedFilename = unidecode(filename)
                             .replace(/[^a-zA-Z0-9\-\.]/g, '')
@@ -17,6 +18,7 @@ function Handler() {
     return cleanedFilename;
   }
 
+  // clears the entire bucket
   this.clearBucket = function (bucket, callback) {
     var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: bucket } });
 
@@ -26,14 +28,14 @@ function Handler() {
     });
 
     listGetter.on('end', function () {
-      var objectKeys = [];
-
       
+      // IF the bucket is not already empty
+      var objectKeys = [];
       if (objects.length > 0) {
+
         for(var i=0;i<objects.length;i++) {
           objectKeys.push({ Key: objects[i].Key });
         }
-
         var deleter = s3HighLevel.deleteObjects({ Bucket: bucket, Delete: { Objects: objectKeys } });
         deleter.on('end', function () {
           callback();
@@ -234,6 +236,7 @@ console.log('store song end');
       var formattedObjects = [];
       getHeadFunction(objects.length-1);
 
+      // must be recursive because of echonest API cursor setup
       function getHeadFunction(index) {
         if (index < 0) {
           continueFunction();
@@ -270,6 +273,7 @@ console.log('store song end');
         });
       }
 
+      // 
       function continueFunction() {
         console.log('in continue function');
         formattedObjects = _.sortBy(formattedObjects, function(song) {
