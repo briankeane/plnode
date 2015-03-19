@@ -49,9 +49,9 @@ angular.module('pl2NodeYoApp')
     };
 
     $scope.saveSong = function(index) {
-      // create a copy to send without the wavesurfer object
-      var song = jQuery.extend({}, $scope.songsToMarkup[index]);
-
+      var song = $scope.songsToMarkup[index];
+      
+      // if all info is complete
       if ((song.eoi != null) && song.boo && song.eom) {
         Auth.updateSong({ _id: song.id,
                           eom: song.eom,
