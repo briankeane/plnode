@@ -675,7 +675,7 @@ module.exports = function (grunt) {
       'loadDatabase'
     ]);
   })
-  grunt.registerTask'loadDB:prod', function () {
+  grunt.registerTask('loadDB:prod', function () {
     'env:all',
     'env:dev',
     'loadDatabase'
@@ -694,7 +694,7 @@ module.exports = function (grunt) {
       'loadEchonestFromDB'
     ]);
   })
-  grunt registerTask('loadEchonest:prod', function () {
+  grunt.registerTask('loadEchonest:prod', function () {
     'env:all',
     'env:prod',
     'loadEchonestFromDB'  
