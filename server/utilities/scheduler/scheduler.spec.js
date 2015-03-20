@@ -653,7 +653,9 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  xit('works for song/commentary-short', function (done) {
+  it('works for song/commentary-short', function (done) {
+    Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinShort);
+    expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
