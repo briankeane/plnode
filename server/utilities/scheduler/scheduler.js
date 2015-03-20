@@ -86,32 +86,31 @@ function Scheduler() {
           if (currentLogEntries.length) {
             // IF log but no playlist
             if (!currentPlaylist.length) {
-              previousSpin = new Spin({ playlistPosition: currentLogEntries[0].playlistPosition,
+              previousSpin = { playlistPosition: currentLogEntries[0].playlistPosition,
                                         airtime: currentLogEntries[0].airtime,
                                         _audioBlock: currentLogEntries[0]._audioBlock,
                                         _station: station,
-                                      });
+                                      };
             } else { // (log and playlist exist) 
               previousSpin = currentPlaylist[currentPlaylist.length-1];
             }
           } else {  // (this is a new station)
             // create 1st spin and set it as the previous spin
-            spins.push(new Spin({ playlistPosition: 1,
+            spins.push({ playlistPosition: 1,
                                   _audioBlock: chooseSong(),
                                   airtime: new Date(),
                                   _station: station,
-                                  }));
+                                  });
             previousSpin = spins[0];
           }
 
           // WHILE before playlistEndTime
           while (previousSpin.airtime < playlistEndTime) {
-          console.log(previousSpin.airtime < playlistEndTime);
             // create the new spin
-            var newSpin = new Spin({ playlistPosition: previousSpin.playlistPosition + 1,
-                                  _audioBlock: chooseSong(),
-                                  _station: station,
-                                  });
+            var newSpin = { playlistPosition: previousSpin.playlistPosition + 1,
+                            _audioBlock: chooseSong(),
+                            _station: station,
+                          };
             // add the airtime
             self.addScheduleTimeToSpin(station, previousSpin, newSpin);
 
@@ -121,7 +120,8 @@ function Scheduler() {
           } // ENDWHILE
 
           // Save the spins
-          Helper.saveAll(spins, function (err, savedSpins) {
+          spinsToSave = _.map(spins, function(spin) { return new Spin(spin); });
+          Helper.saveAll(spinsToSave, function (err, savedSpins) {
 
             // update and save the station
             station.lastAccuratePlaylistPosition = previousSpin.playlistPosition;
@@ -309,15 +309,15 @@ function Scheduler() {
   this.addScheduleTimeToSpin = function (station, previousSpin, spinToSchedule) {
     // account for unmarked spins
     var previousSpinMarkups = {
-      boo: previousSpin.boo || previousSpin._audioBlock.duration,
-      eoi: previousSpin.eoi || 0,
-      eom: previousSpin.eom || previousSpin._audioBlock.duration - 1000  // subtract a second to mash em up
+      boo: previousSpin._audioBlock.boo || previousSpin._audioBlock.duration,
+      eoi: previousSpin._audioBlock.eoi || 0,
+      eom: previousSpin._audioBlock.eom || previousSpin._audioBlock.duration - 1000  // subtract a second to mash em up
     }
 
     var spinToScheduleMarkups = {
-      boo: spinToSchedule.boo || spinToSchedule.duration,
-      eoi: spinToSchedule.eoi || 0,
-      eom: spinToSchedule.eom || spinToSchedule.duration - 1000
+      boo: spinToSchedule._audioBlock.boo || spinToSchedule.duration,
+      eoi: spinToSchedule._audioBlock.eoi || 0,
+      eom: spinToSchedule._audioBlock.eom || spinToSchedule.duration - 1000
     }
 
     var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
@@ -354,6 +354,8 @@ function Scheduler() {
     } else if (previousSpin._audioBlock._type === 'Song') {
       // IF previousSpin=song && spinToSchedule=Song
       if (spinToSchedule._audioBlock._type === 'Song') {
+        console.log('song/song');
+        console.log(previousSpinMarkups.eom);
         // start at EOM
         spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
       

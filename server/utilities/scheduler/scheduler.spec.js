@@ -607,79 +607,78 @@ describe('addScheduleTimeToSpin', function (done) {
     station = new Station({ secsOfCommercialPerHour: 180 });
     station.save(function(err) {
 
-      song1 = new Song({ duration: 60000,
+      song1 = new Song({ _type: 'Song',
+                         duration: 60000,
                          eoi: 5000,
                          boo: 50000,
                          eom: 58000 });
-      song2 = new Song({  duration: 70000,
-                                eoi: 6000,
-                                boo: 66000,
-                                eom: 69000 });
+      song2 = new Song({  _type: 'Song',
+                          duration: 70000,
+                          eoi: 6000,
+                          boo: 66000,
+                          eom: 69000 });
 
       Helper.saveAll([song1, song2], function (err, savedSongs) {
-        songSpin1 = new Spin({  _audioBlock: song1,
+        songSpin1 = {  _audioBlock: song1,
                                 airtime: new Date(2014,3,15, 12,10),
                                 playlistPosition: 5,
-                                _station: station });
-        songSpin2 = new Spin({  _audioBlock: song2,
+                                _station: station };
+        songSpin2 = {  _audioBlock: song2,
                                 airtime: new Date(2014,3,15, 12,13),
                                 playlistPosition: 6,
-                                _station: station });
-        songSpin1.populate('_audioBlock', function (err, songSpin1) {
-          console.log(songSpin1);
-        
-          commentarySpin1 = new Spin({  _audioBlock: {
-                                          _type: 'Commentary',
-                                          duration: 30000,
-                                          eoi: 2000,
-                                          boo: 27000,
-                                          eom: 29500
-                                        },
-                                        airtime: new Date(2014,3,15,12,14),
-                                        playlistPosition: 7,
-                                        _station: station });
-          done();
-        })
+                                _station: station };
+        commentarySpin1 = new Spin({  _audioBlock: {
+                                        _type: 'Commentary',
+                                        duration: 30000,
+                                        eoi: 2000,
+                                        boo: 27000,
+                                        eom: 29500
+                                      },
+                                      airtime: new Date(2014,3,15,12,14),
+                                      playlistPosition: 7,
+                                      _station: station });
+        done();
       });
     });
   });
 
   it('works for song/song', function (done) {
-    console.log(songSpin1);
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
-    expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10, 58).getTime());
+    expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  it('works for song/commentary-long', function (done) {
+  xit('works for song/commentary-long', function (done) {
     done();
   });
 
-  it('works for song/commentary-short', function (done) {
+  xit('works for song/commentary-short', function (done) {
     done();
   });
 
-  it('works for commentary/commentary', function (done) {
+  xit('works for commentary/commentary', function (done) {
+
     done();
   });
 
-  it('works for song/song', function (done) {
+  xit('works for commentary-short/song', function (done) {
     done();
   });
 
-  it('works for commentary-short/song', function (done) {
+  xit('works for commentary-long/song', function (done) {
     done();
   });
 
-  it('works for commentary-long/song', function (done) {
-    done();
-  });
-
-  it('works for commercialsFollow/song', function (done) {
+  xit('works for commercialsFollow/song', function (done) {
     done();
   });
 
   it('works for unmarked song', function (done) {
+    songSpin1._audioBlock = { _type: 'Song',
+                              duration: 60000 }
+    console.log(songSpin1);
+    Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
+    expect(songSpin2.airtime.getTime()).to.equal(new Date(2014,3,15,12,10,59).getTime());
     done();
   });
 });
