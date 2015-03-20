@@ -315,9 +315,9 @@ function Scheduler() {
     }
 
     var spinToScheduleMarkups = {
-      boo: spinToSchedule._audioBlock.boo || spinToSchedule.duration,
+      boo: spinToSchedule._audioBlock.boo || spinToSchedule._audioBlock.duration,
       eoi: spinToSchedule._audioBlock.eoi || 0,
-      eom: spinToSchedule._audioBlock.eom || spinToSchedule.duration - 1000
+      eom: spinToSchedule._audioBlock.eom || spinToSchedule._audioBlock.duration - 1000
     }
 
     var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
@@ -346,7 +346,7 @@ function Scheduler() {
       // ELSE IF previousSpin=Commentary && spinToSchedule=commentary
       } else if (spinToSchedule._audioBlock._type === 'Commentary') {
         // regular schedule
-        spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.duration);
+        spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin._audioBlock.duration);
         spinToSchedule.previousSpinOverlap = 0;
       }
     
@@ -354,15 +354,13 @@ function Scheduler() {
     } else if (previousSpin._audioBlock._type === 'Song') {
       // IF previousSpin=song && spinToSchedule=Song
       if (spinToSchedule._audioBlock._type === 'Song') {
-        console.log('song/song');
-        console.log(previousSpinMarkups.eom);
         // start at EOM
         spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
       
       // ELSE IF spinToSchedule=Commentary && previousSpin=Song
       } else if (spinToSchedule._audioBlock._type === 'Commentary') {
         // IF it's long enough to cover outro
-        if (spinToSchedule.duration > (previousSpin.duration - previousSpinMarkups.boo)) {
+        if (spinToSchedule._audioBlock.duration > (previousSpin._audioBlock.duration - previousSpinMarkups.boo)) {
           // Subtract outro length
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.boo);
           spinToSchedule.previousSpinOverlap = previousSpin.duration - previousSpinMarkups.boo;

@@ -598,8 +598,8 @@ describe('addScheduleTimeToSpin', function (done) {
   var songSpin1;
   var songSpin2;
   var songWithCommercialAfterSpin;
-  var commentarySpin1;
-  var commentarySpin2;
+  var commentarySpinLong;
+  var commentarySpinShort;
   var station;
   var unmarkedSongSpin;
 
@@ -607,18 +607,18 @@ describe('addScheduleTimeToSpin', function (done) {
     station = new Station({ secsOfCommercialPerHour: 180 });
     station.save(function(err) {
 
-      song1 = new Song({ _type: 'Song',
-                         duration: 60000,
+      song1 = new Song({ duration: 60000,
                          eoi: 5000,
                          boo: 50000,
                          eom: 58000 });
-      song2 = new Song({  _type: 'Song',
-                          duration: 70000,
+      song2 = new Song({  duration: 70000,
                           eoi: 6000,
                           boo: 66000,
                           eom: 69000 });
+      commentaryLong = new Commentary({ duration: 70000})
+      commentaryShort = new Commentary({ duration: 5000 });
 
-      Helper.saveAll([song1, song2], function (err, savedSongs) {
+      Helper.saveAll([song1, song2, commentaryLong, commentaryShort], function (err, savedSongs) {
         songSpin1 = {  _audioBlock: song1,
                                 airtime: new Date(2014,3,15, 12,10),
                                 playlistPosition: 5,
@@ -627,16 +627,15 @@ describe('addScheduleTimeToSpin', function (done) {
                                 airtime: new Date(2014,3,15, 12,13),
                                 playlistPosition: 6,
                                 _station: station };
-        commentarySpin1 = new Spin({  _audioBlock: {
-                                        _type: 'Commentary',
-                                        duration: 30000,
-                                        eoi: 2000,
-                                        boo: 27000,
-                                        eom: 29500
-                                      },
+        commentarySpinLong = {  _audioBlock: commentaryLong, 
                                       airtime: new Date(2014,3,15,12,14),
                                       playlistPosition: 7,
-                                      _station: station });
+                                      _station: station };
+        commentarySpinShort = { _audioBlock: commentaryShort,
+                                airtime: new Date(2014,3,15, 12,20),
+                                playlistPosition: 8,
+                                _station: station }
+
         done();
       });
     });
@@ -648,7 +647,9 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  xit('works for song/commentary-long', function (done) {
+  it('works for song/commentary-long', function (done) {
+    Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinLong);
+    expect(new Date(commentarySpinLong.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,50).getTime());
     done();
   });
 
@@ -656,8 +657,9 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  xit('works for commentary/commentary', function (done) {
-
+  it('works for commentary/commentary', function (done) {
+    Scheduler.addScheduleTimeToSpin(station, commentarySpinLong, commentarySpinShort);
+    expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,15,10).getTime());
     done();
   });
 
@@ -676,7 +678,6 @@ describe('addScheduleTimeToSpin', function (done) {
   it('works for unmarked song', function (done) {
     songSpin1._audioBlock = { _type: 'Song',
                               duration: 60000 }
-    console.log(songSpin1);
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
     expect(songSpin2.airtime.getTime()).to.equal(new Date(2014,3,15,12,10,59).getTime());
     done();
