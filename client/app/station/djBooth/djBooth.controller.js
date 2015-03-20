@@ -72,7 +72,7 @@ angular.module('pl2NodeYoApp')
     }
 
     $scope.needsMarkup = function (song) {
-      return (!song.eom || !song.boo || !song.eoi);
+      return (!song.eom || !song.boo || (song.eoi === undefined));
     }
 
     $scope.refreshProgramFromServer = function () {
