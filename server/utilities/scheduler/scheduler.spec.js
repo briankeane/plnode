@@ -76,6 +76,12 @@ describe('playlist functions', function (done) {
     Spin.getFullPlaylist(station.id, function (err, spins) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
         // make sure all logEntry values stored
+        console.log('logEntries:');
+        console.log(logEntries);
+        console.log('spins');
+        console.log(spins);
+
+
         expect(logEntries.length).to.equal(1);
         expect(logEntries[0].playlistPosition).to.equal(1);
         expect(logEntries[0].airtime.getTime()).to.equal(new Date(2014,3,15, 12,46).getTime());
@@ -401,10 +407,12 @@ describe('playlist functions', function (done) {
   });
 
   xit('brings the station current if nowPlaying follows a commercialBlock', function (done) {
+    
   });
 
   xit('getProgram gets a program', function (done) {
   });
+
 
 
 
@@ -584,5 +592,96 @@ describe('moving spin tests', function (done) {
       });
     });
   });
-
 });
+
+describe('addScheduleTimeToSpin', function (done) {
+  var songSpin1;
+  var songSpin2;
+  var songWithCommercialAfterSpin;
+  var commentarySpin1;
+  var commentarySpin2;
+  var station;
+  var unmarkedSongSpin;
+
+  beforeEach(function (done) {
+    station = new Station({ secsOfCommercialPerHour: 180 });
+    station.save(function(err) {
+
+      song1 = new Song({ duration: 60000,
+                         eoi: 5000,
+                         boo: 50000,
+                         eom: 58000 });
+      song2 = new Song({  duration: 70000,
+                                eoi: 6000,
+                                boo: 66000,
+                                eom: 69000 });
+
+      Helper.saveAll([song1, song2], function (err, savedSongs) {
+        songSpin1 = new Spin({  _audioBlock: song1,
+                                airtime: new Date(2014,3,15, 12,10),
+                                playlistPosition: 5,
+                                _station: station });
+        songSpin2 = new Spin({  _audioBlock: song2,
+                                airtime: new Date(2014,3,15, 12,13),
+                                playlistPosition: 6,
+                                _station: station });
+        songSpin1.populate('_audioBlock', function (err, songSpin1) {
+          console.log(songSpin1);
+        
+          commentarySpin1 = new Spin({  _audioBlock: {
+                                          _type: 'Commentary',
+                                          duration: 30000,
+                                          eoi: 2000,
+                                          boo: 27000,
+                                          eom: 29500
+                                        },
+                                        airtime: new Date(2014,3,15,12,14),
+                                        playlistPosition: 7,
+                                        _station: station });
+          done();
+        })
+      });
+    });
+  });
+
+  it('works for song/song', function (done) {
+    console.log(songSpin1);
+    Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
+    expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10, 58).getTime());
+    done();
+  });
+
+  it('works for song/commentary-long', function (done) {
+    done();
+  });
+
+  it('works for song/commentary-short', function (done) {
+    done();
+  });
+
+  it('works for commentary/commentary', function (done) {
+    done();
+  });
+
+  it('works for song/song', function (done) {
+    done();
+  });
+
+  it('works for commentary-short/song', function (done) {
+    done();
+  });
+
+  it('works for commentary-long/song', function (done) {
+    done();
+  });
+
+  it('works for commercialsFollow/song', function (done) {
+    done();
+  });
+
+  it('works for unmarked song', function (done) {
+    done();
+  });
+});
+
+

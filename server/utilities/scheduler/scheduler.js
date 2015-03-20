@@ -16,14 +16,162 @@ var Q = require('q');
 
 function Scheduler() {
   var self = this;
-  var sampleArray;
-  var lastAccuratePlaylistPosition;
-  var maxPosition;
-  var timeTracker;
-  var recentlyPlayedSongs;
+
+  function createSampleArray(station, callback) {
+    var sampleArray = [];
+    RotationItem.findAllForStation(station.id, function (err, rotationItems) {
+      for (var i=0;i<rotationItems.length;i++) {
+        if (rotationItems[i].bin === 'active') {
+          for(var j=0;j<rotationItems[i].weight; j++) {
+            sampleArray.push(rotationItems[i]._song);
+          }
+        }
+      }
+      callback(null, sampleArray);
+    });
+  }
 
   this.generatePlaylist = function (attrs, callback) {
-    
+    var previousSpin;
+    var recentlyPlayedSongs = [];
+    var spins = [];
+    var sampleArray;
+
+    // unpack attrs
+    var station = attrs.station
+
+
+    // return if playlistEndTime is out of range
+    if (attrs.playlistEndTime && (moment().add(1,'days').isBefore(moment(attrs.playlistEndTime)))) {
+      attrs.playlistEndTime = moment().add(1,'days').toDate();
+    }
+
+    // create the endTime
+    var playlistEndTime = attrs.playlistEndTime || new Date(new Date(attrs.playlistEndTime).getTime() + 2*60*60*1000);
+
+    // grab the playlist and logs
+    LogEntry.getRecent({ _station: station.id,
+                         count: 30 }, function (err, currentLogEntries) {
+
+      Spin.getFullPlaylist(station.id, function (err, currentPlaylist) {
+
+        // ** preload the recentlyPlayed list ***
+        
+        // go backwards through currentPlaylist
+        for (var i=currentPlaylist.length-1;i>=0;i--) {
+          if (currentPlaylist[i]._type === 'Song') {
+            recentlyPlayedSongs.push(currentPlaylist[i]);
+          }
+          // if there's enough, break out
+          if (recentlyPlayedSongs >= 20) {
+            break;
+          }
+        }
+
+        // if needed, go through log entries too
+        for (var i=0;i<currentLogEntries; i++) {
+          if (recentlyPlayedSongs.length >= 20) {
+            break;
+          }
+          if (currentLogEntries[i]._audioBlock._type === 'Song') {
+            recentlyPlayedSongs.push(currentLogEntries[i]._audioBlock);
+          }
+        }
+
+        // create the sampleArray
+        createSampleArray(station, function (err, createdSampleArray) {
+          sampleArray = createdSampleArray;
+          // Set previousSpin
+          // IF LOG exists
+          if (currentLogEntries.length) {
+            // IF log but no playlist
+            if (!currentPlaylist.length) {
+              previousSpin = new Spin({ playlistPosition: currentLogEntries[0].playlistPosition,
+                                        airtime: currentLogEntries[0].airtime,
+                                        _audioBlock: currentLogEntries[0]._audioBlock,
+                                        _station: station,
+                                      });
+            } else { // (log and playlist exist) 
+              previousSpin = currentPlaylist[currentPlaylist.length-1];
+            }
+          } else {  // (this is a new station)
+            // create 1st spin and set it as the previous spin
+            spins.push(new Spin({ playlistPosition: 1,
+                                  _audioBlock: chooseSong(),
+                                  airtime: new Date(),
+                                  _station: station,
+                                  }));
+            previousSpin = spins[0];
+          }
+
+          // WHILE before playlistEndTime
+          while (previousSpin.airtime < playlistEndTime) {
+          console.log(previousSpin.airtime < playlistEndTime);
+            // create the new spin
+            var newSpin = new Spin({ playlistPosition: previousSpin.playlistPosition + 1,
+                                  _audioBlock: chooseSong(),
+                                  _station: station,
+                                  });
+            // add the airtime
+            self.addScheduleTimeToSpin(station, previousSpin, newSpin);
+
+            spins.push(newSpin);
+            previousSpin = newSpin;
+          
+          } // ENDWHILE
+
+          // Save the spins
+          Helper.saveAll(spins, function (err, savedSpins) {
+
+            // update and save the station
+            station.lastAccuratePlaylistPosition = previousSpin.playlistPosition;
+            station.lastAccurateAirtime = previousSpin.airtime;
+            station.save(function (err, savedStation) {
+
+              // if it's the first playlist, start the station
+              if (currentLogEntries.length === 0) {
+                var firstSpin = spins[0];
+                var logEntry = new LogEntry({ _station: station.id,
+                                              _audioBlock: firstSpin._audioBlock,
+                                              playlistPosition: firstSpin.playlistPosition,
+                                              airtime: firstSpin.airtime,
+                                              durationOffset: firstSpin.durationOffset });
+                logEntry.save(function (err, savedLogEntry) {
+                  Spin.findById(firstSpin.id).remove(function (err, removedSpin) {
+                    callback(null, station);
+                    return;
+                  });
+                });
+              } else {
+                callback(null, station);
+                return;
+              }
+            });
+          });
+        });
+      });
+    });
+
+    // chooses a random song from the sampleArray
+    function chooseSong() {
+      song = _.sample(sampleArray);
+
+      // while the id is in the recentlyPlayedSongs array, pick another
+      while(recentlyPlayedSongs.some(function (e) { return e.id == song.id; })) {
+        song = _.sample(sampleArray);
+      }
+
+      // adjust recentlyPlayedSongs
+      recentlyPlayedSongs.push(song);
+      if (recentlyPlayedSongs.length >= 20) {
+        recentlyPlayedSongs.shift();
+      }
+
+      return song;
+    }
+  }
+
+  this.oldGeneratePlaylist = function (attrs, callback) {
     // all times utc
     moment().utc().format();
 
@@ -157,6 +305,75 @@ function Scheduler() {
       });
     });
   };
+
+  this.addScheduleTimeToSpin = function (station, previousSpin, spinToSchedule) {
+    // account for unmarked spins
+    var previousSpinMarkups = {
+      boo: previousSpin.boo || previousSpin._audioBlock.duration,
+      eoi: previousSpin.eoi || 0,
+      eom: previousSpin.eom || previousSpin._audioBlock.duration - 1000  // subtract a second to mash em up
+    }
+
+    var spinToScheduleMarkups = {
+      boo: spinToSchedule.boo || spinToSchedule.duration,
+      eoi: spinToSchedule.eoi || 0,
+      eom: spinToSchedule.eom || spinToSchedule.duration - 1000
+    }
+
+    var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
+    var commercialBlockLengthMS = (station.secsOfCommercialPerHour/2)*1000;
+
+    // IF previousSpin had commercials
+    if (previousSpin.commercialsFollow) {
+      // eom + commercialTime
+      spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom + commercialBlockLengthMS);
+    
+    // ELSE IF previousSpin=Commentary
+    } else if (previousSpin._audioBlock._type === 'Commentary') {
+      
+      // previousSpin=Commentary, spinToSchedule=Song
+      if (spinToSchedule._audioBlock._type === 'Song') {
+        
+        // IF previousSpin Commentary is long enough to cover intro
+        if ((previousSpin.duration - previousSpin.previousSpinOverlap) >= spinToScheduleMarkups.eoi) {
+          // subtract the intro length from the start time
+          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.duration - spinToScheduleMarkups.eoi);
+        } else {
+          // schedule it at the end of the overlap
+          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.previousSpinOverlap);
+        }
+      
+      // ELSE IF previousSpin=Commentary && spinToSchedule=commentary
+      } else if (spinToSchedule._audioBlock._type === 'Commentary') {
+        // regular schedule
+        spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.duration);
+        spinToSchedule.previousSpinOverlap = 0;
+      }
+    
+    // ELSE IF previousSpin was a Song
+    } else if (previousSpin._audioBlock._type === 'Song') {
+      // IF previousSpin=song && spinToSchedule=Song
+      if (spinToSchedule._audioBlock._type === 'Song') {
+        // start at EOM
+        spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
+      
+      // ELSE IF spinToSchedule=Commentary && previousSpin=Song
+      } else if (spinToSchedule._audioBlock._type === 'Commentary') {
+        // IF it's long enough to cover outro
+        if (spinToSchedule.duration > (previousSpin.duration - previousSpinMarkups.boo)) {
+          // Subtract outro length
+          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.boo);
+          spinToSchedule.previousSpinOverlap = previousSpin.duration - previousSpinMarkups.boo;
+        // ELSE start new spin at previousSpin.eom
+        } else {
+          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
+          spinToSchedule.previousSpinOverlap = previousSpin.duration - previousSpinMarkups.eom;
+        }
+      }
+    }
+  };
+
+
 
   this.updateAirtimes = function (attrs, callback) {
 
