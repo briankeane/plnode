@@ -604,7 +604,7 @@ describe('addScheduleTimeToSpin', function (done) {
   var unmarkedSongSpin;
 
   beforeEach(function (done) {
-    station = new Station({ secsOfCommercialPerHour: 180 });
+    station = new Station({ secsOfCommercialPerHour: 360 });
     station.save(function(err) {
 
       song1 = new Song({ duration: 60000,
@@ -635,6 +635,11 @@ describe('addScheduleTimeToSpin', function (done) {
                                 airtime: new Date(2014,3,15, 12,20),
                                 playlistPosition: 8,
                                 _station: station }
+        commercialsFollowSpin = { _audioBlock: song1,
+                                  airtime: new Date(2014,3,15, 11,59,30),
+                                  playlistPosition: 8,
+                                  commercialsFollow: true,
+                                  _station: station }
 
         done();
       });
@@ -673,7 +678,10 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  xit('works for commercialsFollow/song', function (done) {
+  it('works for commercialsFollow/song', function (done) {
+    Scheduler.addScheduleTimeToSpin(station, commercialsFollowSpin, songSpin1);
+    console.log(songSpin1.airtime);
+    expect(songSpin1.airtime.getTime()).to.equal(new Date(2014,3,15, 12,3,28).getTime());
     done();
   });
 

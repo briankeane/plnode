@@ -124,6 +124,8 @@ function Scheduler() {
           Helper.saveAll(spinsToSave, function (err, savedSpins) {
 
             // update and save the station
+            console.log('previousSpin: ' + previousSpin.playlistPosition);
+            console.log(previousSpin);
             station.lastAccuratePlaylistPosition = previousSpin.playlistPosition;
             station.lastAccurateAirtime = previousSpin.airtime;
             station.save(function (err, savedStation) {
