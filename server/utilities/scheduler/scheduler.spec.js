@@ -130,7 +130,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-    xit('updates the airtimes', function (done) {
+    it('updates the airtimes', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes
         for (var i=10; i<fullPlaylist.length; i++) {
@@ -150,6 +150,9 @@ describe('playlist functions', function (done) {
 
           Scheduler.updateAirtimes({ station: station }, function (err, returnedStation) {
             Spin.getFullPlaylist(station.id, function (err, fixedPlaylist) {
+              for(var i=0;i<fixedPlaylist.length;i++) {
+                console.log(fixedPlaylist[i].airtime);
+              }
               expect(fixedPlaylist[22].airtime.getTime()).to.equal(new Date(2014,3,15, 14,04).getTime());
               expect(fixedPlaylist[21].commercialsFollow).to.equal(true);
               expect(fixedPlaylist[34].airtime.getTime()).to.equal(new Date(2014,3,15, 14,43).getTime());
@@ -264,7 +267,7 @@ describe('playlist functions', function (done) {
     });
   });
   
-  xit('does not extend the playlist past 24hrs', function (done) {
+  it('does not extend the playlist past 24hrs', function (done) {
     Scheduler.generatePlaylist({ station: station,
                                 playlistEndTime: new Date(2014,3,25, 16,46)
                               }, function (err, updatedStation) {
@@ -277,7 +280,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('extends the playlist 4 hours', function (done) {
+  it('extends the playlist 4 hours', function (done) {
     Scheduler.generatePlaylist({ station: station,
                                 playlistEndTime: new Date(2014,3,15, 16,46)
                               }, function (err, updatedStation) {
@@ -291,7 +294,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('extends the playlist if a commercial leads in', function (done) {
+  it('extends the playlist if a commercial leads in', function (done) {
     // remove enough for a commercialsFollow spin to be last
     Spin.find({ _station: station.id, playlistPosition: { $gte: 34 } }).remove().exec(function (err, removedSpins) {
 

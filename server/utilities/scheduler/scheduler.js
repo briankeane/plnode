@@ -44,7 +44,6 @@ function Scheduler() {
     // return if playlistEndTime is out of range
     if (attrs.playlistEndTime && (moment().add(1,'days').isBefore(moment(attrs.playlistEndTime)))) {
       attrs.playlistEndTime = moment().add(1,'days').toDate();
-      console.log('outofrange');
     }
 
     // create the endTime
@@ -103,7 +102,6 @@ function Scheduler() {
                                   _station: station,
                                   });
             previousSpin = spins[0];
-            console.log('playlistEndTime' + playlistEndTime);
           }
 
           // WHILE before playlistEndTime
@@ -139,16 +137,12 @@ function Scheduler() {
                                               airtime: firstSpin.airtime,
                                               durationOffset: firstSpin.durationOffset });
                 logEntry.save(function (err, savedLogEntry) {
-  console.log('savedSpins[0]')
-  console.log(savedSpins[0]);
                   Spin.findByIdAndRemove(savedSpins[0].id, function (err, removedSpin) {
-                    console.log(err);
-                    console.log(removedSpin);
-                    console.log()
                     callback(null, station);
                     return;
                   });
                 });
+              // otherwise just go back
               } else {
                 callback(null, station);
                 return;
@@ -261,15 +255,9 @@ function Scheduler() {
 
   this.updateAirtimes = function (attrs, callback) {
 
-    moment().utc().format();
-
     var station = attrs.station;
-    var fullPlaylist;
-    var finalLogEntry;
-    var playlist;
-    var lastAccuratePlaylistPosition;
-    var timeTracker;
-
+    var previousSpin;
+    var toBeUpdated = [];
     // exit if playlist is already accurate
     if ( ((attrs.endTime) && (attrs.endTime < station.lastAccurateAirtime)) || 
                                        ((attrs.playlistPosition) && 
@@ -287,75 +275,63 @@ function Scheduler() {
         return;
       }
 
-      // if the lastAccuratePosition is after the log, set it as the starting point
+      // grab the last log entry, since it has to be accurate
       LogEntry.getRecent({ _station: station.id, count:1 }, function (err, gottenLogEntry) {
-        finalLogEntry = gottenLogEntry[0];
-
-        // if the lastAccuratePosition is in the playlist, use it to start
-        if ((station.lastAccuratePlaylistPosition) && (station.lastAccuratePlaylistPosition > finalLogEntry.playlistPosition)) {
-          lastAccuratePlaylistPosition = station.lastAccuratePlaylistPosition;
         
-        // otherwise use logEntry
+        // if the last log entry is the last Accurate Airtime, use it
+        if (station.lastAccuratePlaylistPosition === gottenLogEntry[0].lastAccuratePlaylistPosition) {
+          previousSpin = { _audioBlock: finalLogEntry._audioBlock,
+                            airtime: finalLogEntry.airtime,
+                            playlistPosition: finalLogEntry.playlistPosition,
+                            _station: station,
+                            commercialsFollow: finalLogEntry.commercialsFollow }
+        
+        // ELSE use the corresponding spin
         } else {
-          lastAccuratePlaylistPosition = finalLogEntry.playlistPosition;
-        }
-        Spin.getPartialPlaylist({ _station: station.id,
-                                    startingPlaylistPosition: lastAccuratePlaylistPosition 
-                                }, function (err, partialPlaylist) {
+
+          // seek the last accurate spin
+          var index;
+          for(index=0;index<gottenPlaylist.length;index++) {
+            if (gottenPlaylist[index].playlistPosition === station.lastAccuratePlaylistPosition) {
+              break;
+            }
+          }
           
-          playlist = partialPlaylist;
-
-          // if starting with the log, set the timeTracker
-          if (lastAccuratePlaylistPosition == finalLogEntry.playlistPosition) {
-            timeTracker = moment(finalLogEntry.endTime);
-
-            // add time for comemrcial block if necessary
-            if (finalLogEntry.commercialsFollow) {
-              timeTracker.add(station.secsOfCommercialPerHour/2, 'seconds');
-            }
-
-          // otherwise, set it to the beginning of the playlist
-          } else {
-            timeTracker = moment(playlist[0].airtime);
-          }
-
-          var toBeUpdated = [];
-          var i=0;
-          for (i=0; i<playlist.length; i++) {
-            if (playlist[i].airtime.getTime() != timeTracker.toDate().getTime()) {
-              playlist[i].airtime = moment(timeTracker).toDate();
-              toBeUpdated.push(playlist[i]);
-            }
-
-            lastAccuratePlaylistPosition = playlist[i].playlistPosition;
-
-            timeTracker.add(playlist[i].duration, 'ms');
-
-            // add commercial time if necessary
-            if (playlist[i].commercialsFollow) {
-              timeTracker.add(station.secsOfCommercialPerHour/2, 'seconds');
-            }
-
-            // break out if past stop time
-            if (attrs.endTime && (timeTracker > attrs.endTime)) {
-              break;
-            }
-
-            // break out if past endingPlaylistPosition
-            if (attrs.endingPlaylistPosition && (playlist[i].playlistPosition >= attrs.endingPlaylistPosition)) {
-              break;
-            }
-          }
-
-          // add 
-          // var toSave = playlist.slice(0,i);
-          toBeUpdated.push(station);
-
-          // update
-          Helper.saveAll(toBeUpdated, function (err, savedPlaylist) {
+          // if it's last, exit (entire playlist is up to date)
+          if (index === gottenPlaylist.length - 1){ 
             callback(null, station);
             return;
-          });
+          }
+
+          // set last accurate entry to previousSpin
+          previousSpin = gottenPlaylist[index];
+
+          // set up gottenPlaylist to update
+          gottenPlaylist = gottenPlaylist.slice(index + 1);
+        }
+
+        for(var i=0;i<gottenPlaylist.length;i++) {
+          self.addScheduleTimeToSpin(station, previousSpin, gottenPlaylist[i]);
+          toBeUpdated.push(gottenPlaylist[i]);
+
+          // check for ending flags and exit if met
+          if (attrs.endTime && (gottenPlaylist[i].airtime > attrs.endTime)) {
+            break;
+          }
+          if (attrs.endingPlaylistPosition && (gottenPlaylist[i].playlistPosition >= attrs.endingPlaylistPosition)) {
+            break;
+          }
+
+          // advance the previousSpin and continue
+          previousSpin = gottenPlaylist[i];
+        }
+
+        toBeUpdated.push(station);
+
+        // update
+        Helper.saveAll(toBeUpdated, function (err, savedPlaylist) {
+          callback(null, station);
+          return;
         });
       });
     });
