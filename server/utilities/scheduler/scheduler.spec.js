@@ -76,16 +76,6 @@ describe('playlist functions', function (done) {
     Spin.getFullPlaylist(station.id, function (err, spins) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
         // make sure all logEntry values stored
-        for (var i=0;i<logEntries.length;i++) {
-          console.log('logEntry airtime: ' + logEntries[i].airtime);
-        }
-
-
-        for (var i=0;i<spins.length;i++) {
-          console.log('spin airtime: ' + spins[i].airtime);
-        }
-
-
         expect(logEntries.length).to.equal(1);
         expect(logEntries[0].playlistPosition).to.equal(1);
         expect(logEntries[0].airtime.getTime()).to.equal(new Date(2014,3,15, 12,46).getTime());
@@ -111,15 +101,17 @@ describe('playlist functions', function (done) {
     });
   });
   
-  xit('updates the lastAccuratePlaylistPosition & lastAccurateAirtime', function (done) {
+  it('updates the lastAccuratePlaylistPosition & lastAccurateAirtime', function (done) {
     Station.findById(station.id, function (err, foundStation) {
       expect(station.lastAccuratePlaylistPosition).to.equal(37);
       expect(foundStation.lastAccuratePlaylistPosition).to.equal(37);
       Spin.getByPlaylistPosition({ _station: station.id,
                                   playlistPosition: 37
                                 }, function (err, foundSpin) {
-        expect(station.lastAccurateAirtime.getTime()).to.equal(foundSpin.endTime.getTime());
-        expect(foundStation.lastAccurateAirtime.getTime()).to.equal(foundSpin.endTime.getTime());
+        console.log(foundStation.lastAccurateAirtime);
+        console.log(foundSpin.endTime)
+        expect(station.lastAccurateAirtime.getTime()).to.equal(foundSpin.airtime.getTime());
+        expect(foundStation.lastAccurateAirtime.getTime()).to.equal(foundSpin.airtime.getTime());
         done();
       });
     });
