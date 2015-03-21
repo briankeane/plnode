@@ -76,10 +76,14 @@ describe('playlist functions', function (done) {
     Spin.getFullPlaylist(station.id, function (err, spins) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
         // make sure all logEntry values stored
-        console.log('logEntries:');
-        console.log(logEntries);
-        console.log('spins');
-        console.log(spins);
+        for (var i=0;i<logEntries.length;i++) {
+          console.log('logEntry airtime: ' + logEntries[i].airtime);
+        }
+
+
+        for (var i=0;i<spins.length;i++) {
+          console.log('spin airtime: ' + spins[i].airtime);
+        }
 
 
         expect(logEntries.length).to.equal(1);
@@ -107,7 +111,7 @@ describe('playlist functions', function (done) {
     });
   });
   
-  it('updates the lastAccuratePlaylistPosition & lastAccurateAirtime', function (done) {
+  xit('updates the lastAccuratePlaylistPosition & lastAccurateAirtime', function (done) {
     Station.findById(station.id, function (err, foundStation) {
       expect(station.lastAccuratePlaylistPosition).to.equal(37);
       expect(foundStation.lastAccuratePlaylistPosition).to.equal(37);
@@ -134,7 +138,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-    it('updates the airtimes', function (done) {
+    xit('updates the airtimes', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes
         for (var i=10; i<fullPlaylist.length; i++) {
@@ -166,7 +170,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-    it('updates the airtimes if commercial leads in', function (done) {
+    xit('updates the airtimes if commercial leads in', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes -- starting with a commercialsFollow=true spin
         for (var i=5; i<fullPlaylist.length; i++) {
@@ -197,7 +201,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-    it('updates the airtimes if only the log is correct', function (done) {
+    xit('updates the airtimes if only the log is correct', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes -- starting with a commercialsFollow=true spin
         for (var i=0; i<fullPlaylist.length; i++) {
@@ -228,7 +232,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-  it('updates the airtimes starting from the log, commercialsFollow is true', function (done) {
+  xit('updates the airtimes starting from the log, commercialsFollow is true', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes -- starting with a commercialsFollow=true spin
         for (var i=0; i<fullPlaylist.length; i++) {
@@ -268,7 +272,7 @@ describe('playlist functions', function (done) {
     });
   });
   
-  it('does not extend the playlist past 24hrs', function (done) {
+  xit('does not extend the playlist past 24hrs', function (done) {
     Scheduler.generatePlaylist({ station: station,
                                 playlistEndTime: new Date(2014,3,25, 16,46)
                               }, function (err, updatedStation) {
@@ -281,7 +285,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('extends the playlist 4 hours', function (done) {
+  xit('extends the playlist 4 hours', function (done) {
     Scheduler.generatePlaylist({ station: station,
                                 playlistEndTime: new Date(2014,3,15, 16,46)
                               }, function (err, updatedStation) {
@@ -295,7 +299,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('extends the playlist if a commercial leads in', function (done) {
+  xit('extends the playlist if a commercial leads in', function (done) {
     // remove enough for a commercialsFollow spin to be last
     Spin.find({ _station: station.id, playlistPosition: { $gte: 34 } }).remove().exec(function (err, removedSpins) {
 
@@ -313,7 +317,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('brings the station current', function (done) {
+  xit('brings the station current', function (done) {
     //tk.reset();
     tk.freeze(new Date(2014,3,15, 14,05));
     Scheduler.bringCurrent(station, function (err) {
@@ -331,7 +335,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('brings the station current if a spin with commercialsFollow=true leads in', function (done) {
+  xit('brings the station current if a spin with commercialsFollow=true leads in', function (done) {
     tk.freeze(new Date(2014,3,15, 14,30));
     Scheduler.bringCurrent(station, function (err) {
       tk.freeze(new Date(2014,3,15, 15,11));
@@ -349,7 +353,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('brings the station current if a commercialBlock leads in', function (done) {
+  xit('brings the station current if a commercialBlock leads in', function (done) {
     tk.freeze(new Date(2014,3,15, 14,32));
     Scheduler.bringCurrent(station, function (err) {
       tk.freeze(new Date(2014,3,15, 15,11));
@@ -367,7 +371,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('brings the station current if a commercialBlock should be nowPlaying', function (done) {
+  xit('brings the station current if a commercialBlock should be nowPlaying', function (done) {
     tk.freeze(new Date(2014,3,15, 13,32));
     Scheduler.bringCurrent(station, function (err) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
@@ -383,7 +387,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  it('brings the station current if nowPlaying precedes a commercialBlock', function (done) {
+  xit('brings the station current if nowPlaying precedes a commercialBlock', function (done) {
     tk.freeze(new Date(2014,3,15, 13,30));
     Scheduler.bringCurrent(station, function (err) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
@@ -475,7 +479,7 @@ describe('moving spin tests', function (done) {
     });
   });
   
-  it('moves a spin earlier', function (done) {
+  xit('moves a spin earlier', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
       var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
@@ -510,7 +514,7 @@ describe('moving spin tests', function (done) {
     });
   });
 
-  it('moves a spin later', function (done) {
+  xit('moves a spin later', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
       var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
@@ -547,7 +551,7 @@ describe('moving spin tests', function (done) {
     });
   });
   
-  it('insertSpin tests', function (done) {
+  xit('insertSpin tests', function (done) {
     var songToInsert = new Song({ duration: 1000 });
       songToInsert.save(function (err) {
         Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
@@ -578,7 +582,7 @@ describe('moving spin tests', function (done) {
     });
   });
 
-  it('calls bullshit if spin is located in the same position', function (done) {
+  xit('calls bullshit if spin is located in the same position', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       Scheduler.moveSpin({ spinId: beforePlaylist[2].id, newPlaylistPosition: 4 }, function (err, attrs) {
         expect(err.message).to.equal('Spin is already at the requested playlistPosition');
@@ -646,46 +650,48 @@ describe('addScheduleTimeToSpin', function (done) {
     });
   });
 
-  it('works for song/song', function (done) {
+  xit('works for song/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
     expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  it('works for song/commentary-long', function (done) {
+  xit('works for song/commentary-long', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinLong);
     expect(new Date(commentarySpinLong.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,50).getTime());
     done();
   });
 
-  it('works for song/commentary-short', function (done) {
+  xit('works for song/commentary-short', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  it('works for commentary/commentary', function (done) {
+  xit('works for commentary/commentary', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commentarySpinLong, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,15,10).getTime());
     done();
   });
 
   xit('works for commentary-short/song', function (done) {
+    Scheduler.addScheduleTimeToSpin(station, commentarySpinShort, songSpin1);
     done();
   });
 
   xit('works for commentary-long/song', function (done) {
+    commentarySpinLong.previousSpinOverlap = 8000;
     done();
   });
 
-  it('works for commercialsFollow/song', function (done) {
+  xit('works for commercialsFollow/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commercialsFollowSpin, songSpin1);
     console.log(songSpin1.airtime);
     expect(songSpin1.airtime.getTime()).to.equal(new Date(2014,3,15, 12,3,28).getTime());
     done();
   });
 
-  it('works for unmarked song', function (done) {
+  xit('works for unmarked song', function (done) {
     songSpin1._audioBlock = { _type: 'Song',
                               duration: 60000 }
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);

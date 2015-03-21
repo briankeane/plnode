@@ -64,7 +64,7 @@ function Helper() {
       songs.push(new Song({ artist: 'artist#: ' + i,
                             title: 'title#: '+ i,
                             album: 'album#: ' + i,
-                            duration: 180000,
+                            duration: 181000,
                             key: 'key#: '+ i,
                             echonestId: 'echonestId#:' + i }));
     }

@@ -44,10 +44,11 @@ function Scheduler() {
     // return if playlistEndTime is out of range
     if (attrs.playlistEndTime && (moment().add(1,'days').isBefore(moment(attrs.playlistEndTime)))) {
       attrs.playlistEndTime = moment().add(1,'days').toDate();
+      console.log('outofrange');
     }
 
     // create the endTime
-    var playlistEndTime = attrs.playlistEndTime || new Date(new Date(attrs.playlistEndTime).getTime() + 2*60*60*1000);
+    var playlistEndTime = attrs.playlistEndTime || new Date(new Date().getTime() + 2*60*60*1000);
 
     // grab the playlist and logs
     LogEntry.getRecent({ _station: station.id,
@@ -89,7 +90,7 @@ function Scheduler() {
               previousSpin = { playlistPosition: currentLogEntries[0].playlistPosition,
                                         airtime: currentLogEntries[0].airtime,
                                         _audioBlock: currentLogEntries[0]._audioBlock,
-                                        _station: station,
+                                        _station: station
                                       };
             } else { // (log and playlist exist) 
               previousSpin = currentPlaylist[currentPlaylist.length-1];
@@ -102,6 +103,7 @@ function Scheduler() {
                                   _station: station,
                                   });
             previousSpin = spins[0];
+            console.log('playlistEndTime' + playlistEndTime);
           }
 
           // WHILE before playlistEndTime
@@ -124,8 +126,6 @@ function Scheduler() {
           Helper.saveAll(spinsToSave, function (err, savedSpins) {
 
             // update and save the station
-            console.log('previousSpin: ' + previousSpin.playlistPosition);
-            console.log(previousSpin);
             station.lastAccuratePlaylistPosition = previousSpin.playlistPosition;
             station.lastAccurateAirtime = previousSpin.airtime;
             station.save(function (err, savedStation) {
@@ -139,7 +139,12 @@ function Scheduler() {
                                               airtime: firstSpin.airtime,
                                               durationOffset: firstSpin.durationOffset });
                 logEntry.save(function (err, savedLogEntry) {
-                  Spin.findById(firstSpin.id).remove(function (err, removedSpin) {
+  console.log('savedSpins[0]')
+  console.log(savedSpins[0]);
+                  Spin.findByIdAndRemove(savedSpins[0].id, function (err, removedSpin) {
+                    console.log(err);
+                    console.log(removedSpin);
+                    console.log()
                     callback(null, station);
                     return;
                   });
@@ -173,139 +178,12 @@ function Scheduler() {
     }
   }
 
-  this.oldGeneratePlaylist = function (attrs, callback) {
-    // all times utc
-    moment().utc().format();
-
-    // format playlistEndTime
-    if (attrs.playlistEndTime) {
-      attrs.playlistEndTime = moment(attrs.playlistEndTime);
+  function checkForFollowingCommercial(startTimeMS, endTimeMS) {
+    if ((Math.floor(startTimeMS/1800000.0) != Math.floor(endTimeMS/1800000.0))) {
+      return true;
+    } else {
+      return false;
     }
-
-    // unpack attrs
-    var station = attrs.station;
-
-    // return if playlistEndTime is out of range
-    if (attrs.playlistEndTime && (moment().add(1,'days').isBefore(moment(attrs.playlistEndTime)))) {
-      attrs.playlistEndTime = moment().add(1,'days').toDate();
-    }
-    
-
-    var playlistEndTime = attrs.playlistEndTime || moment().add(2,'hours');
-    
-    
-    // grab playlist and logs
-    LogEntry.getRecent({ _station: station.id,
-                         count: 20 }, function (err, currentLogEntries) {
-
-      Spin.getFullPlaylist(station.id, function (err, currentPlaylist) {
-
-        // create the sample array to draw from
-        sampleArray = [];
-        RotationItem.findAllForStation(station.id, function (err, rotationItems) {
-          rotationItems.forEach(function (rotationItem) {
-            if (rotationItem.bin === 'active') {
-              for(var i=0;i<rotationItem.weight; i++) {
-                sampleArray.push(rotationItem._song);
-              }
-            }
-          });
-
-          // if the log exists but there's no playlist
-          if ((!currentPlaylist.length) && (currentLogEntries.length)) {
-
-            // give it 1 spin to start from
-            song = _.sample(sampleArray);
-            lastAccuratePlaylistPosition = currentLogEntries[0].playlistPosition + 1
-            var spin = new Spin({ _station: station.id,
-                                  _audioBlock: song,
-                                  playlistPosition: lastAccuratePlaylistPosition,
-                                  airtime: currentLogEntries[0].endTime });
-            // repopulate _audioBlock
-            spin._audioBlock = song;
-            currentPlaylist.push(spin);
-          }
-
-          // set maxPosition and timeTracker values
-          if (currentPlaylist.length == 0) {
-            maxPosition = 0;
-            timeTracker = moment();
-          } else {
-            var lastIndex = currentPlaylist.length - 1;
-            maxPosition = currentPlaylist[lastIndex].playlistPosition;
-            timeTracker = moment(currentPlaylist[lastIndex].endTime);
-            
-            if (currentPlaylist[lastIndex].commercialsFollow) {
-              timeTracker.add(station.secsOfCommercialPerHour/2, 'seconds');
-            }
-          }
-
-          // load recently played songs
-          recentlyPlayedSongs = [];
-          for (var i=0; i<currentPlaylist.length; i++) {
-            recentlyPlayedSongs.push(currentPlaylist[i]._audioBlock);
-          }
-
-          // generate the playlist
-          var spins = [];
-          while(timeTracker.isBefore(playlistEndTime) || timeTracker.isSame(playlistEndTime)) {
-            song = _.sample(sampleArray);
-
-            // while the id is in the recentlyPlayedSongs array, pick another
-            while(recentlyPlayedSongs.some(function (e) { return e.id == song.id; })) {
-              song = _.sample(sampleArray);
-            }
-
-            recentlyPlayedSongs.push(song);
-
-            // if recentlyPlayedSongs is at max size, delete the 1st song
-            if ((recentlyPlayedSongs.length >= 20) || 
-                                (recentlyPlayedSongs.length >= rotationItems.length-1)) {
-              recentlyPlayedSongs.shift();
-            }
-
-            spin = new Spin({ _station: station.id,
-                              _audioBlock: song,
-                              playlistPosition: maxPosition += 1,
-                              airtime: moment(timeTracker).toDate() });
-
-            spins.push(spin);
-
-            timeTracker = timeTracker.add(song.duration, 'ms');
-
-           // TEMPORARY -- eventually change to "if spin.commercialsFollow" after all spins built out
-           if (Math.floor(spin.airtime.getTime()/1800000.0) != Math.floor(timeTracker.toDate().getTime()/1800000.0)) {
-            timeTracker = timeTracker.add(station.secsOfCommercialPerHour/2, 'seconds');
-           }
-          }
-
-          Helper.saveAll(spins, function (err, savedSpins) {
-            station.lastAccuratePlaylistPosition = maxPosition;
-            station.lastAccurateAirtime = moment(timeTracker).toDate();
-            station.save(function (err, savedStation) {
-              // if it's the first playlist, start the station
-              if (currentLogEntries.length === 0) {
-                var firstSpin = spins[0];
-                var logEntry = new LogEntry({ _station: station.id,
-                                              _audioBlock: firstSpin._audioBlock,
-                                              playlistPosition: firstSpin.playlistPosition,
-                                              airtime: firstSpin.airtime,
-                                              durationOffset: firstSpin.durationOffset });
-                logEntry.save(function (err, savedLogEntry) {
-                  Spin.findById(firstSpin.id).remove(function (err, removedSpin) {
-                    callback(null, station);
-                    return;
-                  });
-                });
-              } else {
-                callback(null, station);
-                return;
-              }
-            });
-          });
-        });
-      });
-    });
   };
 
   this.addScheduleTimeToSpin = function (station, previousSpin, spinToSchedule) {
@@ -372,6 +250,10 @@ function Scheduler() {
           spinToSchedule.previousSpinOverlap = previousSpin.duration - previousSpinMarkups.eom;
         }
       }
+    }
+    // add commercials to spinToSchedule if needed
+    if (checkForFollowingCommercial(spinToSchedule.airtime.getTime(), spinToSchedule.airtime.getTime() + spinToScheduleMarkups.eom)) {
+      spinToSchedule.commercialsFollow = true;
     }
   };
 
