@@ -279,7 +279,8 @@ function Scheduler() {
       LogEntry.getRecent({ _station: station.id, count:1 }, function (err, gottenLogEntry) {
         
         // if the last log entry is the last Accurate Airtime, use it
-        if (station.lastAccuratePlaylistPosition === gottenLogEntry[0].lastAccuratePlaylistPosition) {
+        var finalLogEntry = gottenLogEntry[0];
+        if (station.lastAccuratePlaylistPosition <= finalLogEntry.playlistPosition) {
           previousSpin = { _audioBlock: finalLogEntry._audioBlock,
                             airtime: finalLogEntry.airtime,
                             playlistPosition: finalLogEntry.playlistPosition,
@@ -309,7 +310,7 @@ function Scheduler() {
           // set up gottenPlaylist to update
           gottenPlaylist = gottenPlaylist.slice(index + 1);
         }
-
+console.log('previousSpin airtime: ' + previousSpin.airtime);
         for(var i=0;i<gottenPlaylist.length;i++) {
           self.addScheduleTimeToSpin(station, previousSpin, gottenPlaylist[i]);
           toBeUpdated.push(gottenPlaylist[i]);

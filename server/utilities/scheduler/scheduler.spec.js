@@ -150,9 +150,6 @@ describe('playlist functions', function (done) {
 
           Scheduler.updateAirtimes({ station: station }, function (err, returnedStation) {
             Spin.getFullPlaylist(station.id, function (err, fixedPlaylist) {
-              for(var i=0;i<fixedPlaylist.length;i++) {
-                console.log(fixedPlaylist[i].airtime);
-              }
               expect(fixedPlaylist[22].airtime.getTime()).to.equal(new Date(2014,3,15, 14,04).getTime());
               expect(fixedPlaylist[21].commercialsFollow).to.equal(true);
               expect(fixedPlaylist[34].airtime.getTime()).to.equal(new Date(2014,3,15, 14,43).getTime());
@@ -165,7 +162,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-    xit('updates the airtimes if commercial leads in', function (done) {
+    it('updates the airtimes if commercial leads in', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes -- starting with a commercialsFollow=true spin
         for (var i=5; i<fullPlaylist.length; i++) {
@@ -196,7 +193,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-    xit('updates the airtimes if only the log is correct', function (done) {
+    it('updates the airtimes if only the log is correct', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes -- starting with a commercialsFollow=true spin
         for (var i=0; i<fullPlaylist.length; i++) {
@@ -227,7 +224,7 @@ describe('playlist functions', function (done) {
       });
     });
 
-  xit('updates the airtimes starting from the log, commercialsFollow is true', function (done) {
+  it('updates the airtimes starting from the log, commercialsFollow is true', function (done) {
       Spin.getFullPlaylist(station.id, function (err, fullPlaylist) {
         // screw up some airtimes -- starting with a commercialsFollow=true spin
         for (var i=0; i<fullPlaylist.length; i++) {
@@ -253,6 +250,9 @@ describe('playlist functions', function (done) {
 
             Scheduler.updateAirtimes({ station: station }, function (err, returnedStation) {
               Spin.getFullPlaylist(station.id, function (err, fixedPlaylist) {
+              for(var i=0;i<fixedPlaylist.length;i++) {
+                console.log(fixedPlaylist[i].airtime);
+              }
                 expect(fixedPlaylist[22].airtime.getTime()).to.equal(new Date(2014,3,15, 14,16).getTime());
                 expect(fixedPlaylist[8].commercialsFollow).to.equal(true);
                 expect(fixedPlaylist[34].airtime.getTime()).to.equal(new Date(2014,3,15, 14,55).getTime());
