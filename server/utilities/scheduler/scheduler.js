@@ -310,7 +310,7 @@ function Scheduler() {
           // set up gottenPlaylist to update
           gottenPlaylist = gottenPlaylist.slice(index + 1);
         }
-console.log('previousSpin airtime: ' + previousSpin.airtime);
+
         for(var i=0;i<gottenPlaylist.length;i++) {
           self.addScheduleTimeToSpin(station, previousSpin, gottenPlaylist[i]);
           toBeUpdated.push(gottenPlaylist[i]);
@@ -398,7 +398,7 @@ console.log('previousSpin airtime: ' + previousSpin.airtime);
                     playedLogEntries.push( new LogEntry({ playlistPosition: spin.playlistPosition,
                                                           _audioBlock: stationCommercialBlock,
                                                           _station: station.id,
-                                                          airtime: spin.endTime,
+                                                          airtime: new Date(spin.endTime.getTime() - 1000),
                                                           commercialsFollow: false }));
                   }
                 });

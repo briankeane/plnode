@@ -312,7 +312,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('brings the station current', function (done) {
+  it('brings the station current', function (done) {
     //tk.reset();
     tk.freeze(new Date(2014,3,15, 14,05));
     Scheduler.bringCurrent(station, function (err) {
@@ -330,7 +330,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('brings the station current if a spin with commercialsFollow=true leads in', function (done) {
+  it('brings the station current if a spin with commercialsFollow=true leads in', function (done) {
     tk.freeze(new Date(2014,3,15, 14,30));
     Scheduler.bringCurrent(station, function (err) {
       tk.freeze(new Date(2014,3,15, 15,11));
@@ -348,7 +348,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('brings the station current if a commercialBlock leads in', function (done) {
+  it('brings the station current if a commercialBlock leads in', function (done) {
     tk.freeze(new Date(2014,3,15, 14,32));
     Scheduler.bringCurrent(station, function (err) {
       tk.freeze(new Date(2014,3,15, 15,11));
@@ -366,7 +366,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('brings the station current if a commercialBlock should be nowPlaying', function (done) {
+  it('brings the station current if a commercialBlock should be nowPlaying', function (done) {
     tk.freeze(new Date(2014,3,15, 13,32));
     Scheduler.bringCurrent(station, function (err) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
