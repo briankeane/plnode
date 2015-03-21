@@ -382,7 +382,7 @@ describe('playlist functions', function (done) {
     });
   });
 
-  xit('brings the station current if nowPlaying precedes a commercialBlock', function (done) {
+  it('brings the station current if nowPlaying precedes a commercialBlock', function (done) {
     tk.freeze(new Date(2014,3,15, 13,30));
     Scheduler.bringCurrent(station, function (err) {
       LogEntry.getFullStationLog(station.id, function (err, logEntries) {
@@ -474,7 +474,7 @@ describe('moving spin tests', function (done) {
     });
   });
   
-  xit('moves a spin earlier', function (done) {
+  it('moves a spin earlier', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
       var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });

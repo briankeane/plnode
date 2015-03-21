@@ -261,7 +261,7 @@ function Scheduler() {
     // exit if playlist is already accurate
     if ( ((attrs.endTime) && (attrs.endTime < station.lastAccurateAirtime)) || 
                                        ((attrs.playlistPosition) && 
-                           (attrs.playlistPosition < lastAccuratePlaylistPosition))) {
+                           (attrs.playlistPosition < station.lastAccuratePlaylistPosition))) {
       callback(null, station);
       return;
     }
