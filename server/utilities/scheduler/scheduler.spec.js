@@ -509,7 +509,7 @@ describe('moving spin tests', function (done) {
     });
   });
 
-  xit('moves a spin later', function (done) {
+  it('moves a spin later', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       var beforePlaylistIds = _.map(beforePlaylist, function (spin) { return spin.id });
       var beforePlaylistPositions = _.map(beforePlaylist, function (spin) { return spin.playlistPosition });
@@ -546,7 +546,7 @@ describe('moving spin tests', function (done) {
     });
   });
   
-  xit('insertSpin tests', function (done) {
+  it('insertSpin tests', function (done) {
     var songToInsert = new Song({ duration: 1000 });
       songToInsert.save(function (err) {
         Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
@@ -577,7 +577,7 @@ describe('moving spin tests', function (done) {
     });
   });
 
-  xit('calls bullshit if spin is located in the same position', function (done) {
+  it('calls bullshit if spin is located in the same position', function (done) {
     Spin.getFullPlaylist(station.id, function (err, beforePlaylist) {
       Scheduler.moveSpin({ spinId: beforePlaylist[2].id, newPlaylistPosition: 4 }, function (err, attrs) {
         expect(err.message).to.equal('Spin is already at the requested playlistPosition');
@@ -645,31 +645,31 @@ describe('addScheduleTimeToSpin', function (done) {
     });
   });
 
-  xit('works for song/song', function (done) {
+  it('works for song/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
     expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  xit('works for song/commentary-long', function (done) {
+  it('works for song/commentary-long', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinLong);
     expect(new Date(commentarySpinLong.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,50).getTime());
     done();
   });
 
-  xit('works for song/commentary-short', function (done) {
+  it('works for song/commentary-short', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  xit('works for commentary/commentary', function (done) {
+  it('works for commentary/commentary', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commentarySpinLong, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,15,10).getTime());
     done();
   });
 
-  xit('works for commentary-short/song', function (done) {
+  it('works for commentary-short/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commentarySpinShort, songSpin1);
     done();
   });
@@ -679,14 +679,14 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  xit('works for commercialsFollow/song', function (done) {
+  it('works for commercialsFollow/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commercialsFollowSpin, songSpin1);
     console.log(songSpin1.airtime);
     expect(songSpin1.airtime.getTime()).to.equal(new Date(2014,3,15, 12,3,28).getTime());
     done();
   });
 
-  xit('works for unmarked song', function (done) {
+  it('works for unmarked song', function (done) {
     songSpin1._audioBlock = { _type: 'Song',
                               duration: 60000 }
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
