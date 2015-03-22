@@ -194,14 +194,16 @@ function Scheduler() {
       eom: spinToSchedule._audioBlock.eom || spinToSchedule._audioBlock.duration - 1000
     }
 
+
+
     var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
     var commercialBlockLengthMS = (station.secsOfCommercialPerHour/2)*1000;
 
     // IF previousSpin had commercials
     if (previousSpin.commercialsFollow) {
       // eom + commercialTime
+      previousSpin.durationOffset = previousSpinMarkups.eom - previousSpin._audioBlock.duration;
       spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom + commercialBlockLengthMS);
-    
     // ELSE IF previousSpin=Commentary
     } else if (previousSpin._audioBlock._type === 'Commentary') {
       
@@ -209,17 +211,20 @@ function Scheduler() {
       if (spinToSchedule._audioBlock._type === 'Song') {
         
         // IF previousSpin Commentary is long enough to cover intro
-        if ((previousSpin.duration - previousSpin.previousSpinOverlap) >= spinToScheduleMarkups.eoi) {
+        if ((previousSpin._audioBlock.duration - previousSpin.previousSpinOverlap) >= spinToScheduleMarkups.eoi) {
           // subtract the intro length from the start time
-          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.duration - spinToScheduleMarkups.eoi);
+          previousSpin.durationOffset = -(spinToScheduleMarkups.eoi);
+          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin._audioBlock.duration - spinToScheduleMarkups.eoi);
         } else {
           // schedule it at the end of the overlap
+          previousSpin.durationOffset = -previousSpin.previousSpinOverlap;
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.previousSpinOverlap);
         }
       
       // ELSE IF previousSpin=Commentary && spinToSchedule=commentary
       } else if (spinToSchedule._audioBlock._type === 'Commentary') {
         // regular schedule
+        previousSpin.durationOffset = 0;
         spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin._audioBlock.duration);
         spinToSchedule.previousSpinOverlap = 0;
       }
@@ -230,18 +235,20 @@ function Scheduler() {
       if (spinToSchedule._audioBlock._type === 'Song') {
         // start at EOM
         spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
-      
+        previousSpin.durationOffset = previousSpinMarkups.eom - previousSpin._audioBlock.duration;
       // ELSE IF spinToSchedule=Commentary && previousSpin=Song
       } else if (spinToSchedule._audioBlock._type === 'Commentary') {
         // IF it's long enough to cover outro
         if (spinToSchedule._audioBlock.duration > (previousSpin._audioBlock.duration - previousSpinMarkups.boo)) {
           // Subtract outro length
+          previousSpin.durationOffset = previousSpinMarkups.boo - previousSpin._audioBlock.duration;
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.boo);
-          spinToSchedule.previousSpinOverlap = previousSpin.duration - previousSpinMarkups.boo;
+          spinToSchedule.previousSpinOverlap = previousSpin._audioBlock.duration - previousSpinMarkups.boo;
         // ELSE start new spin at previousSpin.eom
         } else {
+          previousSpin.durationOffset = previousSpinMarkups.eom - previousSpin._audioBlock.duration;
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
-          spinToSchedule.previousSpinOverlap = previousSpin.duration - previousSpinMarkups.eom;
+          spinToSchedule.previousSpinOverlap = previousSpin._audioBlock.duration - previousSpinMarkups.eom;
         }
       }
     }
@@ -311,6 +318,8 @@ function Scheduler() {
           gottenPlaylist = gottenPlaylist.slice(index + 1);
         }
 
+        var lastAccurateAirtime;
+        var lastAccuratePlaylistPosition;
         for(var i=0;i<gottenPlaylist.length;i++) {
           self.addScheduleTimeToSpin(station, previousSpin, gottenPlaylist[i]);
           toBeUpdated.push(gottenPlaylist[i]);
@@ -323,10 +332,15 @@ function Scheduler() {
             break;
           }
 
-          // advance the previousSpin and continue
+          // advance the previousSpin and station info
+          lastAccuratePlaylistPosition = gottenPlaylist[i].playlistPosition;
+          lastAccurateAirtime = gottenPlaylist[i].airtime;
           previousSpin = gottenPlaylist[i];
         }
 
+        // update the station
+        station.lastAccuratePlaylistPosition = lastAccuratePlaylistPosition;
+        station.lastAccurateAirtime = lastAccurateAirtime;
         toBeUpdated.push(station);
 
         // update

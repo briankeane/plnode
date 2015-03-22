@@ -7,6 +7,7 @@ angular.module('pl2NodeYoApp')
     $scope.errors = {};
     $scope.playlist = [];
     $scope.catalogSearchResults = [];
+    $scope.player = AudioPlayer;
 
     $scope.currentStation = Auth.getCurrentStation()
     $scope.currentUser = Auth.getCurrentUser();
@@ -39,8 +40,12 @@ angular.module('pl2NodeYoApp')
       }
     };
 
-    $scope.safeLink = function (url) {
-      return $sce.trustAsResourceUrl(url);
+    $scope.safeLink = function (audioBlock) {
+      if (audioBlock._type === 'Commentary') {
+        return $sce.trustAsResourceUrl(url);
+      } else {
+        return null;
+      }
     }
     
     $scope.setPlaylist = function () {
@@ -52,14 +57,9 @@ angular.module('pl2NodeYoApp')
           moment.tz.setDefault($scope.currentStation.timezone);
 
           $scope.playlist = program.playlist;
-          $scope.nowPlaying = program.nowPlaying;
           
           progressUpdater = $interval($scope.updateProgressBar, 1000);
           playlistSet = true;
-
-          // set up first advance
-          var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
-          $timeout($scope.advanceSpin, msTillNextAdvance);
         }
       });
     };
@@ -72,16 +72,12 @@ angular.module('pl2NodeYoApp')
     }
 
     $scope.needsMarkup = function (song) {
-      return (!song.eom || !song.boo || (song.eoi === undefined));
+      return (!song || !song.eom || !song.boo || (song.eoi === undefined));
     }
 
     $scope.refreshProgramFromServer = function () {
       Auth.getProgram({}, function (err, program) {
         if (err) return (err);
-
-        if ($scope.nowPlaying._id != program.nowPlaying._id) {
-          $scope.nowPlaying = program.nowPlaying;
-        }
 
         $scope.playlist = program.playlist;
       });
@@ -122,27 +118,30 @@ angular.module('pl2NodeYoApp')
     }
 
     $scope.updateProgressBar = function () {
-      var elapsedTime = Date.now() - new Date($scope.nowPlaying.airtime).getTime();
-      var msRemaining = new Date($scope.nowPlaying.endTime).getTime() - Date.now();
-      var songPercentComplete = elapsedTime/(elapsedTime + msRemaining)*100;
+      if (AudioPlayer.nowPlaying) {
 
-      // never let songPercentComplete get over 100
-      if (songPercentComplete > 100) {
-        songPercentComplete = 100;
+        var elapsedTime = Date.now() - new Date(AudioPlayer.nowPlaying.airtime).getTime();
+        var msRemaining = new Date(AudioPlayer.nowPlaying.endTime).getTime() - Date.now();
+        var songPercentComplete = elapsedTime/(elapsedTime + msRemaining)*100;
+
+        // never let songPercentComplete get over 100
+        if (songPercentComplete > 100) {
+          songPercentComplete = 100;
+        }
+        $scope.songPercentComplete = songPercentComplete;
+        
+        // never let elasped get bigger than duration
+        if (elapsedTime > AudioPlayer.nowPlaying.duration) {
+          elapsedTime = AudioPlayer.nowPlaying.duration;
+        }
+        $scope.nowPlayingElapsedString = $scope.formatSongTimerFromMS(elapsedTime);
+        
+        // never let msRemaining go negative
+        if (msRemaining < 0) {
+          msRemaining = 0;
+        }
+        $scope.nowPlayingRemainingString = $scope.formatSongTimerFromMS(msRemaining);
       }
-      $scope.songPercentComplete = songPercentComplete;
-      
-      // never let elasped get bigger than duration
-      if (elapsedTime > $scope.nowPlaying.duration) {
-        elapsedTime = $scope.nowPlaying.duration;
-      }
-      $scope.nowPlayingElapsedString = $scope.formatSongTimerFromMS(elapsedTime);
-      
-      // never let msRemaining go negative
-      if (msRemaining < 0) {
-        msRemaining = 0;
-      }
-      $scope.nowPlayingRemainingString = $scope.formatSongTimerFromMS(msRemaining);
     }
 
     $scope.formatSongTimerFromMS = function (milliseconds) {
@@ -162,22 +161,13 @@ angular.module('pl2NodeYoApp')
       }
     }
 
-    $scope.advanceSpin = function () {
-      // advance spin
-      if ($scope.nowPlaying.commercialsFollow) {
-        $scope.nowPlaying = { _audioBlock: { type: 'CommercialBlock'},
-                        airtime: $scope.nowPlaying.endTime,
-                        endTime: $scope.playlist[0].airtime }
-      } else {
-        $scope.nowPlaying = $scope.playlist.shift();
-      }
+    $scope.$on('spinAdvanced', function () {
+      $scope.playlist.shift();
+    });
 
-      $scope.refreshProgramFromServer();
-      
-      // set up next advance
-      var msTillNextAdvance = new Date($scope.playlist[0].airtime).getTime() - Date.now();
-      $timeout($scope.advanceSpin, msTillNextAdvance);
-    }
+    $scope.$on('programRefreshed', function (event, program) {
+      $scope.playlist = program.playlist;
+    });
 
     $scope.playlistOptions = {
       beforeDrag: function (sourceNodeScope) {
@@ -239,7 +229,7 @@ angular.module('pl2NodeYoApp')
           var newSpin = { _audioBlock: item,
                           duration: item.duration,
                           durationOffset: 0,
-                          playlistPosition: $scope.playlist[index].playlistPosition
+                          playlistPosition: $scope.playlist[index+1].playlistPosition
                         }
 
           // insert the new spin
@@ -274,7 +264,7 @@ angular.module('pl2NodeYoApp')
 
       Auth.removeSpin(spin, function (err, newProgram) {
         if (err) return false;
-        $scope.playlist = newProgram.playlist;
+        //$scope.playlist = newProgram.playlist;
       })
     }
 
@@ -289,7 +279,7 @@ angular.module('pl2NodeYoApp')
 
     // for now disable 1st two elements
     $scope.determineDisable = function (spin, index) {
-      if ($scope.playlist[0].commercialsFollow || $scope.nowPlaying.commercialsFollow) {
+      if ($scope.playlist[0].commercialsFollow || AudioPlayer.nowPlaying.commercialsFollow) {
         if (index < 1) {
           return true;
         } else {

@@ -7,13 +7,13 @@
       <h4 class="small-headline">Now Playing</h4>
       <p class="sub-headline">Streaming to your Listeners Right Now:</p>
       <ul id="nowPlayingList">
-        <li ng-model="nowPlaying" class='nowPlaying song'>
+        <li ng-model="player.nowPlaying" class='nowPlaying song'>
           <!-- Titles -->
-          <span class='title' ng-show="nowPlaying._audioBlock._type === 'Song'">{{nowPlaying._audioBlock.title}}</span>
-          <span class='title' ng-show="nowPlaying._audioBlock._type === 'Commentary'">Commentary</span>
-          <span class='title' ng-show="nowPlaying._audioBlock._type === 'CommercialBlock'">Commercial Block</span>
+          <span class='title' ng-show="player.nowPlaying._audioBlock._type === 'Song'">{{player.nowPlaying._audioBlock.title}}</span>
+          <span class='title' ng-show="player.nowPlaying._audioBlock._type === 'Commentary'">Commentary</span>
+          <span class='title' ng-show="player.nowPlaying._audioBlock._type === 'CommercialBlock'">Commercial Block</span>
 
-          <span class='artist' ng-show="nowPlaying._audioBlock._type === 'Song'">{{nowPlaying._audioBlock.artist}}</span>
+          <span class='artist' ng-show="player.nowPlaying._audioBlock._type === 'Song'">{{player.nowPlaying._audioBlock.artist}}</span>
 
           <progressbar ng-show="songPercentComplete" class="progress meter" type="dynamic" animate="false" value="songPercentComplete">
             <span class="meter"></span>
@@ -41,7 +41,7 @@
               </li>
               <li class='commentary' ng-show="(spin._audioBlock._type==='Commentary')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
-                <span class="songlist-artist"><audio controls src="{{safeLink(spin._audioBlock.audioFileUrl)}}" /></span>
+                <span class="songlist-artist"><audio controls src="{{safeLink(spin._audioBlock)}}" /></span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
                 <a href="#" class="close" title="delete" data-nodrag ng-show="removable(spin, $index);" ng-click="removeSpin(spin, $index);">×</a>
               </li>

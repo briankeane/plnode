@@ -645,31 +645,31 @@ describe('addScheduleTimeToSpin', function (done) {
     });
   });
 
-  it('works for song/song', function (done) {
+  xit('works for song/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
     expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  it('works for song/commentary-long', function (done) {
+  xit('works for song/commentary-long', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinLong);
     expect(new Date(commentarySpinLong.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,50).getTime());
     done();
   });
 
-  it('works for song/commentary-short', function (done) {
+  xit('works for song/commentary-short', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  it('works for commentary/commentary', function (done) {
+  xit('works for commentary/commentary', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commentarySpinLong, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,15,10).getTime());
     done();
   });
 
-  it('works for commentary-short/song', function (done) {
+  xit('works for commentary-short/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commentarySpinShort, songSpin1);
     done();
   });
@@ -679,14 +679,26 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  it('works for commercialsFollow/song', function (done) {
+  xit('works for commercialsFollow/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commercialsFollowSpin, songSpin1);
     console.log(songSpin1.airtime);
     expect(songSpin1.airtime.getTime()).to.equal(new Date(2014,3,15, 12,3,28).getTime());
     done();
   });
 
-  it('works for unmarked song', function (done) {
+  it('works for saved spin objects', function (done) {
+    actualSpin1 = new Spin(songSpin1);
+    actualSpin2 = new Spin(songSpin2);
+    Helper.saveAll([actualSpin1, actualSpin2], function (err, spins) {
+      Spin.getFullPlaylist(station.id, function (err, playlist) {
+        Scheduler.addScheduleTimeToSpin(station, playlist[0], playlist[1]);
+        expect(new Date(playlist[1].airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
+        done();
+      });
+    });
+  });
+
+  xit('works for unmarked song', function (done) {
     songSpin1._audioBlock = { _type: 'Song',
                               duration: 60000 }
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);

@@ -145,7 +145,8 @@ logEntrySchema.statics.newFromSpin = function (spin) {
                         playlistPosition: spin.playlistPosition,
                         _audioBlock: (spin._audioBlock._id || spin._audioBlock),
                         airtime: spin.airtime,
-                        commercialsFollow: spin.commercialsFollow });
+                        commercialsFollow: spin.commercialsFollow,
+                        durationOffset: spin.durationOffset || 0 });
 }
 
 

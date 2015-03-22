@@ -116,6 +116,7 @@ angular.module('pl2NodeYoApp')
 
     function advanceSpin() {
       self.nowPlaying = self.playlist.shift();
+      $rootScope.$broadcast('spinAdvanced');
 
       // play next song now or when it's done loading
       if (self.nowPlaying && self.nowPlaying.source) {
@@ -139,6 +140,8 @@ angular.module('pl2NodeYoApp')
 
     function refreshProgram() {
       Auth.getProgram({  id: self.stationId }, function (err, program) {
+        $rootScope.$broadcast('programRefreshed', program);
+
         if (err) console.log(err);
 
         // for now, just one song. later the number of songs will be changed to duration-based
