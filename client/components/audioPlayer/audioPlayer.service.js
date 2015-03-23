@@ -19,6 +19,7 @@ angular.module('pl2NodeYoApp')
     self.initialLoad = true;
     self.stationId;
     self.isPlaying = false;
+    self.compressor;
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -29,8 +30,18 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+    // Create a compressor node
+    self.compressor = self.context.createDynamicsCompressor();
+    self.compressor.threshold.value = -10;
+    self.compressor.knee.value = 20;
+    self.compressor.ratio.value = 6;
+    self.compressor.reduction.value = -10;
+    self.compressor.attack.value = 0;
+    self.compressor.release.value = 0.25;
+
     // connect context/gain/destination into chain
     self.gainNode = this.context.createGain();
+    self.compressor.connect(self.gainNode);
     self.gainNode.connect(this.context.destination);
 
     // *************************************************
@@ -135,7 +146,6 @@ angular.module('pl2NodeYoApp')
 
       // store it in a list so it can be cancelled
       self.timeouts.push(newTimeout);
-
     }
 
     function refreshProgram() {
@@ -144,12 +154,23 @@ angular.module('pl2NodeYoApp')
 
         if (err) console.log(err);
 
-        // for now, just one song. later the number of songs will be changed to duration-based
-        self.playlist = [program.playlist[0]];
+        // add at least 3 min of song
 
-        loadAudio(self.playlist, function () {
-          console.log('audioLoaded');
-        });
+        // first see how many ms are left in currently downloaded playlist
+        var totalMS = 0;
+        for(var i=0;i<program.playlist.length;i++) {
+          // if it's already been added, just count the MS
+          if (self.playlist[i]) {
+            totalMS += self.playlist[i].duration;
+          // otherwise, add it to the list
+          } else {
+            self.playlist.push(program.playlist[i]);
+            loadAudio(self.playlist);
+          }
+          if (totalMS <= 180000) {
+            break;
+          }
+        }
       });
     }
 
@@ -181,6 +202,7 @@ angular.module('pl2NodeYoApp')
 
     // loadAudio only works for 1 element arrays right now
     function loadAudio(spins, callback) {
+      var cb = callback || angular.noop;
       var context = self.context;
       
 
@@ -201,7 +223,7 @@ angular.module('pl2NodeYoApp')
                 source.connect(self.gainNode);
 
                 spins[i].source = source;
-                callback();
+                cb();
               });
             };
           }(i));

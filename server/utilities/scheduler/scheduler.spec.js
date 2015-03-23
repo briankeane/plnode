@@ -81,7 +81,7 @@ describe('playlist functions', function (done) {
         expect(logEntries[0].airtime.getTime()).to.equal(new Date(2014,3,15, 12,46).getTime());
         expect(logEntries[0]._audioBlock.title).to.exist;
         expect(logEntries[0]._station).to.exist;
-        expect(logEntries[0].durationOffset).to.equal(0);
+        expect(logEntries[0].durationOffset).to.equal(-1000);
         
         // make sure all spin values stored
         expect(spins.length).to.equal(36);
@@ -89,7 +89,7 @@ describe('playlist functions', function (done) {
         expect(spins[0].airtime.getTime()).to.equal(new Date(2014,3,15, 12,49).getTime());
         expect(spins[0]._audioBlock.title).to.exist;
         expect(spins[0]._station).to.exist;
-        expect(spins[0].durationOffset).to.equal(0);
+        expect(spins[0].durationOffset).to.equal(-1000);
   
         // make sure commercials are in the right place
         expect(spins[0].commercialsFollow).to.equal(false);
@@ -101,19 +101,11 @@ describe('playlist functions', function (done) {
     });
   });
   
-  it('updates the lastAccuratePlaylistPosition & lastAccurateAirtime', function (done) {
+  it('updates the lastAccuratePlaylistPosition', function (done) {
     Station.findById(station.id, function (err, foundStation) {
       expect(station.lastAccuratePlaylistPosition).to.equal(37);
       expect(foundStation.lastAccuratePlaylistPosition).to.equal(37);
-      Spin.getByPlaylistPosition({ _station: station.id,
-                                  playlistPosition: 37
-                                }, function (err, foundSpin) {
-        console.log(foundStation.lastAccurateAirtime);
-        console.log(foundSpin.endTime)
-        expect(station.lastAccurateAirtime.getTime()).to.equal(foundSpin.airtime.getTime());
-        expect(foundStation.lastAccurateAirtime.getTime()).to.equal(foundSpin.airtime.getTime());
-        done();
-      });
+      done();
     });
   });
 
@@ -138,7 +130,6 @@ describe('playlist functions', function (done) {
         }
 
         station.lastAccuratePlaylistPosition = fullPlaylist[9].playlistPosition;
-        station.lastAccurateAirtime = fullPlaylist[9].airtime;
         
         // group all objects to be saved and save them
         var toSave = fullPlaylist.slice(10,100);
@@ -170,7 +161,6 @@ describe('playlist functions', function (done) {
         }
 
         station.lastAccuratePlaylistPosition = fullPlaylist[4].playlistPosition;
-        station.lastAccurateAirtime = fullPlaylist[9].airtime;
         
         // group all objects to be saved and save them
         var toSave = fullPlaylist.slice(10,100);
@@ -201,7 +191,6 @@ describe('playlist functions', function (done) {
         }
 
         station.lastAccuratePlaylistPosition = fullPlaylist[4].playlistPosition;
-        station.lastAccurateAirtime = fullPlaylist[9].airtime;
         
         // group all objects to be saved and save them
         var toSave = fullPlaylist.slice(10,100);
@@ -238,7 +227,6 @@ describe('playlist functions', function (done) {
           logEntry.airtime = new Date(2014,3,15, 12,58);
           logEntry.commercialsFollow = true;
           station.lastAccuratePlaylistPosition = logEntry.playlistPosition;
-          station.lastAccurateAirtime = logEntry.airtime;
           
           // group all objects to be saved and save them
           var toSave = fullPlaylist.slice(10,100);
@@ -250,9 +238,6 @@ describe('playlist functions', function (done) {
 
             Scheduler.updateAirtimes({ station: station }, function (err, returnedStation) {
               Spin.getFullPlaylist(station.id, function (err, fixedPlaylist) {
-              for(var i=0;i<fixedPlaylist.length;i++) {
-                console.log(fixedPlaylist[i].airtime);
-              }
                 expect(fixedPlaylist[22].airtime.getTime()).to.equal(new Date(2014,3,15, 14,16).getTime());
                 expect(fixedPlaylist[8].commercialsFollow).to.equal(true);
                 expect(fixedPlaylist[34].airtime.getTime()).to.equal(new Date(2014,3,15, 14,55).getTime());
@@ -439,7 +424,6 @@ describe('moving spin tests', function (done) {
                       profileImageUrl: 'http://badass.jpg' });
     station = new Station({ _user: user.id,
                           lastAccuratePlaylistPosition: 1,
-                          lastAccurateAirtime: new Date(1983,3,15,12),
                             secsOfCommercialPerHour: 360 });
     station.save(function (err, savedStation) {
 

@@ -41,8 +41,8 @@ angular.module('pl2NodeYoApp')
     };
 
     $scope.safeLink = function (audioBlock) {
-      if (audioBlock._type === 'Commentary') {
-        return $sce.trustAsResourceUrl(url);
+      if (audioBlock && audioBlock._type === 'Commentary') {
+        return $sce.trustAsResourceUrl(audioBlock.audioFileUrl);
       } else {
         return null;
       }

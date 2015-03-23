@@ -125,7 +125,6 @@ function Scheduler() {
 
             // update and save the station
             station.lastAccuratePlaylistPosition = previousSpin.playlistPosition;
-            station.lastAccurateAirtime = previousSpin.airtime;
             station.save(function (err, savedStation) {
 
               // if it's the first playlist, start the station
@@ -265,10 +264,9 @@ function Scheduler() {
     var station = attrs.station;
     var previousSpin;
     var toBeUpdated = [];
+
     // exit if playlist is already accurate
-    if ( ((attrs.endTime) && (attrs.endTime < station.lastAccurateAirtime)) || 
-                                       ((attrs.playlistPosition) && 
-                           (attrs.playlistPosition < station.lastAccuratePlaylistPosition))) {
+    if ((attrs.playlistPosition) && (attrs.playlistPosition < station.lastAccuratePlaylistPosition)) {
       callback(null, station);
       return;
     }
@@ -340,7 +338,6 @@ function Scheduler() {
 
         // update the station
         station.lastAccuratePlaylistPosition = lastAccuratePlaylistPosition;
-        station.lastAccurateAirtime = lastAccurateAirtime;
         toBeUpdated.push(station);
 
         // update
@@ -438,9 +435,9 @@ function Scheduler() {
       if (!station) callback(new Error('Station not found'));
 
       // make sure schedule is accurate 2 hours from now
-      self.bringCurrent(station, function () {
-        self.updateAirtimes({ station: station,
+      self.updateAirtimes({ station: station,
                                     endTime: new Date(Date.now() + 60*60*2.5*1000) }, function (err, station) {
+        self.bringCurrent(station, function () {
           self.generatePlaylist({ station: station,
                                       playlistEndTime: new Date(Date.now() + 60*60*2*1000) }, function (err, station) {
             Spin.getPartialPlaylist({ _station: station.id,
@@ -652,6 +649,7 @@ function Scheduler() {
       var modelsToSave = [];
 
       var playlistPositionTracker = partialPlaylist[0].playlistPosition + 1;
+
       for (var i=0;i<partialPlaylist.length;i++) {
         partialPlaylist[i].playlistPosition = playlistPositionTracker;
         modelsToSave.push(partialPlaylist[i]);
@@ -665,8 +663,7 @@ function Scheduler() {
                               airtime: partialPlaylist[0].airtime });
       modelsToSave.push(newSpin);
 
-      Station.findByIdAndUpdate(spinInfo._station, { lastAccurateAirtime: newSpin.airtime,
-                                                     lastAccuratePlaylistPosition: newSpin.playlistPosition
+      Station.findByIdAndUpdate(spinInfo._station, { lastAccuratePlaylistPosition: newSpin.playlistPosition - 1
                                                    }, function (err, updatedStation) {
         Helper.saveAll(modelsToSave, function (err, savedModels) {
           if (err) return err;
