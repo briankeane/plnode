@@ -107,6 +107,16 @@ describe('a spin', function (done) {
     });
   });
 
+  it("overides its duration if manualDuration is provided", function (done) {
+    spin1.manualDuration = 5;
+    spin1.save(function (err) {
+      Spin.findById(spin1.id, function (err, spin1) {
+        expect(spin1.duration).to.equal(5);
+        done();
+      });
+    });
+  });
+
   it("calculates it's endtime & returns null if not populated", function (done) {
     expect(spin1.endTime).to.equal(null);  // null before population
     

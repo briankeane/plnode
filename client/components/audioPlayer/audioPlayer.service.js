@@ -154,8 +154,6 @@ angular.module('pl2NodeYoApp')
         if (err) console.log(err);
 
         // add at least 3 min of song
-
-        // first see how many ms are left in currently downloaded playlist
         var totalMS = 0;
         for(var i=0;i<program.playlist.length;i++) {
           // if it's already been added, just count the MS
@@ -170,7 +168,7 @@ angular.module('pl2NodeYoApp')
             break;
           }
         }
-        loadAudio(self.playlist, function () {});
+        loadAudio(self.playlist);
       });
     }
 
@@ -209,25 +207,27 @@ angular.module('pl2NodeYoApp')
       // load each element
       for (var i=0;i<spins.length;i++) {
         // if it hasn't been done already... 
-        if (!spins[i].source) {
-          spins[i].request = new XMLHttpRequest();
-          spins[i].request.open('GET', spins[i]._audioBlock.audioFileUrl, true);
-          spins[i].request.responseType = 'arraybuffer';
+        var spin = spins[i];
+
+        if (!spin.source) {
+          spin.request = new XMLHttpRequest();
+          spin.request.open('GET', spin._audioBlock.audioFileUrl, true);
+          spin.request.responseType = 'arraybuffer';
 
           // decode
-          (function (i) {
-            spins[i].request.onload = function () {
-              context.decodeAudioData(spins[i].request.response, function (buffer) {
+          (function (spin) {
+            spin.request.onload = function () {
+              context.decodeAudioData(spin.request.response, function (buffer) {
                 var source = context.createBufferSource();
                 source.buffer = buffer;
                 source.connect(self.gainNode);
 
-                spins[i].source = source;
+                spin.source = source;
                 cb();
               });
             };
-          })(i);
-        spins[i].request.send();
+          })(spin);
+        spin.request.send();
         }
       }
     }

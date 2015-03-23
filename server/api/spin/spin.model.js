@@ -7,11 +7,12 @@ var AudioBlock = require('../audioBlock/audioBlock.model')
 var timestamps = require('mongoose-timestamp');
 
 var spinSchema = new Schema({
-  playlistPosition:   { type: Number },
-  _audioBlock:        { type: Schema.ObjectId, ref: 'AudioBlock' },
-  _station:           { type: Schema.ObjectId, ref: 'Station' },
-  airtime:            { type: Date },
-  durationOffset:     { type: Number, default: 0 }
+  playlistPosition:   { type: Number                              },
+  _audioBlock:        { type: Schema.ObjectId, ref: 'AudioBlock'  },
+  _station:           { type: Schema.ObjectId, ref: 'Station'     },
+  airtime:            { type: Date                                },
+  durationOffset:     { type: Number, default: 0                  },
+  manualDuration:     { type: Number                              }
 }, {
   toObject: { getters: true },
   toJSON: { virtuals: true }
@@ -27,15 +28,20 @@ spinSchema.virtual('endTime').get(function () {
 });
 
 spinSchema.virtual('duration').get(function () {
-  // if something is stored in _audioBlock
-  if (this._audioBlock) {
+  // if something is stored in manualDuration, use that
+  if (this.manualDuration) {
+    return this.manualDuration;
+  } else {
+    // if something is stored in _audioBlock
+    if (this._audioBlock) {
 
-    // get _audioBlock if it hasn't already been populated
-    if (this._audioBlock.duration) {
-      return this._audioBlock.duration + this.durationOffset;
-    } else {
-      return null;
-    } 
+      // get _audioBlock if it hasn't already been populated
+      if (this._audioBlock.duration) {
+        return this._audioBlock.duration + this.durationOffset;
+      } else {
+        return null;
+      } 
+    }
   }
 });
 

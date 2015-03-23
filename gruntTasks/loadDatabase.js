@@ -36,31 +36,36 @@ module.exports = function(grunt) {
             messedUpSongs.push(songObjects.splice(i,1));
           }
         }
+
+        // itunes api acting up -- uncomment later
         // add the itunes info
-        for (var i=0;i<songObjects.length;i++) {
-          var completed = 0;
+        // for (var i=0;i<songObjects.length;i++) {
+        //   var completed = 0;
 
-          (function(index) {
+        //   (function(index) {
 
-            SongProcessor.getItunesInfo(songObjects[index], function (err, info) {
-              if (err) {
-                console.log(err);
-                console.log(songObjects[index]);
-                console.log('index: ' + index);
-              } else {
-                songObjects[index].itunesInfo = info;
-                songObjects[index].albumArtworkUrl = itunesInfo.albumArtworkUrl;
-                songObjects[index].albumArtworkUrlSmall = itunesInfo.artworkUrl100;
-              }
-              completed++;
+        //     SongProcessor.getItunesInfo(songObjects[index], function (err, info) {
+        //       if (err) {
+        //         console.log(err);
+        //         console.log(songObjects[index]);
+        //         console.log('index: ' + index);
+        //       } else {
+        //         songObjects[index].itunesInfo = info;
+        //         songObjects[index].albumArtworkUrl = info.albumArtworkUrl;
+        //         songObjects[index].albumArtworkUrlSmall = info.artworkUrl100;
+        //       }
+        //       completed++;
+        //       console.log('completed: ' + index;);
 
-              // when all have been saved, continue
-              if (completed == songObjects.length) {
-                continueFunction();
-              }
-            });
-          })(i);
-        }
+        //       // when all have been saved, continue
+        //       if (completed == songObjects.length) {
+        //         continueFunction();
+        //       }
+        //     });
+        //   })(i);
+        // }
+
+        continueFunction();
 
         function continueFunction() {
           console.log('' + songObjects.length + ' songs found');
