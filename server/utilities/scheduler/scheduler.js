@@ -469,7 +469,7 @@ function Scheduler() {
                     playlist.unshift(newCommercialBlock);
                   }
                 }
-                callback(null, {playlist: playlist, nowPlaying: nowPlaying});
+                callback(null, {playlist: playlist, nowPlaying: nowPlaying, _station: station });
               });
             });
           });

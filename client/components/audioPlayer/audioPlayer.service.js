@@ -86,16 +86,15 @@ angular.module('pl2NodeYoApp')
 
           self.isLoading = false;
 
-          loadAudio(self.playlist, function (err) {
+          refreshProgram();
 
-            // set next advance
-            var newTimeout = $timeout(function () {
-              advanceSpin();
-              return false;
-            }, new Date(self.nowPlaying.endTime) - Date.now());
+          // set next advance
+          var newTimeout = $timeout(function () {
+            advanceSpin();
+            return false;
+          }, new Date(self.nowPlaying.endTime) - Date.now());
 
-            self.timeouts.push(newTimeout);
-          });
+          self.timeouts.push(newTimeout);
         });
       });
     };
@@ -165,12 +164,13 @@ angular.module('pl2NodeYoApp')
           // otherwise, add it to the list
           } else {
             self.playlist.push(program.playlist[i]);
-            loadAudio(self.playlist);
+            totalMS += self.playlist[i].duration;
           }
-          if (totalMS <= 180000) {
+          if (totalMS >= 180000) {
             break;
           }
         }
+        loadAudio(self.playlist, function () {});
       });
     }
 
@@ -210,14 +210,14 @@ angular.module('pl2NodeYoApp')
       for (var i=0;i<spins.length;i++) {
         // if it hasn't been done already... 
         if (!spins[i].source) {
-          var request = new XMLHttpRequest();
-          request.open('GET', spins[i]._audioBlock.audioFileUrl, true);
-          request.responseType = 'arraybuffer';
+          spins[i].request = new XMLHttpRequest();
+          spins[i].request.open('GET', spins[i]._audioBlock.audioFileUrl, true);
+          spins[i].request.responseType = 'arraybuffer';
 
           // decode
           (function (i) {
-            request.onload = function () {
-              context.decodeAudioData(request.response, function (buffer) {
+            spins[i].request.onload = function () {
+              context.decodeAudioData(spins[i].request.response, function (buffer) {
                 var source = context.createBufferSource();
                 source.buffer = buffer;
                 source.connect(self.gainNode);
@@ -226,10 +226,9 @@ angular.module('pl2NodeYoApp')
                 cb();
               });
             };
-          }(i));
+          })(i);
+        spins[i].request.send();
         }
-
-        request.send();
       }
     }
   });
