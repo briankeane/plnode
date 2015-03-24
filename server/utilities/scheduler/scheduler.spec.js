@@ -629,25 +629,25 @@ describe('addScheduleTimeToSpin', function (done) {
     });
   });
 
-  xit('works for song/song', function (done) {
+  it('works for song/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);
     expect(new Date(songSpin2.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  xit('works for song/commentary-long', function (done) {
+  it('works for song/commentary-long', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinLong);
     expect(new Date(commentarySpinLong.airtime).getTime()).to.equal(new Date(2014,3,15, 12,10,50).getTime());
     done();
   });
 
-  xit('works for song/commentary-short', function (done) {
+  it('works for song/commentary-short', function (done) {
     Scheduler.addScheduleTimeToSpin(station, songSpin1, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,10,58).getTime());
     done();
   });
 
-  xit('works for commentary/commentary', function (done) {
+  it('works for commentary/commentary', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commentarySpinLong, commentarySpinShort);
     expect(commentarySpinShort.airtime.getTime()).to.equal(new Date(2014,3,15, 12,15,10).getTime());
     done();
@@ -658,12 +658,12 @@ describe('addScheduleTimeToSpin', function (done) {
     done();
   });
 
-  xit('works for commentary-long/song', function (done) {
+  it('works for commentary-long/song', function (done) {
     commentarySpinLong.previousSpinOverlap = 8000;
     done();
   });
 
-  xit('works for commercialsFollow/song', function (done) {
+  it('works for commercialsFollow/song', function (done) {
     Scheduler.addScheduleTimeToSpin(station, commercialsFollowSpin, songSpin1);
     console.log(songSpin1.airtime);
     expect(songSpin1.airtime.getTime()).to.equal(new Date(2014,3,15, 12,3,28).getTime());
@@ -682,7 +682,7 @@ describe('addScheduleTimeToSpin', function (done) {
     });
   });
 
-  xit('works for unmarked song', function (done) {
+  it('works for unmarked song', function (done) {
     songSpin1._audioBlock = { _type: 'Song',
                               duration: 60000 }
     Scheduler.addScheduleTimeToSpin(station, songSpin1, songSpin2);

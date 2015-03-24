@@ -208,7 +208,7 @@ exports.getProgram = function (req,res,next) {
                                               airtime: programObject.nowPlaying.airtime
                                             }, function (err, link) {
             programObject.nowPlaying._audioBlock.audioFileUrl = link;
-            programObject._audioBlock.duration = programObject._station.secsOfCommercialPerHour/2*1000;
+            programObject.nowPlaying._audioBlock.duration = programObject._station.secsOfCommercialPerHour/2*1000;
             return res.json(200, programObject);
           });
 
@@ -218,7 +218,7 @@ exports.getProgram = function (req,res,next) {
                                               airtime: programObject.playlist[0].airtime,
                                             }, function (err, link) {
             programObject.playlist[0]._audioBlock.audioFileUrl = link;
-            programObject.playlist[0]._duration = programObject._station.secsOfCommercialPerHour/2*1000;
+            programObject.playlist[0]._audioBlock.duration = programObject._station.secsOfCommercialPerHour/2*1000;
             return res.json(200, programObject);
           });
         }

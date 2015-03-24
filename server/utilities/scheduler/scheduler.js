@@ -193,8 +193,6 @@ function Scheduler() {
       eom: spinToSchedule._audioBlock.eom || spinToSchedule._audioBlock.duration - 1000
     }
 
-
-
     var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
     var commercialBlockLengthMS = (station.secsOfCommercialPerHour/2)*1000;
 
@@ -209,14 +207,15 @@ function Scheduler() {
       // previousSpin=Commentary, spinToSchedule=Song
       if (spinToSchedule._audioBlock._type === 'Song') {
         
+        var msLeftOver = previousSpin._audioBlock.duration - previousSpin.previousSpinOverlap;
         // IF previousSpin Commentary is long enough to cover intro
-        if ((previousSpin._audioBlock.duration - previousSpin.previousSpinOverlap) >= spinToScheduleMarkups.eoi) {
+        if (msLeftOver >= spinToScheduleMarkups.eoi) {
           // subtract the intro length from the start time
           previousSpin.durationOffset = -(spinToScheduleMarkups.eoi);
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin._audioBlock.duration - spinToScheduleMarkups.eoi);
         } else {
           // schedule it at the end of the overlap
-          previousSpin.durationOffset = -previousSpin.previousSpinOverlap;
+          previousSpin.durationOffset = -msLeftOver;
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.previousSpinOverlap);
         }
       
