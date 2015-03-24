@@ -28,22 +28,22 @@
       </ul> 
 
 
-      <ul ui-tree="playlistOptions" callbacks="playlistOptions" id="station-list" data-empty-place-holder-enabled="false">
-        <div ui-tree-nodes ng-model="playlist">
-          <div ng-repeat="spin in playlist" >
-            <div class="dragGroup" ui-tree-node>
+      <ul id="station-list">
+        <div ui-sortable="playlistOptions" ng-model="playlist">
+          <div ng-repeat="spin in playlist track by spin._id">
+            <div class="dragGroup">
               <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
                 <span class="songlist-artist">{{ spin._audioBlock.artist }}</span>
                 <span class="songlist-airtime" ng-show="spin.airtime">{{ formatTime(spin.airtime) }}</span>
-                <a class="editSong fa fa-wrench" data-nodrag ng-click="markupSong(spin._audioBlock)" ng-show="needsMarkup(spin._audioBlock);"></a>
-                <a class="close" title="delete" data-nodrag ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+                <a class="editSong fa fa-wrench" ng-click="markupSong(spin._audioBlock)" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
               </li>
               <li class='commentary' ng-show="(spin._audioBlock._type==='Commentary')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
                 <span class="songlist-artist"><audio controls src="{{safeLink(spin._audioBlock)}}" /></span>
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
-                <a href="#" class="close" title="delete" data-nodrag ng-show="removable(spin, $index);" ng-click="removeSpin(spin, $index);">×</a>
+                <a href="#" class="close" title="delete" ng-show="removable(spin, $index);" ng-click="removeSpin(spin, $index);">×</a>
               </li>
               <li class='commercialBlock disabled' ng-show="(spin._audioBlock._type === 'CommercialBlock')">
                 <span class="songlist-title">Commercial Block</span>

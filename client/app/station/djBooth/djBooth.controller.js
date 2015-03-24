@@ -170,6 +170,34 @@ angular.module('pl2NodeYoApp')
     });
 
     $scope.playlistOptions = {
+      start: function (event, ui) {
+        ui.item.oldIndex = ui.item.index();
+        ui.item.spin = $scope.playlist[ui.item.index()];
+      },
+
+      stop: function (event, ui) {
+        console.log(ui.item.spin);
+        var oldIndex = ui.item.oldIndex;
+        var newIndex = ui.item.index();
+        var spin = ui.item.spin;
+        var movedAmount = newIndex - oldIndex;
+
+        // if item was dropped in the same spot, do nothing
+        if (movedAmount === 0) {
+          return;
+        }
+
+        var newPlaylistPosition = spin.playlistPosition + movedAmount;
+        var oldPlaylistPosition = spin.playlistPosition;
+
+        $scope.refreshProgramWithoutServer();
+
+        Auth.moveSpin({ spinId: spin.id, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
+          if (err) { return false; }
+          $scope.playlist = newProgram.playlist;
+        });
+      },
+
       beforeDrag: function (sourceNodeScope) {
 
         // don't allow the first play to be picked up
@@ -206,10 +234,6 @@ angular.module('pl2NodeYoApp')
 
         $scope.refreshProgramWithoutServer();
 
-        Auth.moveSpin({ spinId: spin.id, newPlaylistPosition: newPlaylistPosition }, function (err, newProgram) {
-          if (err) { return false; }
-          $scope.playlist = newProgram.playlist;
-        });
       }
     };
 
@@ -264,7 +288,7 @@ angular.module('pl2NodeYoApp')
 
       Auth.removeSpin(spin, function (err, newProgram) {
         if (err) return false;
-        //$scope.playlist = newProgram.playlist;
+        $scope.playlist = newProgram.playlist;
       })
     }
 

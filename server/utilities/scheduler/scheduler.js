@@ -642,8 +642,8 @@ function Scheduler() {
   this.insertSpin = function (spinInfo, callback) {
     Spin.getPartialPlaylist({ startingPlaylistPosition: spinInfo.playlistPosition,
                               _station: spinInfo._station }, function (err, partialPlaylist) {
-      if (err) return err;
-      
+      if (err) callback(err);
+    
       // update the rest of the playlist
       var modelsToSave = [];
 

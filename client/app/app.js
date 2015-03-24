@@ -10,7 +10,8 @@ angular.module('pl2NodeYoApp', [
   'dndLists',
   'angularMoment',
   'angularFileUpload',
-  'ui.tree'
+  'ui.tree',
+  'ui.sortable'
   ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider
