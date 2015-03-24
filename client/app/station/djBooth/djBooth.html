@@ -29,8 +29,8 @@
 
 
       <ul id="station-list">
-        <div ui-sortable="playlistOptions" ng-model="playlist">
-          <div ng-repeat="spin in playlist track by spin._id">
+        <div  ui-sortable="playlistOptions" class="stationList" ng-model="playlist">
+          <div  ng-repeat="spin in playlist track by spin._id">
             <div class="dragGroup">
               <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
                 <span class="songlist-title">{{ spin._audioBlock.title }}</span>
@@ -50,7 +50,7 @@
                 <span class="songlist-airtime">{{ formatTime(spin.airtime) }}</span>
               </li>
             </div>
-            <li class='commercialBlock disabled' ng-show="spin.commercialsFollow">
+            <li class='commercialBlock disabled' ng-show="spin.commercialsFollow && !spin.beingDragged">
               <span class="songlist-title">Commercial Block</span>
               <span class="songlist-airtime">{{ formatTime(spin.endTime) }}</span>
             </li>
@@ -66,26 +66,30 @@
       <tabset id="catalogAndRecordPanel" justified="true">
         <tab heading="Add Songs">
           <div class="content active" id="all-songs-source-container">
-            <span for="searchbox">Search Text:</span>
-            <span id="onlyMySongs-label">My Songs Only</span>
-            <input id="onlyMySongs" class="switch" type="checkbox">
-            <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
+          
+            <div>   <!--  extra container for tab/sortable-ui interaction  -->
+              <span for="searchbox">Search Text:</span>
+              <span id="onlyMySongs-label">My Songs Only</span>
+              <input id="onlyMySongs" class="switch" type="checkbox">
+              <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
 
 
-            <div id="catalog-list" ui-tree="catalogList" data-empty-place-holder-enabled="false">
-              <ol ui-tree-nodes ng-model="catalogSearchResults" class="song-manager-page">
-                <li ng-repeat="song in catalogSearchResults" 
-                  ui-tree-node>
-                  <span class="songlist-title">{{ song.title }}</span>
-                  <span class="songlist-artist">{{ song.artist }}</span>
-                </li>
-              </ol>
+              <div id="catalog-list" >
+                <ol class="song-manager-page catalogList" ui-sortable="catalogList" ng-model="catalogSearchResults">
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">{{ song.title }}</span>
+                    <span class="songlist-artist">{{ song.artist }}</span>
+                  </li>
+                </ol>
+              </div>
             </div>
           </div>
         </tab>
-        <tab heading="Record">
+        <tab heading="Record"> -->
           <div class="content" id="record">
-            <div ng-include="'components/audioRecorder/audioRecorder.html'" >
+            <div> <!-- extra container for tab/sortable-ui interaction  -->
+              <div ng-include="'components/audioRecorder/audioRecorder.html'" >
+              </div>
             </div>
           </div>
         </tab>
@@ -93,7 +97,7 @@
           <div class="content" id="uploader">
             <div ng-include="'components/uploader/uploader.html'"></div>
           </div>
-        </tab>
+         </tab>
       </tabset>
     </div>
 

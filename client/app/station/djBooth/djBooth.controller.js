@@ -1,13 +1,14 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function (AudioPlayer, $scope, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
+  .controller('djBoothCtrl', function (AudioPlayer, $scope, FileUploader, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
     $scope.playlist = [];
     $scope.catalogSearchResults = [];
     $scope.player = AudioPlayer;
+    $scope.mostRecentCommentary = {};
 
     $scope.currentStation = Auth.getCurrentStation()
     $scope.currentUser = Auth.getCurrentUser();
@@ -20,6 +21,23 @@ angular.module('pl2NodeYoApp')
     $timeout(function () {
       AudioPlayer.loadStation($scope.currentStation._id);
     }, 1000);
+
+    $scope.mostRecentCommentary;
+    $scope.FileUploader = FileUploader;
+    $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
+                                          autoUpload: true });
+
+    $scope.uploader.onBeforeUploadItem = function (item) {
+      item._file = $scope.mostRecentCommentary.blob;
+      item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
+                            _station: $scope.currentStation._id,
+                            playlistPosition: $scope.mostRecentCommentary.playlistPosition });
+    };
+
+    $scope.uploader.onCompleteItem = function (item) {
+      $scope.refreshProgramWithoutServer();
+    }
+
 
 
     // ******************************************************************
@@ -170,17 +188,19 @@ angular.module('pl2NodeYoApp')
     });
 
     $scope.playlistOptions = {
+      connectWith: '.catalogList',
+
       start: function (event, ui) {
         ui.item.oldIndex = ui.item.index();
-        ui.item.spin = $scope.playlist[ui.item.index()];
+        ui.item.sortable.model.beingDragged = true;
       },
 
       stop: function (event, ui) {
-        console.log(ui.item.spin);
         var oldIndex = ui.item.oldIndex;
         var newIndex = ui.item.index();
-        var spin = ui.item.spin;
+        var spin = ui.item.sortable.model;
         var movedAmount = newIndex - oldIndex;
+        spin.beingDragged = false;
 
         // if item was dropped in the same spot, do nothing
         if (movedAmount === 0) {
@@ -198,13 +218,52 @@ angular.module('pl2NodeYoApp')
         });
       },
 
-      beforeDrag: function (sourceNodeScope) {
+      receive: function (event, ui) {
+        var audioBlock = ui.item.sortable.model;
+        var index = ui.item.sortable.dropindex;
 
-        // don't allow the first play to be picked up
-        if (sourceNodeScope.index() === 0) {
-          return false;
-        } else {
-          return true;
+        // grab the start time
+        if (audioBlock._type === 'Song') {
+          
+          // create the new spin object
+          var newSpin = { _audioBlock: audioBlock,
+                          duration: audioBlock.duration,
+                          durationOffset: 0,
+                          playlistPosition: $scope.playlist[index+1].playlistPosition,
+                          _id: 'addedSpin',
+                        }
+
+          // insert the new spin
+          $scope.playlist.splice(index, 0, newSpin);
+
+          // update playlistPositions
+          for (var i=index+1;i<$scope.playlist.length;i++) {
+            $scope.playlist[i].playlistPosition += 1;
+          }
+
+          $scope.refreshProgramWithoutServer();
+
+          // notify server and refresh list
+          Auth.insertSpin({ playlistPosition: newSpin.playlistPosition,
+                            _audioBlock: newSpin._audioBlock._id,
+                            _station: $scope.currentStation._id 
+                          }, function (err, newProgram) {
+            if (err) { return false; }
+            $scope.playlist = newProgram.playlist;
+          });
+        } else if (audioBlock._type === 'Commentary')  {
+
+          // prepare upload
+          var commentary = new $scope.FileUploader.FileLikeObject(ui.item.sortable.model.blob);
+          commentary.lastModifiedDate = new Date();
+          
+          // store info that can't be passed to uploader in $scope.mostRecentCommentary object
+          $scope.mostRecentCommentary.blob = ui.item.sortable.model.blob;
+          $scope.mostRecentCommentary.model = ui.item.sortable.model;
+          commentary._id='addedCommentary';
+          $scope.mostRecentCommentary.playlistPosition = $scope.playlist[ui.item.sortable.dropindex + 1].playlistPosition;
+
+          $scope.uploader.addToQueue([commentary]);
         }
       },
 
@@ -238,52 +297,17 @@ angular.module('pl2NodeYoApp')
     };
 
     $scope.catalogList = {
+      connectWith: '.stationList',
       accept: function (sourceNodeScope, destNodeScope, destIndex) {
         return false;
       },
-
       dropped: function (event) {
         console.log(event);
-        var item = event.source.nodeScope.$modelValue;
-        var index = event.dest.index;
-        // grab the start time
-        if (item._type === 'Song') {
-          
-          // create the new spin object
-          var newSpin = { _audioBlock: item,
-                          duration: item.duration,
-                          durationOffset: 0,
-                          playlistPosition: $scope.playlist[index+1].playlistPosition
-                        }
-
-          // insert the new spin
-          $scope.playlist.splice(index, 0, newSpin);
-
-          // update playlistPositions
-          for (var i=index+1;i<$scope.playlist.length;i++) {
-            $scope.playlist[i].playlistPosition += 1;
-          }
-
-          $scope.refreshProgramWithoutServer();
-
-          // notify server and refresh list
-          Auth.insertSpin({ playlistPosition: newSpin.playlistPosition,
-                            _audioBlock: newSpin._audioBlock._id,
-                            _station: $scope.currentStation._id 
-                          }, function (err, newProgram) {
-            if (err) { return false; }
-            $scope.playlist = newProgram.playlist;
-          });
-        } else if (item._type === 'Commentary')  {
-          console.log('DROPPED A COMMENTARY BITCH');
-        }
       }
     }
 
     $scope.removeSpin = function (spin, index) {
-
       $scope.playlist.splice(index,1);
-
       $scope.refreshProgramWithoutServer();
 
       Auth.removeSpin(spin, function (err, newProgram) {

@@ -21,11 +21,11 @@ angular.module('pl2NodeYoApp')
         item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
                             _station: Auth.getCurrentStation()._id,
                             playlistPosition: $scope.mostRecentCommentary.playlistPosition });
-
     };
+
     $scope.uploader.onCompleteItem = function (item) {
       $scope.refreshProgramFromServer();
-    }
+    };
 
     $scope.stopDisabled = true;
     $scope.recordButtonDisabled = false;
@@ -44,10 +44,16 @@ angular.module('pl2NodeYoApp')
       stopRecording();
       $(document).trigger('recordingStopped');
       $scope.stopDisabled = true;
+      $scope.recordButtonDisabled = true;
     };
 
-    $scope.recordingList = {
-      dropped: function (event) {
+    $scope.audioRecordingList = {
+      connectWith: '.stationList',
+
+      remove: function (event, ui) {
+        ui.item.sortable.model._type = 'Commentary';
+      },
+      removed: function (event) {
         var commentary = new $scope.FileUploader.FileLikeObject(event.source.nodeScope.$modelValue.blob);
         commentary.lastModifiedDate = new Date();
         var targetPlaylistPosition = event.dest.nodesScope.$modelValue[event.dest.index + 1].playlistPosition;
@@ -56,6 +62,7 @@ angular.module('pl2NodeYoApp')
                                         playlistPosition: targetPlaylistPosition };
         $scope.uploader.addToQueue([commentary]);
         $scope.refreshProgramFromServer = event.dest.nodesScope.refreshProgramFromServer;
+        $scope.recordButtonDisabled = false;
       }
     }
 
