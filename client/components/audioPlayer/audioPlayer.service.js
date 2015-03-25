@@ -123,7 +123,6 @@ angular.module('pl2NodeYoApp')
       self.playlist = null;
     };
 
-
     function advanceSpin() {
       self.nowPlaying = self.playlist.shift();
       $rootScope.$broadcast('spinAdvanced');
@@ -159,6 +158,18 @@ angular.module('pl2NodeYoApp')
           // if it's already been added, just count the MS
           if (self.playlist[i]) {
             totalMS += self.playlist[i].duration;
+
+            // if times need to be updated, update them
+            if (self.playlist[i].airtime != program.playlist[i].airtime) {
+              self.playlist[i].airtime = program.playlist[i].airtime;
+            }
+
+            if (self.playlist[i].endTime != program.playlist[i].airtime) {
+              self.playlist[i].endTime = program.playlist[i].endTime;
+            }
+
+
+
           // otherwise, add it to the list
           } else {
             self.playlist.push(program.playlist[i]);

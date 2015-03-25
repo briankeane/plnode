@@ -15,7 +15,8 @@ var logEntrySchema = new Schema({
   listenersAtStart:   { type: Number },
   listenersAtFinish:  { type: Number },
   durationOffset:     { type: Number, default: 0 },
-  commercialsFollow:  { type: Boolean }
+  commercialsFollow:  { type: Boolean },
+  manualEndTime:      { type: Date    }
 }, {
   toObject: { getters: true },
   toJSON:   { getters: true }
@@ -25,11 +26,15 @@ var logEntrySchema = new Schema({
 // * endTime -- calculates the end of the log entry      *
 // *******************************************************
 logEntrySchema.virtual('endTime').get(function () {
-  // if it's missing the audioBlock, duration, or airtime, return null
-  if (!((this.airtime) && (this._audioBlock) && (this._audioBlock.duration))) {
-    return null;
+  if (this.manualEndTime) {
+    return this.manualEndTime;
   } else {
-    return new Date(this.airtime.getTime() + this.duration);
+    // if it's missing the audioBlock, duration, or airtime, return null
+    if (!((this.airtime) && (this._audioBlock) && (this._audioBlock.duration))) {
+      return null;
+    } else {
+      return new Date(this.airtime.getTime() + this.duration);
+    }
   }
 });
 
@@ -146,7 +151,8 @@ logEntrySchema.statics.newFromSpin = function (spin) {
                         _audioBlock: (spin._audioBlock._id || spin._audioBlock),
                         airtime: spin.airtime,
                         commercialsFollow: spin.commercialsFollow,
-                        durationOffset: spin.durationOffset || 0 });
+                        durationOffset: spin.durationOffset || 0,
+                        manualEndTime: spin.manualEndTime });
 }
 
 

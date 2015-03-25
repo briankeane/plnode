@@ -12,18 +12,24 @@ var spinSchema = new Schema({
   _station:           { type: Schema.ObjectId, ref: 'Station'     },
   airtime:            { type: Date                                },
   durationOffset:     { type: Number, default: 0                  },
-  manualDuration:     { type: Number                              }
+  manualDuration:     { type: Number                              },
+  manualEndTime:      { type: Date                                } 
 }, {
   toObject: { getters: true },
   toJSON: { virtuals: true }
 });
 
 spinSchema.virtual('endTime').get(function () {
-  // if it's missing the audioBlock, duration, or airtime, return null
-  if (!((this.airtime) && (this._audioBlock) && (this._audioBlock.duration))) {
-    return null;
+  if (this.manalEndTime) {
+    return this.manualEndTime;
   } else {
-    return new Date(this.airtime.getTime() + this.duration);
+
+    // if it's missing the audioBlock, duration, or airtime, return null
+    if (!((this.airtime) && (this._audioBlock) && (this._audioBlock.duration))) {
+      return null;
+    } else {
+      return new Date(this.airtime.getTime() + this.duration);
+    }
   }
 });
 
@@ -53,7 +59,7 @@ spinSchema.virtual('duration').get(function () {
 // * over the hour or half-hour mark                              *
 // ****************************************************************
 spinSchema.virtual('commercialsFollow').get(function () {
-  if (!(this.airtime) || !(this.duration)) {
+  if (!(this.airtime) || !(this.duration) || (!this.endTime)) {
     return null;
   } else {
     // if beginning and end of spin are in different time 'blocks'

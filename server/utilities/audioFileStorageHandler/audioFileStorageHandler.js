@@ -5,6 +5,7 @@ AWS.config.region = 'us-west-2';
 var s3 = new AWS.S3();
 var _ = require('lodash');
 var unidecode = require('unidecode');
+var Station = require('../../api/station/station.model');
 
 function Handler() {
   var self = this;
@@ -127,34 +128,19 @@ console.log('store song end');
 
   this.storeCommentary = function (attrs, callback) {
     // build key
-    var listGetter = s3HighLevel.listObjects({ s3Params: { Bucket: config["s3Buckets"].COMMENTARIES_BUCKET } });
+    Station.findById(attrs.stationId, function (err, station) {
+      if (err) callback(err);
+      if (!station) return new Error('Station Not Found');
 
-    var objects = [];
-    listGetter.on('data', function (newData) {
-      objects.concat(newData.Contents);
-    });
+      var nextKeyValue = station.commentaryCounter + 1;
 
-    listGetter.on('end', function () {
-      var nextKeyValue;
-      
-      if (!objects.length) {
-        nextKeyValue = 0;
-      } else {
-        objectKeyNumbers = _.map(objects, function (obj) { return parseInt(obj["Key"].substr(4,10)) });
-
-        // grab the next available key value from the keys strings
-        nextKeyValue = Math.max.apply(Math, objectKeyNumbers);
-      }
-
-      nextKeyValue++;
-
-      var key = '-com' + 
-                ('0' * (7 - nextKeyValue.toString())) + 
+      var key = attrs.stationId +
+                '-com-' + 
                 nextKeyValue + '-' +
-                attrs.stationId +
                 '.mp3';
 
       key = self.cleanFilename(key);
+
       var metadata = {
                         pl_station_id: attrs.stationId,
                         pl_duration: (attrs.duration.toString() || ''),
@@ -167,7 +153,13 @@ console.log('store song end');
                                               }
                                             });
       uploader.on('end', function (data) {
-        callback(null, key);
+
+        // increment key on station
+        station.commentaryCounter = nextKeyValue;
+        station.save(function (err) {
+          if (err) callback(err);
+          callback(null, key);
+        });
       });
     });    
   };

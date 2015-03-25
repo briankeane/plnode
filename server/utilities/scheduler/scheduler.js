@@ -180,17 +180,35 @@ function Scheduler() {
   };
 
   this.addScheduleTimeToSpin = function (station, previousSpin, spinToSchedule) {
+    function lengthOfOutroMS (markupObject) {
+      return markupObject.duration - markupObject.boo;
+    }
+
+    function lengthOfIntroMS (markupObject) {
+      return markupObject.eoi;
+    }
+
+    function msAfterEOI (markupObject) {
+      return markupObject.eoi - duration;
+    }
+
     // account for unmarked spins
     var previousSpinMarkups = {
+      duration: previousSpin.duration,
       boo: previousSpin._audioBlock.boo || previousSpin._audioBlock.duration,
       eoi: previousSpin._audioBlock.eoi || 0,
-      eom: previousSpin._audioBlock.eom || previousSpin._audioBlock.duration - 1000  // subtract a second to mash em up
+      eom: previousSpin._audioBlock.eom || (previousSpin._audioBlock.duration - 1000),  // subtract a second to mash em up
+      lengthOfOutro: previousSpin._audioBlock.duration - (previousSpin._audioBlock.boo || 0),
+      msAfterEoi: previousSpin._audioBlock.duration - (previousSpin._audioBlock.eom ||  1000)
     }
 
     var spinToScheduleMarkups = {
+      duration: spinToSchedule.duration,
       boo: spinToSchedule._audioBlock.boo || spinToSchedule._audioBlock.duration,
       eoi: spinToSchedule._audioBlock.eoi || 0,
-      eom: spinToSchedule._audioBlock.eom || spinToSchedule._audioBlock.duration - 1000
+      eom: spinToSchedule._audioBlock.eom || (spinToSchedule._audioBlock.duration - 1000),
+      lengthOfOutro: spinToSchedule._audioBlock.duration - (spinToSchedule._audioBlock.boo || 0),
+      msAfterEoi: spinToSchedule._audioBlock.duration - (spinToSchedule._audioBlock.eom || 1000)
     }
 
     var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
@@ -206,8 +224,7 @@ function Scheduler() {
       
       // previousSpin=Commentary, spinToSchedule=Song
       if (spinToSchedule._audioBlock._type === 'Song') {
-        
-        var msLeftOver = previousSpin._audioBlock.duration - previousSpin.previousSpinOverlap;
+        var msLeftOver = previousSpin._audioBlock.duration - (previousSpin.previousSpinOverlap || 1000);
         // IF previousSpin Commentary is long enough to cover intro
         if (msLeftOver >= spinToScheduleMarkups.eoi) {
           // subtract the intro length from the start time
@@ -237,11 +254,11 @@ function Scheduler() {
       // ELSE IF spinToSchedule=Commentary && previousSpin=Song
       } else if (spinToSchedule._audioBlock._type === 'Commentary') {
         // IF it's long enough to cover outro
-        if (spinToSchedule._audioBlock.duration > (previousSpin._audioBlock.duration - previousSpinMarkups.boo)) {
+        if (spinToSchedule._audioBlock.duration > previousSpinMarkups.lengthOfOutro) {
           // Subtract outro length
-          previousSpin.durationOffset = previousSpinMarkups.boo - previousSpin._audioBlock.duration;
+          previousSpin.durationOffset = previousSpinMarkups.lengthOfOutro;
           spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.boo);
-          spinToSchedule.previousSpinOverlap = previousSpin._audioBlock.duration - previousSpinMarkups.boo;
+          spinToSchedule.previousSpinOverlap = previousSpinMarkups.lengthOfOutro;
         // ELSE start new spin at previousSpin.eom
         } else {
           previousSpin.durationOffset = previousSpinMarkups.eom - previousSpin._audioBlock.duration;
@@ -250,6 +267,9 @@ function Scheduler() {
         }
       }
     }
+
+    previousSpin.manualEndTime = spinToSchedule.airtime;
+
     // add commercials to spinToSchedule if needed
     if (checkForFollowingCommercial(spinToSchedule.airtime.getTime(), spinToSchedule.airtime.getTime() + spinToScheduleMarkups.eom)) {
       spinToSchedule.commercialsFollow = true;
@@ -311,9 +331,15 @@ function Scheduler() {
           // set last accurate entry to previousSpin
           previousSpin = gottenPlaylist[index];
 
+          // make sure it gets saved (since it's a spin)
+          toBeUpdated.push(previousSpin);
+
           // set up gottenPlaylist to update
           gottenPlaylist = gottenPlaylist.slice(index + 1);
         }
+
+
+
 
         var lastAccurateAirtime;
         var lastAccuratePlaylistPosition;

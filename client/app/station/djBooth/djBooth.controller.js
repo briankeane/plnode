@@ -7,9 +7,9 @@ angular.module('pl2NodeYoApp')
     $scope.errors = {};
     $scope.playlist = [];
     $scope.catalogSearchResults = [];
-    $scope.player = AudioPlayer;
     $scope.mostRecentCommentary = {};
-
+    
+    $scope.player = AudioPlayer;
     $scope.currentStation = Auth.getCurrentStation()
     $scope.currentUser = Auth.getCurrentUser();
 
@@ -18,15 +18,21 @@ angular.module('pl2NodeYoApp')
     var progressUpdater;
     var lastUpdateIndex = 0;
 
+    // create the commentary uploader
+    $scope.FileUploader = FileUploader;
+    $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
+                                          autoUpload: true });
+    
+    // wait a sec for currentStation and load the station
     $timeout(function () {
       AudioPlayer.loadStation($scope.currentStation._id);
     }, 1000);
 
-    $scope.mostRecentCommentary;
-    $scope.FileUploader = FileUploader;
-    $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
-                                          autoUpload: true });
 
+
+    // ******************************************************************
+    // *                 Uploader Listeners                             *
+    // ******************************************************************
     $scope.uploader.onBeforeUploadItem = function (item) {
       item._file = $scope.mostRecentCommentary.blob;
       item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
@@ -34,8 +40,8 @@ angular.module('pl2NodeYoApp')
                             playlistPosition: $scope.mostRecentCommentary.playlistPosition });
     };
 
-    $scope.uploader.onCompleteItem = function (item) {
-      $scope.refreshProgramWithoutServer();
+    $scope.uploader.onCompleteItem = function (item, response, status, headers) {
+      $scope.playlist = response.playlist;
     }
 
 
@@ -261,7 +267,9 @@ angular.module('pl2NodeYoApp')
           $scope.mostRecentCommentary.blob = ui.item.sortable.model.blob;
           $scope.mostRecentCommentary.model = ui.item.sortable.model;
           commentary._id='addedCommentary';
-          $scope.mostRecentCommentary.playlistPosition = $scope.playlist[ui.item.sortable.dropindex + 1].playlistPosition;
+
+          // grab the playlistPosition of the spin whose place the commentary is taking
+          $scope.mostRecentCommentary.playlistPosition = $scope.playlist[ui.item.sortable.dropindex].playlistPosition;
 
           $scope.uploader.addToQueue([commentary]);
         }
