@@ -2,51 +2,41 @@ angular.module('pl2NodeYoApp')
   .controller('AudioRecorderCtrl', function ($scope, $location, Auth, $sce, FileUploader) {
 
     $scope.refreshProgramFromServer;      // filled with reference when needed
-    $scope.FileUploader = FileUploader;
-    $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
-                                          autoUpload: true });
-
-    $scope.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-          console.info('onWhenAddingFileFailed', item, filter, options);
-    };
-    $scope.uploader.onAfterAddingFile = function(fileItem) {
-      console.info('onAfterAddingFile', fileItem);
-    };
-    $scope.uploader.onAfterAddingAll = function(addedFileItems) {
-      console.info('onAfterAddingAll', addedFileItems);
-    };
-    $scope.uploader.onBeforeUploadItem = function(item) {
-        console.info('onBeforeUploadItem', item);
-        item._file = $scope.blobs[0].blob;
-        item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
-                            _station: Auth.getCurrentStation()._id,
-                            playlistPosition: $scope.mostRecentCommentary.playlistPosition });
-    };
-
-    $scope.uploader.onCompleteItem = function (item) {
-      $scope.refreshProgramFromServer();
-    };
-
+    
     $scope.stopDisabled = true;
     $scope.recordButtonDisabled = false;
     $scope.recordedCommentaryObject;
     $scope.recordings = [];
     $scope.blobs = [];
 
-    $scope.startRecordingPressed = function () {
-      startRecording();
-      $scope.recordButtonDisabled = true;
-      $scope.stopDisabled = false;
-      $(document).trigger('recordingStarted');
+
+
+    // **************************************************************************
+    // *                  set up FileUploader for Commentaries                  *
+    // ************************************************************************** 
+    $scope.FileUploader = FileUploader;
+    $scope.uploader = new FileUploader({ url: 'api/v1/commentaries/upload',
+                                          autoUpload: true });
+
+    // replace file with blob before upload
+    $scope.uploader.onBeforeUploadItem = function(item) {
+        console.info('onBeforeUploadItem', item);
+        item._file = $scope.blobs[0].blob;
+        
+        // add formData necessary for processing
+        item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
+                            _station: Auth.getCurrentStation()._id,
+                            playlistPosition: $scope.mostRecentCommentary.playlistPosition });
     };
 
-    $scope.stopRecordingPressed = function () {
-      stopRecording();
-      $(document).trigger('recordingStopped');
-      $scope.stopDisabled = true;
-      $scope.recordButtonDisabled = true;
+    // refresh the program after uploading
+    $scope.uploader.onCompleteItem = function (item) {
+      $scope.refreshProgramFromServer();
     };
-
+    
+    // **************************************************************************
+    // *                    audioRecording sortable list                        *
+    // **************************************************************************
     $scope.audioRecordingList = {
       connectWith: '.stationList',
 
@@ -66,6 +56,22 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+    // ****************************************************************************
+    // *                            Recording...                                  *
+    // ****************************************************************************
+    $scope.startRecordingPressed = function () {
+      startRecording();
+      $scope.recordButtonDisabled = true;
+      $scope.stopDisabled = false;
+      $(document).trigger('recordingStarted');
+    };
+
+    $scope.stopRecordingPressed = function () {
+      stopRecording();
+      $(document).trigger('recordingStopped');
+      $scope.stopDisabled = true;
+      $scope.recordButtonDisabled = true;
+    };
 
     var audio_context;
     var recorder;
@@ -132,48 +138,11 @@ angular.module('pl2NodeYoApp')
 
       draw();
 
-
-
-
-
-
-
-
-
-
-        // var array = new Uint8Array(volumeAnalyser.frequencyBinCount);
-        // volumeAnalyser.getByteFrequencyData(array);
-        // var average = getAverageVolume(array);
-
-        // ctx.clearRect(0,0,300,100);
-        // ctx.fillStyle="gradient";
-        // ctx.fillRect(0,0, average*2, 100);
-
-
-      function getAverageVolume(array) {
-        var values = 0;
-        var average;
-        var length = array.length;
-
-        for (var i=0; i < length; i++) {
-          values += array[i];
-        }
-
-        average = values/length;
-        return average;
-      }
-
-
-
-      //input.connect(audio_context.destination);
-      //console.log('Input connected to audio context destination.');
-
       recorder = new Recorder(input);
       console.log('Recorder initialised.');
     }
 
     function startRecording(button) {
-
       // recorder
       recorder && recorder.record();
       console.log('Recording...');
@@ -182,6 +151,7 @@ angular.module('pl2NodeYoApp')
     function stopRecording(button) {
       recorder && recorder.stop();
       console.log('Stopped recording.');
+
       // create WAV download link using audio data blob
       createDownloadLink();
       recorder.clear();
@@ -221,42 +191,32 @@ angular.module('pl2NodeYoApp')
         au.controls = true;
         au.src = url;
         hf.href = url;
-        //hf.download = new Date().toISOString() + '.wav';
-        // hf.innerHTML = hf.download;
-        // li.append(au);
-        // li.append(hf);
-        // recordingList.append(template);
-
-        // Possibly a better way to do this in the future?
-
       });
     }
 
-    //window.onload = function init() {
-      try {
-        // webkit shim
-        window.AudioContext = window.AudioContext || window.webkitAudioContext;
-        navigator.getUserMedia = navigator.getUserMedia || 
-                                navigator.webkitGetUserMedia ||
-                                navigator.mozGetUserMedia ||
-                                navigator.msGetUserMedia;
-        window.URL = window.URL || window.webkitURL;
+    try {
+      // webkit shim
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      navigator.getUserMedia = navigator.getUserMedia || 
+                              navigator.webkitGetUserMedia ||
+                              navigator.mozGetUserMedia ||
+                              navigator.msGetUserMedia;
+      window.URL = window.URL || window.webkitURL;
 
-        audio_context = new AudioContext;
-        console.log('Audio context set up.');
-        console.log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
-      } catch (e) {
-        alert('No web audio support in this browser! ' + e);
-      }
+      audio_context = new AudioContext;
+      console.log('Audio context set up.');
+      console.log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+    } catch (e) {
+      alert('No web audio support in this browser! ' + e);
+    }
 
-      navigator.getUserMedia({audio: true}, function(stream) {
+    navigator.getUserMedia({audio: true}, function(stream) {
 
-        console.log("This is running");
-        startUserMedia(stream);
+      console.log("This is running");
+      startUserMedia(stream);
 
-      }, function(e) {
-        $scope.recordingEnabled = false;
-        console.log('No live audio input: ' + e);
-      });
-    //};
+    }, function(e) {
+      $scope.recordingEnabled = false;
+      console.log('No live audio input: ' + e);
+    });
   });

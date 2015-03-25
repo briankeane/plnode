@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function (AudioPlayer, $scope, FileUploader, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
+  .controller('djBoothCtrl', function (CommentaryPreviewPlayer, AudioPlayer, $scope, FileUploader, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -30,9 +30,9 @@ angular.module('pl2NodeYoApp')
 
 
 
-    // ******************************************************************
-    // *                 Uploader Listeners                             *
-    // ******************************************************************
+    // **************************************************************************************
+    // *                                Uploader Listeners                                  *
+    // **************************************************************************************
     $scope.uploader.onBeforeUploadItem = function (item) {
       item._file = $scope.mostRecentCommentary.blob;
       item.formData.push({ duration: Math.round($scope.mostRecentCommentary.model.duration),
@@ -64,14 +64,6 @@ angular.module('pl2NodeYoApp')
       }
     };
 
-    $scope.safeLink = function (audioBlock) {
-      if (audioBlock && audioBlock._type === 'Commentary') {
-        return $sce.trustAsResourceUrl(audioBlock.audioFileUrl);
-      } else {
-        return null;
-      }
-    }
-    
     $scope.setPlaylist = function () {
       Auth.getProgram({}, function (err, program) {
         if (err) {
@@ -88,23 +80,51 @@ angular.module('pl2NodeYoApp')
       });
     };
 
-    $scope.markupSong = function (song) {
-      $modal.open({
-        controller: 'MarkupSongModalCtrl',
-        templateUrl: 'components/markupSong/markupSong.modal.html'      
-      });
-    }
-
-    $scope.needsMarkup = function (song) {
-      return (!song || !song.eom || !song.boo || (song.eoi === undefined));
-    }
-
     $scope.refreshProgramFromServer = function () {
       Auth.getProgram({}, function (err, program) {
         if (err) return (err);
 
         $scope.playlist = program.playlist;
       });
+    }
+
+
+    // ******************************************************************
+    // *                      display functions                         *
+    // ******************************************************************
+    // Allows commentaries to be trusted
+    $scope.safeLink = function (audioBlock) {
+      if (audioBlock && audioBlock._type === 'Commentary') {
+        return $sce.trustAsResourceUrl(audioBlock.audioFileUrl);
+      } else {
+        return null;
+      }
+    }
+
+    // determines whether a song needs markings
+    $scope.needsMarkup = function (song) {
+      return (!song || !song.eom || !song.boo || (song.eoi === undefined));
+    }
+
+    $scope.commercialsFollow = function (startTimeMS, endTimeMS) {
+      // if beginning and end of spin are in different time 'blocks'
+      return (Math.floor(startTimeMS/1800000.0) != Math.floor(endTimeMS/1800000.0))
+    }
+
+    $scope.formatTime = function (time) {
+      return moment(time).format("MMM Do, h:mm:ss a")
+    };
+
+    $scope.removable = function (spin, index) {
+      if (index === 0) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    $scope.previewCommentary = function (index) {
+      CommentaryPreviewPlayer.play($scope.playlist[index-1], $scope.playlist[index], $scope.playlist[index+1]);
     }
 
     $scope.refreshProgramWithoutServer = function () {
@@ -126,19 +146,6 @@ angular.module('pl2NodeYoApp')
 
         playlistPositionTracker++;
       }
-    }
-
-    $scope.commercialsFollow = function (startTimeMS, endTimeMS) {
-      // if beginning and end of spin are in different time 'blocks'
-      return (Math.floor(startTimeMS/1800000.0) != Math.floor(endTimeMS/1800000.0))
-    }
-
-    $scope.formatTime = function (time) {
-      return moment(time).format("MMM Do, h:mm:ss a")
-    };
-
-    $scope.printSomething = function (string) {
-      console.log(string);
     }
 
     $scope.updateProgressBar = function () {
@@ -184,6 +191,21 @@ angular.module('pl2NodeYoApp')
         return '' + mins + ':' + secs;
       }
     }
+    
+    // for now disable 1st element
+    $scope.determineDisable = function (spin, index) {
+      if ($scope.playlist[0].commercialsFollow || AudioPlayer.nowPlaying.commercialsFollow) {
+        if (index < 1) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (index < 2) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
     $scope.$on('spinAdvanced', function () {
       $scope.playlist.shift();
@@ -193,14 +215,20 @@ angular.module('pl2NodeYoApp')
       $scope.playlist = program.playlist;
     });
 
+
+    // ******************************************************************
+    // *               playlist sortable list options                   *
+    // ******************************************************************
     $scope.playlistOptions = {
       connectWith: '.catalogList',
 
+      // marks old index for moving spin
       start: function (event, ui) {
         ui.item.oldIndex = ui.item.index();
         ui.item.sortable.model.beingDragged = true;
       },
 
+      // actually moves the spin and notifies the server
       stop: function (event, ui) {
         var oldIndex = ui.item.oldIndex;
         var newIndex = ui.item.index();
@@ -224,6 +252,7 @@ angular.module('pl2NodeYoApp')
         });
       },
 
+      // accept a commentary or song from the catalog
       receive: function (event, ui) {
         var audioBlock = ui.item.sortable.model;
         var index = ui.item.sortable.dropindex;
@@ -273,45 +302,15 @@ angular.module('pl2NodeYoApp')
 
           $scope.uploader.addToQueue([commentary]);
         }
-      },
-
-      accept: function (sourceNodeScope, destNodeScope, destIndex) {
-        // Don't let it drop in the front
-        if (destIndex === 0) {
-          return false;
-        } else {
-          return true;
-        }
-      },
-
-      dropped: function (event) {
-        var oldIndex = event.source.index;
-        var newIndex = event.dest.index;
-        var spin = event.source.nodeScope.$modelValue
-
-        // if dropped in the same spot do nothing
-        if (oldIndex === newIndex) {
-          return;
-        }
-
-        // get the newPlaylistPosition
-        var movedAmount = (newIndex - oldIndex);
-        var newPlaylistPosition = spin.playlistPosition + movedAmount;
-        var oldPlaylistPosition = spin.playlistPosition;
-
-        $scope.refreshProgramWithoutServer();
-
       }
     };
 
+
+    // ******************************************************************
+    // *                catalog sortable list options                   *
+    // ******************************************************************
     $scope.catalogList = {
-      connectWith: '.stationList',
-      accept: function (sourceNodeScope, destNodeScope, destIndex) {
-        return false;
-      },
-      dropped: function (event) {
-        console.log(event);
-      }
+      connectWith: '.stationList'
     }
 
     $scope.removeSpin = function (spin, index) {
@@ -324,29 +323,6 @@ angular.module('pl2NodeYoApp')
       })
     }
 
-    $scope.removable = function (spin, index) {
-      if (index === 0) {
-        return false;
-      } else {
-        return true;
-      }
-    }
-
-
-    // for now disable 1st two elements
-    $scope.determineDisable = function (spin, index) {
-      if ($scope.playlist[0].commercialsFollow || AudioPlayer.nowPlaying.commercialsFollow) {
-        if (index < 1) {
-          return true;
-        } else {
-          return false;
-        }
-      } else if (index < 2) {
-        return true;
-      } else {
-        return false;
-      }
-    }
 
     // if there's not a  currentStation yet, wait for it
     if (!$scope.currentStation._id) {
