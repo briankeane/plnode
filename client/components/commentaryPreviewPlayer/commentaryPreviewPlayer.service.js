@@ -19,9 +19,9 @@ angular.module('pl2NodeYoApp')
 
     // Create a compressor node
     self.compressor = self.context.createDynamicsCompressor();
-    self.compressor.threshold.value = -10;
+    self.compressor.threshold.value = -20;
     self.compressor.knee.value = 20;
-    self.compressor.ratio.value = 6;
+    self.compressor.ratio.value = 10;
     self.compressor.reduction.value = -10;
     self.compressor.attack.value = 0;
     self.compressor.release.value = 0.25;
@@ -33,7 +33,8 @@ angular.module('pl2NodeYoApp')
 
     this.play = function (previousSpin, commentarySpin, followingSpin) {
       // load all audioBlocks
-      
+      // set the gain node just in case it's a replay
+      //self.gainNode.gain.value = 1;
       var loadedCounter = 0;
       loadAudio([previousSpin, commentarySpin, followingSpin], function () {
         
@@ -65,7 +66,20 @@ angular.module('pl2NodeYoApp')
 
           $timeout(function () {
             followingSpin.source.start(0);
-          }, (followingSpinAirtimeMS - commentarySpinAirtimeMS - 3000));
+          }, (followingSpinAirtimeMS - commentarySpinAirtimeMS + 3000));
+
+          // schedule fadeout after finished
+          $timeout(function () {
+            self.gainNode.gain.linearRampToValueAtTime(0, self.context.currentTime + 2);
+            
+            // wait a couple seconds... then remove the sources
+            $timeout(function () {
+              previousSpin.source = null;
+              commentarySpin.source = null;
+              followingSpin.source = null;
+            }, 2000)  
+          }, commentarySpin._audioBlock.duration + 3000);
+
         }
       });
     }

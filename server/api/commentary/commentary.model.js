@@ -9,8 +9,7 @@ var timestamps = require('mongoose-timestamp');
 
 var commentarySchema = AudioBlockSchema.extend({
   _station:            { type: Schema.ObjectId, ref: 'Station' },
-  title:               { type: String, default: 'Commentary' },
-  previousSpinOverlap: { type: Number }
+  title:               { type: String, default: 'Commentary' }
 }, {
   toObject: { getters: true },
   toJSON:   { getters: true }

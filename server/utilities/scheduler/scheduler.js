@@ -268,7 +268,12 @@ function Scheduler() {
       }
     }
 
-    previousSpin.manualEndTime = spinToSchedule.airtime;
+    // set previousSpin.manualEndTime
+    if (previousSpin.commercialsFollow) {
+      previousSpin.manualEndTime = spinToSchedule.airtime + commercialBlockLengthMS;
+    } else {
+      previousSpin.manualEndTime = spinToSchedule.airtime;
+    }
 
     // add commercials to spinToSchedule if needed
     if (checkForFollowingCommercial(spinToSchedule.airtime.getTime(), spinToSchedule.airtime.getTime() + spinToScheduleMarkups.eom)) {

@@ -7,13 +7,14 @@ var AudioBlock = require('../audioBlock/audioBlock.model')
 var timestamps = require('mongoose-timestamp');
 
 var spinSchema = new Schema({
-  playlistPosition:   { type: Number                              },
-  _audioBlock:        { type: Schema.ObjectId, ref: 'AudioBlock'  },
-  _station:           { type: Schema.ObjectId, ref: 'Station'     },
-  airtime:            { type: Date                                },
-  durationOffset:     { type: Number, default: 0                  },
-  manualDuration:     { type: Number                              },
-  manualEndTime:      { type: Date                                } 
+  playlistPosition:       { type: Number                              },
+  _audioBlock:            { type: Schema.ObjectId, ref: 'AudioBlock'  },
+  _station:               { type: Schema.ObjectId, ref: 'Station'     },
+  airtime:                { type: Date                                },
+  durationOffset:         { type: Number, default: 0                  },
+  manualDuration:         { type: Number                              },
+  manualEndTime:          { type: Date                                },
+  previousSpinOverlap:    { type: Number                              }
 }, {
   toObject: { getters: true },
   toJSON: { virtuals: true }
