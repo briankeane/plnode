@@ -81,8 +81,13 @@ angular.module('pl2NodeYoApp')
           }
 
           // start music, load next songs.
-          var msAlreadyElapsed = (Date.now() - new Date(self.nowPlaying.airtime).getTime())/1000;
-          self.nowPlaying.source.start(0, msAlreadyElapsed);
+          var secsAlreadyElapsed = (Date.now() - new Date(self.nowPlaying.airtime).getTime())/1000;
+          self.nowPlaying.source.start(0, secsAlreadyElapsed);
+
+          // fade out at end of song
+          var eomSecs = (self.nowPlaying._audioBlock.eom + 1000 || self.nowPlaying._audioBlock.duration - 1000)/1000;
+          self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(1, self.context.currentTime - secsAlreadyElapsed + eomSecs - 2);
+          self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime - secsAlreadyElapsed + eomSecs + 1);
 
           self.isLoading = false;
 
@@ -130,6 +135,11 @@ angular.module('pl2NodeYoApp')
       // play next song now or when it's done loading
       if (self.nowPlaying && self.nowPlaying.source) {
         self.nowPlaying.source.start(0);
+
+        // fade out at end of song -- ensures songs with long outros don't overlap
+        var eom = (self.nowPlaying._audioBlock.eom + 1000 || self.nowPlaying._audioBlock.duration + 1000)/1000;
+        self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(1, self.context.currentTime + eom - 2); // start fading out 2 secs before
+        self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + eom + 1); // end fade out 1 sec after
       }
       
       // wait and grab the program
@@ -231,8 +241,10 @@ angular.module('pl2NodeYoApp')
               context.decodeAudioData(spin.request.response, function (buffer) {
                 var source = context.createBufferSource();
                 source.buffer = buffer;
-                source.connect(self.gainNode);
-
+                
+                spin.gainNode = context.createGain();
+                source.connect(spin.gainNode);
+                spin.gainNode.connect(self.gainNode);
                 spin.source = source;
                 cb();
               });

@@ -12,8 +12,20 @@
 | **birthYear**           | *Number*                    | users birthyear                 |
 | **gender**              | *String*                    | users gender                    |
 | **zipcode**             | *String*                    | zipcode                         |
+| **timezone**            | *String*                    | timezone of user                |
+| **lastCommercial**      | *Number*                    | the number of the last commercial heard by this user |
+| **twitter**             | *{}*                        | all info collected from twitter |
 | **profileImageUrl**     | *String*                    | location of stored picture      |
 | **_station**            | *reference to 'Station'*    | the user's station              |
+######Virtual Properties:
+| **profileImageUrl**     | *String*                    | full http link to profile image |
+| **profileImageUrlSmall**| *String*                    | full link to small version      |
+###### Statics:
+```javascript
+User.keywordSearch('Brian K', function (err, users) {
+  // retrieves a list of users matching the keywords
+});
+```
 
 ### Station
 | Property                                | Type                        | Description                                   |
@@ -21,10 +33,16 @@
 | **_user**                               | *reference to 'User'*       | its owning user                               |
 | **secsOfCommercialPerHour**             | *Number*                    | secs of commercials per hour                  |
 | **lastAccuratePlaylistPosition**        | *Number*                    | limit of station accuracy in playlistPositon  |
-| **lastAccurateAirtime**                 | *Date*                      | limit of station accuracy in Datetime         |
-| **averageDailyListeners**               | *Number*                    | average of how many listeners per day         |
-| **averageDailyListenersCalculationDate**| *Date*                      | calculation date of averageDailyListeners     |
+| **dailyListenTimeMS**                   | *Number*                    | average of how many listeners per day         |
+| **dailyListenTimeCalculationDate**      | *Date*                      | calculation date of dailyListenTimeMS         |
 | **timezone**                            | *String*                    | for proper station time display               |
+| **commentaryCounter**                   | *Number*                    | for creating commentary keys                  |
+###### Statics:
+```javascript
+Station.listByRank({}, function (list) {
+  // returns a list of the top 30 ranking stations in order of listenership
+});
+```
 
 #### AudioBlock (parent for Songs and Commentaries)
 | Property                | Type                        | Description                     |
@@ -39,11 +57,29 @@
 | **key**                 | *String*                    | storage key for audio file      |
 | **duration**            | *Number*                    | in ms                           |
 | **_station**            | *reference to 'Station'*    | its owning station              |
+######Virtual Properties:
+| **audioFileUrl**        | *link*                      | full http link to file          |
 
 #### CommercialBlock (inherit from audioBlock)
 | Property                | Type                        | Description                     |
 | --------                | :---:                       | :-------:                       |
 | **duration**            | *Number*                    | in ms                           |
+
+#### ListeningSession
+| Property                | Type                        | Description                     |
+| --------                | :---:                       | :-------:                       |
+| startTime               | *Date*                      | start of session                |
+| endTime                 | *Date*                      | end of session                  |
+| _user                   | * reference to 'User'*      | user that is listening          |
+| _station                | * reference to 'Station'*   | station that is being listened to |
+
+#### Upload
+| Property                | Type                        | Description                     |
+| --------                | :---:                       | :-------:                       |
+| filename                | *String*                    | filename                        |
+| tags                    | *{}*                        | song tags                       |
+| possibleMatches         | *[{}]*                      | possible matches for song       |
+| status                  | *String*                    | processing status               |
 
 #### Song (inherit from audioBlock)
 | Property                | Type                        | Description                     |
@@ -55,8 +91,14 @@
 | **album**               | *String*                    | album                           |
 | **echonestId**          | *String*                    | song's id on echonest if found  |
 | **albumArtworkUrl**     | *String*                    | location of album artwork file  |
-| **itunesTrackViewUrl**  | *String*                    | link to iTunes purchase page    |
-
+| **trackViewUrl**        | *String*                    | link to iTunes purchase page    |
+| **albumArtworkUrlSmall  | *String*                    | location of small album artwork |
+| **eoi**                 | *Number*                    | end of intro in ms              |
+| **eom**                 | *Number*                    | end of message in ms            |
+| **boo**                 | *Number*                    | boo in ms                       |
+| itunesInfo              | *{}*                        | all downloaded itunes info      |
+######Virtual Properties:
+| **audioFileUrl**        | *link*                      | full http link to file          |
 
 ###### Statics:
 ```javascript
@@ -106,6 +148,10 @@ LogEntry.getRecent({ _station: station.id,
   // logEntries starting with most recent
 });
 
+LogEntry.getMostRecent(stationId, function (err, mostRecentLogEntry) {
+  the single most recent entry
+});
+
 LogEntry.getFullStationLog(station.id, function (err, logEntryArray) {
   // logEntries starting with most recent
 });
@@ -136,6 +182,8 @@ LogEntry.getEntryByPlaylistPosition({ _station: station.id,
                                     }, function (err, logEntry) {
   // logEntry
 });
+
+var newLogEntry = LogEntry.newFromSpin(spin);  // returns a logEntry created from the spin
 ```
 #### Spin
 | Property              | Type                        | Description                                     |
@@ -145,7 +193,9 @@ LogEntry.getEntryByPlaylistPosition({ _station: station.id,
 | **_station**          |*reference to 'Station'*     | its owning station                              |
 | **airtime**           |*Date*                       | the currently scheduled airtime                 |
 | **durationOffset**    |*Number, default: 0*         | positive or negative. allows blending of songs  |
-
+| **manualDuration**    |*Number*                     | overrides duration if set                       |
+| **manualEndTime       |*Number*                     | overrides endTime if set                        |
+| **previousSpinOverlap |*Number*                     | for Commentary spins                            |
 ######Virtual Properties:
 | Property              | Type                        | Description                           |
 | --------              | :---:                       | :-------:                             |
@@ -201,6 +251,13 @@ RotationItem.findAllForStation(stationId, function (err, rotationItems) {
 ```
 ###### Methods:
 ```
+rotationItem.updateBySongId({ _station: stationId,
+                              _song: songId,
+                               // either/or/and: weight:17, bin: 'active'
+                              }, function (err, updatedRotationItem) {
+  // updates the rotationItem 
+});
+
 rotationItem.updateWeight(newWeight, function (err, updatedRotationItem) {
   // updates the rotationItem's weight, stores the 
 });
@@ -215,11 +272,79 @@ rotationItem.updateWeightAndBin(newWeight, newBin, function (err, updatedRotatio
 ```
 ---------------------------
 ## Utilities
+###### AudioConverter:
+```javascript
+AudioConverter.convertFile('/server/data/unprocessedAudio/dog.wav', function (err, newFilePath) {
+  // converts wav, m4a to mp3 and returns the new filepath
+});
+```
+###### AudioFileStorageHandler:
+```javascript
+newFilename = AudioFSH.cleanFilename('oldFilename');
+
+AudioFSH.getStoredSongMetadata('stepladder_rachelLoy.mp3', function (err, newData) {
+  // returns object with: title, album, artist, duration, echonestId
+});
+
+AudioFSH.storeSong({ filepath: '/server/data/processedAudio/stepladder.mp3',
+                      artist: 'Rachel Loy',
+                      title: 'Stepladder',
+                      duration: 180000,
+                      album: 'Broken Machine',
+                      echonestId: 'ADFSASFD348FFA'
+                    }, function (err, newKey) {
+  // stores the song on s3 and returns the new key
+});
+
+AudioFSH.storeCommentary({ stationId: station.id,
+                           filepath: '/server/data/processedAudio/sadfjhaksdfjh.mp3',
+                          duration: 4500
+                        }, function (err, newKey) {
+  // stores a commentary and returns the new key
+});
+
+AudioFSH.getUnprocessedSong('fdsadfsfsda', function (err, filepath) {
+  // grabs an unprocessed song, stores it in the data folder, and passes the new filepath
+});
+
+AudioFSH.deleteUnprocessedSong('adsffsad', function (err, data) {
+  // deletes an unprocessed song
+});
+
+AudioFSH.deleteSong('stepladder.mp3', function (err, data) {
+  // deletes a processed song
+});
+
+AudioFSH.updateMetadata({ key: 'asdfsadf.mp3',
+                         duration: //or
+                         title: // or
+                         artist: //or
+                         album: //or
+                         echonestId: 
+                       }, function (err, newMetadata) {
+  // updates the metadata
+});
+
+AudioFSH.getAllSongs(function (err, allSongs) {
+  // returns javascript object representations of all songs
+});
+```
+
+
+
 ###### Helper:
 ```javascript
-Hepler.saveAll([song1, song2, spin1, spin2], function (err, resultsArray) {
+Helper.saveAll([song1, song2, spin1, spin2], function (err, resultsArray) {
   // saves all objects in the array
 });
+
+Helper.removeAll([song1, song2], function (err, results) {
+  // removes all objects in the array
+});
+
+Helper.cleanString('dog%$#@#$%cat');  // --> 'dogcat'   removes illegal url characters
+Helper.cleanTitleString('asdf.,');                   // removes illegal title characters
+
 ```
 
 ###### Scheduler:
@@ -233,4 +358,5 @@ Scheduler.generatePlaylist({ station: station,
   // generates a playlist up until the provided playlistEndTime, as long
   // as that endTime is within the next week.
 });
+Scheduler.updateAirtimes({ station: station})
 ```

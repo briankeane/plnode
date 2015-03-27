@@ -5,8 +5,8 @@ var Schema = mongoose.Schema;
 var timestamps = require('mongoose-timestamp');
 
 var ListeningSessionSchema = new Schema({
-  startTime:          { type: String },
-  endTime:            { type: String },
+  startTime:          { type: Date },
+  endTime:            { type: Date },
   _user:              { type: Schema.ObjectId, ref: 'User'  },
   _station:           { type: Schema.ObjectId, ref: 'Station' }
 });
