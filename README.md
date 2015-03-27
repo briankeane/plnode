@@ -352,11 +352,122 @@ Helper.cleanTitleString('asdf.,');                   // removes illegal title ch
 Scheduler.generatePlaylist({ station: station }, function (err) {
   // generates and saves a playlist for the station for 2 hours from now
 });
+
 Scheduler.generatePlaylist({ station: station,
                               playlistEndTime(new Date(1983,3,15, 12,30 )) 
                             }, function (err) {
   // generates a playlist up until the provided playlistEndTime, as long
   // as that endTime is within the next week.
 });
-Scheduler.updateAirtimes({ station: station})
+
+Scheduler.updateAirtimes({ station: station,
+                           playlistPosition: 25,  // optional - last playlistPosition needed for accuracy
+                           endTime: new Date(2015,3,15, 12,30)  // optional -- last time needed for accuracy
+                         }, function (err, updatedStation) {
+  // provides updatedStation with new lastAccuratePlaylistPosition
+});
+
+Scheduler.bringCurrent(station, function (err) {
+  // moves the station forward until the present time
+});
+
+Scheduler.getProgram({ stationId: station.id }, function (err, program) {
+  // returns a program object with program.nowPlaying (logEntry) && program.playlist(array of spins)
+});
+
+Scheduler.getCommercialBlockLink({ _user: user.id,
+                                   airtime: new Date(2014,3,15, 12,30) // the airtime of the commercialBlock
+                                  }, function (err, link) {
+  // for now it just provides a direct link to the commercialBlock file
+});
+
+Scheduler.moveSpin({ spinId: spin.id,
+                  newPlaylistPosition: 25 
+                  }, function (err, updates) {
+  // updates.updatedSpins & updates.updatedStation
+});
+
+Scheduler.removeSpin(spin, function (err, updatedStation) {
+  // removes a spin from the playlist and provides an updatedStation
+});
+
+Scheduler.insertSpin({ playlistPosition: 25,
+                        _station: station.id,
+                        _audioBlock: song.id
+                      }, function (err, updatedStation) {
+  // inserts a spin, provides an updated version of station
+});
+```
+###### SongPoolHandlerEmitter:
+```javascript
+var emitter = SongPool.addSong(addSong); // or SongPool.addSongs([song1, song2])
+emitter.on('finish', function (err) {
+  // adds songs to the song pool...
+})
+
+var emitter = SongPool.clearAllSongs()
+emitter.on('finish', function (err) {
+  // clears all songs from songPool
+});
+
+var emitter=SongPool.deleteSong('asdfasdfasdf'); // pass in the echonestId
+emitter.on('finish', function (err, json) {
+  //  deletes a song... provides the json echonest http response
+})
+
+SongPool.getSongSuggestions(['Rachel Loy',
+                             'Randy Rogers Band',
+                             'Wade Bowen'
+                             ], function (err, finalList) {
+  // provides a finalList array of song suggestions
+});
+```
+###### SongProcessor:
+```javascript
+SongProcessor.getTags('/server/data/processedSongs/stepladder.mp3', function (err, tags) {
+  // returns tag object with artist, album, title
+});
+
+SongProcessor.getItunesInfo({ artist: 'Rachel Loy',
+                              title: 'Stepladder'
+                            }, function (err, match) {
+  // returns the closest match
+});
+
+SongProcessor.songMatchPossibilities({ artist: 'Rachel Loy',
+                                       title: 'Stepladder'
+                                     }, function (err, songsArray) {
+  // songsArray contains echonest responses
+});
+
+SongProcessor.addSongToSystem('/server/data/processedAudio/stepladder.wav', function (err, newSong) {
+  // gets tags, adds song to echonest, checks for existence in db, converts song, stores on s3, and adds to db.  Provides newSong object.
+
+  // ERRORS: 'Song info not found'  -- not found on echonesat
+  //         'No Id Info In File'   -- tags not found
+  //         'Song Already Exists'  -- song exists
+  //         'Audio File Storage Error'  -- problem with upload
+});
+
+SongProcessor.addSongViaEchonestId({  filepath: '/server/data/processedAudio/stepladder.wav',
+                                      artist: 'Rachel Loy',
+                                      album: 'Broken Machine',
+                                      duration: 65002,
+                                      echonestId: 'asdfasdasdfsda'
+                                    }, function (err, newSong) {
+  // adds a song that has been selected as a close match by the user
+});
+
+SongProcessor.getEchonestInfo({ artist: 'Rachel Loy',
+                                title: 'Stepladder'
+                               }, function (err, closestMatch) {
+  // grabs the closest match from echonest
+});
+```
+
+###### TimezoneFinder:
+```javascript
+TimezoneFinder.findByZip('78748', function (err, timezoneId) {
+  // takes a zipcode, provides the proper timezoneId string
+});
 ```
