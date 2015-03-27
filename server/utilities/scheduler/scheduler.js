@@ -198,18 +198,18 @@ function Scheduler() {
       boo: previousSpin._audioBlock.boo || previousSpin._audioBlock.duration,
       eoi: previousSpin._audioBlock.eoi || 0,
       eom: previousSpin._audioBlock.eom || (previousSpin._audioBlock.duration - 1000),  // subtract a second to mash em up
-      lengthOfOutro: previousSpin._audioBlock.duration - (previousSpin._audioBlock.boo || 0),
-      msAfterEoi: previousSpin._audioBlock.duration - (previousSpin._audioBlock.eom ||  1000)
     }
+    previousSpinMarkups.lengthOfOutro = previousSpinMarkups.eom - (previousSpinMarkups.boo);
+    previousSpinMarkups.msAfterEoi = previousSpin._audioBlock.duration - (previousSpin._audioBlock.eom ||  1000);
 
     var spinToScheduleMarkups = {
       duration: spinToSchedule.duration,
       boo: spinToSchedule._audioBlock.boo || spinToSchedule._audioBlock.duration,
       eoi: spinToSchedule._audioBlock.eoi || 0,
       eom: spinToSchedule._audioBlock.eom || (spinToSchedule._audioBlock.duration - 1000),
-      lengthOfOutro: spinToSchedule._audioBlock.duration - (spinToSchedule._audioBlock.boo || 0),
-      msAfterEoi: spinToSchedule._audioBlock.duration - (spinToSchedule._audioBlock.eom || 1000)
     }
+    spinToScheduleMarkups.lengthOfOutro = spinToScheduleMarkups.eom - (spinToScheduleMarkups.boo);
+    spinToScheduleMarkups.msAfterEoi = spinToSchedule._audioBlock.duration - (spinToSchedule._audioBlock.eom ||  1000);
 
     var previousSpinAirtimeInMS = new Date(previousSpin.airtime).getTime();
     var commercialBlockLengthMS = (station.secsOfCommercialPerHour/2)*1000;
@@ -233,7 +233,7 @@ function Scheduler() {
         } else {
           // schedule it at the end of the overlap
           previousSpin.durationOffset = -msLeftOver;
-          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + previousSpin.previousSpinOverlap);
+          spinToSchedule.airtime = new Date(previousSpinAirtimeInMS + (previousSpin.previousSpinOverlap || 0));
         }
       
       // ELSE IF previousSpin=Commentary && spinToSchedule=commentary
@@ -270,7 +270,7 @@ function Scheduler() {
 
     // set previousSpin.manualEndTime
     if (previousSpin.commercialsFollow) {
-      previousSpin.manualEndTime = spinToSchedule.airtime + commercialBlockLengthMS;
+      previousSpin.manualEndTime = new Date(previousSpinAirtimeInMS + previousSpinMarkups.eom);
     } else {
       previousSpin.manualEndTime = spinToSchedule.airtime;
     }

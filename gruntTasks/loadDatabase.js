@@ -103,31 +103,38 @@ module.exports = function(grunt) {
       console.log(songObjects.length);
       for (var i=0;i<songObjects.length;i++) {
         var completed = 0;
+        
+        if (!songObjects[i].albumArtworkUrl) {
 
-        (function(index) {
+          (function(index) {
 
-          SongProcessor.getItunesInfo(songObjects[index], function (err, info) {
-            if (err) {
-              console.log(err);
-              console.log(songObjects[index]);
-              console.log('index: ' + index);
-            } else {
-              songObjects[index].itunesInfo = info;
-              songObjects[index].albumArtworkUrl = info.albumArtworkUrl;
-              songObjects[index].albumArtworkUrlSmall = info.artworkUrl100;
-              songObjects[index].save();
-              console.log(songObjects[index].title + ' saved');;
-            }
-            completed++;
+              
+            SongProcessor.getItunesInfo(songObjects[index], function (err, info) {
+              if (err) {
+                console.log(err);
+                console.log(songObjects[index]);
+                console.log('index: ' + index);
+              } else {
+                songObjects[index].itunesInfo = info;
+                songObjects[index].albumArtworkUrl = info.albumArtworkUrl;
+                songObjects[index].albumArtworkUrlSmall = info.artworkUrl100;
+                songObjects[index].save();
+                console.log(songObjects[index].title + ' saved');;
+              }
+              completed++;
 
-            // when all have been saved, continue
-            if (completed == songObjects.length) {
-              console.log('done');
-              done();
-            }
-          });
-        })(i);
-      }
+              // when all have been saved, continue
+              if (completed == songObjects.length) {
+                console.log('done');
+                done();
+              }
+            });
+          })(i);
+        } else {
+          // no need to get info, so just increment completed
+          completed++;
+        }
+      } 
 
     });
   });
