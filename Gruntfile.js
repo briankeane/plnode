@@ -677,7 +677,7 @@ module.exports = function (grunt) {
   })
   grunt.registerTask('loadDB:prod', function () {
     'env:all',
-    'env:dev',
+    'env:prod',
     'loadDatabase'
   })
   grunt.registerTask('loadDBTest', function() {

@@ -180,18 +180,6 @@ function Scheduler() {
   };
 
   this.addScheduleTimeToSpin = function (station, previousSpin, spinToSchedule) {
-    function lengthOfOutroMS (markupObject) {
-      return markupObject.duration - markupObject.boo;
-    }
-
-    function lengthOfIntroMS (markupObject) {
-      return markupObject.eoi;
-    }
-
-    function msAfterEOI (markupObject) {
-      return markupObject.eoi - duration;
-    }
-
     // account for unmarked spins
     var previousSpinMarkups = {
       duration: previousSpin.duration,

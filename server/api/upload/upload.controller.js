@@ -27,7 +27,8 @@ exports.create = function(req, res) {
       if (err.message === 'Song info not found') {
         // get possible matches for response
         SongProcessor.getSongMatchPossibilities({ artist: err.tags.artist,
-                                                  title: err.tags.title 
+                                                  title: err.tags.title,
+                                                  key: err.newKey 
                                                 }, function (matchErr, matches) {
           Upload.create({ tags: err.tags,
                           possibleMatches: matches,

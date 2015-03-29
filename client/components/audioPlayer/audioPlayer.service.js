@@ -86,8 +86,8 @@ angular.module('pl2NodeYoApp')
 
           // fade out at end of song
           var eomSecs = (self.nowPlaying._audioBlock.eom + 1000 || self.nowPlaying._audioBlock.duration - 1000)/1000;
-          self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(1, self.context.currentTime - secsAlreadyElapsed + eomSecs - 2);
-          self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime - secsAlreadyElapsed + eomSecs + 1);
+          self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(1, self.context.currentTime - secsAlreadyElapsed + eomSecs);
+          self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime - secsAlreadyElapsed + eomSecs + 5);
 
           self.isLoading = false;
 
@@ -138,8 +138,8 @@ angular.module('pl2NodeYoApp')
 
         // fade out at end of song -- ensures songs with long outros don't overlap
         var eom = (self.nowPlaying._audioBlock.eom + 1000 || self.nowPlaying._audioBlock.duration + 1000)/1000;
-        self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(1, self.context.currentTime + eom - 2); // start fading out 2 secs before
-        self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + eom + 1); // end fade out 1 sec after
+        self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(1, self.context.currentTime + eom); // start fading out 2 secs before
+        self.nowPlaying.gainNode.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + eom + 5); // end fade out 1 sec after
       }
       
       // wait and grab the program
@@ -177,8 +177,6 @@ angular.module('pl2NodeYoApp')
             if (self.playlist[i].endTime != program.playlist[i].airtime) {
               self.playlist[i].endTime = program.playlist[i].endTime;
             }
-
-
 
           // otherwise, add it to the list
           } else {
