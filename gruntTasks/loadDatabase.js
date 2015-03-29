@@ -7,7 +7,7 @@ var SongPool = require('../server/utilities/songPoolHandlerEmitter/songPoolHandl
 var Helper = require('../server/utilities/helpers/helper');
 var _ = require('lodash');
 var mongoose = require('mongoose');
-var SongProcessor = require('../server/utilities/SongProcessor/SongProcessor');
+var SongProcessor = require('../server/utilities/songProcessor/songProcessor');
 var CommercialBlock = require('../server/api/commercialBlock/commercialBlock.model');
 
 module.exports = function(grunt) {
