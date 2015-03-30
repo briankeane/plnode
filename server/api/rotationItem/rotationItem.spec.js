@@ -37,6 +37,8 @@ describe('a rotationItem', function () {
       song = new Song({ artist: 'Rachel Loy',
                         title: 'Stepladder',
                         album: 'Broken Machine',
+                        eom: 999,
+                        boo: 555,
                         duration: 180000,
                         key: 'ThisIsAKey.mp3',
                         echonestId: 'ECHONEST_ID' });
@@ -46,6 +48,7 @@ describe('a rotationItem', function () {
       SpecHelper.saveAll([song, station], function (err, moreResults) {
         rotationItem = new RotationItem({ _song: song._id,
                                           _station: station._id,
+                                          _eom: 111,
                                           bin: 'trash',
                                           weight: 45 });
         rotationItem.save(function (err) {
@@ -64,6 +67,14 @@ describe('a rotationItem', function () {
       expect(item._song.id).to.equal(song.id);
       expect(item._station.id).to.equal(station.id);
       done();   
+    });
+  });
+
+  it('grabs its own eom first, then falls back to the _song', function (done) {
+    RotationItem.findByIdAndPopulate(rotationItem.id, function (err, item) {
+      expect(item.eom).to.equal(111);
+      expect(item.boo).to.equal(555);
+      done();
     });
   });
 

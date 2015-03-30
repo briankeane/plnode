@@ -12,17 +12,44 @@ moment().format();
 var rotationItemSchema = new Schema({
   _station:             { type: Schema.ObjectId, ref: 'Station' },
   _song:                { type: Schema.ObjectId, ref: 'Song' },
+  _eom:                 { type: Number },
+  _boo:                 { type: Number },
+  _eoi:                 { type: Number },
   bin:                  { type: String },
   weight:               { type: Number },
   assignedAt:           { type: Date, default: Date.now() },
   history: [
               { 
-                bin:        { type: String}, 
+                bin:          { type: String}, 
                 weight:       { type: Number},
                 assignedAt:   { type: Date} 
               }
             ]
 });
+
+var markerGetGenerator = function(field) {
+  var fieldName = '_' + field;
+  return function() {
+    if (typeof(this[fieldName]) !== 'undefined') {
+      return this[fieldName];
+    } else {
+      return this._song[field];
+    }
+  }
+}
+
+var markerSetGenerator = function(field) {
+  return function(value) {
+    this['_' + field] = value;
+  }
+}
+
+rotationItemSchema.virtual('eom').get(markerGetGenerator('eom'));
+rotationItemSchema.virtual('eom').set(markerSetGenerator('eom'));
+rotationItemSchema.virtual('boo').get(markerGetGenerator('boo'));
+rotationItemSchema.virtual('boo').set(markerSetGenerator('boo'));
+rotationItemSchema.virtual('eoi').get(markerGetGenerator('eoi'));
+rotationItemSchema.virtual('eoi').set(markerSetGenerator('eoi'));
 
 // ***********************************************************
 // ******************** Common Queries ***********************

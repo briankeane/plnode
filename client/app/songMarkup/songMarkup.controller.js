@@ -2,7 +2,7 @@
 
 angular.module('pl2NodeYoApp')
   .controller('SongMarkupCtrl', function ($scope, Auth, $timeout) {
-    $scope.songsToMarkup = [];
+    $scope.rotItemsToMarkup = [];
     $scope.currentStation = Auth.getCurrentStation();
     $scope.waveforms;
 
@@ -10,14 +10,14 @@ angular.module('pl2NodeYoApp')
 
     Auth.getRotationItems($scope.currentStation.id, function (err, rotationItems) {
       if (err) { console.log(err); }
-      var activeSongs = rotationItems.active;
-      for (var i=0;i<activeSongs.length;i++) {
-        if (!activeSongs[i]._song.eom || (!activeSongs[i]._song.boo) || (!activeSongs[i]._song.eoi === undefined)) {
-          $scope.songsToMarkup.push(activeSongs[i]._song);
+      var activeRotationItems = rotationItems.active;
+      for (var i=0;i<activeRotationItems.length;i++) {
+        if (!activeRotationItems[i].eom || (!activeRotationItems[i].boo) || (!activeRotationItems[i].eoi === undefined)) {
+          $scope.rotItemsToMarkup.push(activeRotationItems[i]);
         }
 
         // limit it to 10 songs
-        if ($scope.songsToMarkup.length >= 10) {
+        if ($scope.rotItemsToMarkup.length >= 10) {
           break;
         }
       }
@@ -29,37 +29,37 @@ angular.module('pl2NodeYoApp')
       $timeout(function () {
         var wavesurfer = Object.create(WaveSurfer);
         wavesurfer.init({
-          container: '#' + 'song' + index,
+          container: '#' + 'rotationItem' + index,
           waveColor: 'violet',
           progressColor: 'purple',
         });
         wavesurfer.load(url);
-        $scope.songsToMarkup[index].wavesurfer = wavesurfer;
+        $scope.rotItemsToMarkup[index].wavesurfer = wavesurfer;
       }, 1000);
     };
 
     $scope.markBOO = function (index) {
-      $scope.songsToMarkup[index].boo = Math.round($scope.songsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotItemsToMarkup[index].boo = Math.round($scope.rotItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
     };
     $scope.markEOI = function (index) {
-      $scope.songsToMarkup[index].eoi = Math.round($scope.songsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotItemsToMarkup[index].eoi = Math.round($scope.rotItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
     };
     $scope.markEOM = function (index) {
-      $scope.songsToMarkup[index].eom = Math.round($scope.songsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotItemsToMarkup[index].eom = Math.round($scope.rotItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
     };
 
-    $scope.saveSong = function(index) {
-      var song = $scope.songsToMarkup[index];
+    $scope.saveMarks = function(index) {
+      var rotationItem = $scope.rotItemsToMarkup[index];
       
       // if all info is complete
-      if ((song.eoi != null) && song.boo && song.eom) {
-        Auth.updateSong({ _id: song.id,
-                          eom: song.eom,
-                          boo: song.boo,
-                          eoi: song.eoi
-                        }, function (err, updatedSong) {
+      if ((rotationItem.eoi != null) && rotationItem.boo && rotationItem.eom) {
+        Auth.updateRotationItem({ _id: rotationItem._id,
+                          eom: rotationItem.eom,
+                          boo: rotationItem.boo,
+                          eoi: rotationItem.eoi
+                        }, function (err, updatedRotationItems) {
           if (!err) {
-            $scope.songsToMarkup.splice(index, 1);
+            $scope.rotItemsToMarkup.splice(index, 1);
           }
         });
       }

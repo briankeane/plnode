@@ -101,6 +101,18 @@ describe('audioFileStorageHandler', function (done) {
     });
   });
 
+  it('stores an unprocessed song', function (done) {
+    this.timeout(10000);
+    audioSH.storeUnprocessedSong(process.cwd() + '/server/data/testFiles/lookTest.mp3', function (err, key) {
+      expect(err).to.equal(null);
+      expect(key).to.equal('lookTest.mp3');
+      s3.headObject({ Bucket: 'playolaunprocessedsongstest', Key: key }, function (err, data) {
+        expect(data.ContentLength).to.equal('71970');
+        done();
+      });
+    });
+  });
+
   it('updates the metadata on a song', function (done) {
     this.timeout(10000);
     var uploader = s3HighLevel.uploadFile({ localFile: process.cwd() + '/server/data/testFiles/test.txt',

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, Station, Upload, Song, Spin, ListeningSession, $cookieStore, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, RotationItem, Station, Upload, Song, Spin, ListeningSession, $cookieStore, $q) {
     var currentUser = {};
     var currentStation = {};
     if($cookieStore.get('token')) {
@@ -242,6 +242,16 @@ angular.module('pl2NodeYoApp')
 
         return Song.update({ id: songInfo._id }, songInfo, function (updatedSong) {
           return cb(null, updatedSong.updatedSong);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      updateRotationItem: function (rotationItemObject, callback) {
+        var cb = callback || angular.noop;
+
+        return RotationItem.update({ id: rotationItemObject._id }, rotationItemObject, function (updatedRotationItem) {
+          return cb(null, updatedRotationItem);
         }, function (err) {
           return cb(err);
         }).$promise;

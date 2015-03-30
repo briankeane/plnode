@@ -31,9 +31,25 @@ exports.create = function(req, res) {
 // Updates an existing rotationItem in the DB.
 exports.update = function(req, res) {
   if(req.body._id) { delete req.body._id; }
-  RotationItem.findById(req.params.id, function (err, rotationItem) {
+  RotationItem.findByIdAndPopulate(req.params.id, function (err, rotationItem) {
     if (err) { return handleError(res, err); }
     if(!rotationItem) { return res.send(404); }
+
+    // modify the song markups if necessary
+    var modifiedFlag = false;
+    var fieldNames = ['eom', 'boo', 'eoi'];
+    for (var i in fieldNames) {
+      var key = fieldNames[i];
+      if((req.body[key] != null) && (typeof(rotationItem._song[key]) === 'undefined')) {
+        modifiedFlag = true;
+        rotationItem._song[key] = req.body[key];
+      }
+    }
+
+    if (modifiedFlag) {
+      rotationItem._song.save();
+    }
+
     var updated = _.merge(rotationItem, req.body);
     updated.save(function (err) {
       if (err) { return handleError(res, err); }
