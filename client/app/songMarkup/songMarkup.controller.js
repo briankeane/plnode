@@ -7,6 +7,10 @@ angular.module('pl2NodeYoApp')
     $scope.waveforms;
     $scope.context = new AudioContext();
     $scope.regionBeingMoved;
+    $scope.rotationItems;
+
+    $scope.totalPages;
+    $scope.currentPage = 1;
 
     $scope.beep = function () {
       var source = $scope.context.createOscillator();
@@ -17,11 +21,14 @@ angular.module('pl2NodeYoApp')
       }, 100);
     }
 
-
-
     $timeout(function () {
       Auth.getRotationItems($scope.currentStation.id, function (err, rotationItems) {
         if (err) { console.log(err); }
+        
+        // store the full list and calculate it's number of pages
+        $scope.rotationItems = rotationItems.active;
+        $scope.totalPages = Math.ceil(rotationItems.active.length/10.0);
+
         var activeRotationItems = rotationItems.active;
         for (var i=0;i<activeRotationItems.length;i++) {
           //if (!activeRotationItems[i].eom || (!activeRotationItems[i].boo) || (!activeRotationItems[i].eoi === undefined)) {
@@ -35,6 +42,24 @@ angular.module('pl2NodeYoApp')
         }
       });
     }, 1000);
+
+    $scope.nextPage = function () {
+      if ($scope.currentPage < $scope.totalPages) {
+        $scope.currentPage++;
+        loadRotationItemsToMarkup();
+      }
+    }
+    $scope.previousPage = function () {
+      if ($scope.currentPage > 1) {
+        $scope.currentPage--;
+        loadRotationItemsToMarkup();
+      }
+    }
+
+    function loadRotationItemsToMarkup() {
+      var startingIndex = $scope.currentPage * 10;
+      $scope.rotationItemsToMarkup = $scope.rotationItems.slice(startingIndex, startingIndex+10);
+    }
 
     $scope.loadWaveform = function (index, url) {
       // wait for waveform to exist
