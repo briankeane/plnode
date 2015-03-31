@@ -8,6 +8,7 @@ angular.module('pl2NodeYoApp')
     $scope.recordedCommentaryObject;
     $scope.recordings = [];
     $scope.blobs = [];
+    $scope.recordingCounter = 0;
 
 
 
@@ -175,6 +176,7 @@ angular.module('pl2NodeYoApp')
                                       airtime: null,
                                       title: 'Commentary'
                                     },
+                                  _id: $scope.recordingCounter++,
                                   blob: blob,
                                   url: $sce.trustAsResourceUrl(url),
                                   src: $sce.trustAsResourceUrl(au.src),

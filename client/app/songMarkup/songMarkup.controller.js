@@ -6,6 +6,7 @@ angular.module('pl2NodeYoApp')
     $scope.currentStation = Auth.getCurrentStation();
     $scope.waveforms;
     $scope.context = new AudioContext();
+    $scope.regionBeingMoved;
 
     $scope.beep = function () {
       var source = $scope.context.createOscillator();
@@ -74,21 +75,44 @@ angular.module('pl2NodeYoApp')
                                   id: 'eom' })
 
           wavesurfer.on('region-in', function (regionObject) {
+            console.log('region entered!');
             $scope.beep();
           });
-        })
 
+          wavesurfer.on('region-updated', function (regionObject) {
+            var changed = false;
+            if (regionObject.id === 'eoi') {
+              $scope.rotationItemsToMarkup[index].eoi = Math.round(regionObject.start * 1000);
+            } else if (regionObject.id === 'boo') {
+              $scope.rotationItemsToMarkup[index].boo = Math.round(regionObject.start * 1000);
+            } else if (regionObject.id === 'eom') {
+              $scope.rotationItemsToMarkup[index].eom = Math.round(regionObject.start * 1000);
+            }
+
+            // update changes on screen
+            if (!$scope.$$phase) {
+              $scope.$digest();
+            }
+
+          });
+        });
       }, 1000);
     };
 
     $scope.markBOO = function (index) {
-      $scope.rotationItemsToMarkup[index].boo = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      var newValue = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotationItemsToMarkup[index].boo = newValue
+      $scope.rotationItemsToMarkup[index].wavesurfer.regions.list.boo.update(secsFromMarkup(newValue));
     };
     $scope.markEOI = function (index) {
-      $scope.rotationItemsToMarkup[index].eoi = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      var newValue = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotationItemsToMarkup[index].eoi = newValue
+      $scope.rotationItemsToMarkup[index].wavesurfer.regions.list.eoi.update(secsFromMarkup(newValue));
     };
     $scope.markEOM = function (index) {
-      $scope.rotationItemsToMarkup[index].eom = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      var newValue = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotationItemsToMarkup[index].eom = newValue
+      $scope.rotationItemsToMarkup[index].wavesurfer.regions.list.eom.update(secsFromMarkup(newValue));
     };
 
     $scope.saveMarks = function(index) {
