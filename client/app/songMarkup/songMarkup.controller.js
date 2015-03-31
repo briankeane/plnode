@@ -2,9 +2,10 @@
 
 angular.module('pl2NodeYoApp')
   .controller('SongMarkupCtrl', function ($scope, Auth, $timeout) {
-    $scope.rotItemsToMarkup = [];
+    $scope.rotationItemsToMarkup = [];
     $scope.currentStation = Auth.getCurrentStation();
     $scope.waveforms;
+
 
     $timeout(function () {
 
@@ -12,12 +13,12 @@ angular.module('pl2NodeYoApp')
       if (err) { console.log(err); }
       var activeRotationItems = rotationItems.active;
       for (var i=0;i<activeRotationItems.length;i++) {
-        if (!activeRotationItems[i].eom || (!activeRotationItems[i].boo) || (!activeRotationItems[i].eoi === undefined)) {
-          $scope.rotItemsToMarkup.push(activeRotationItems[i]);
-        }
+        //if (!activeRotationItems[i].eom || (!activeRotationItems[i].boo) || (!activeRotationItems[i].eoi === undefined)) {
+          $scope.rotationItemsToMarkup.push(activeRotationItems[i]);
+        //}
 
         // limit it to 10 songs
-        if ($scope.rotItemsToMarkup.length >= 10) {
+        if ($scope.rotationItemsToMarkup.length >= 10) {
           break;
         }
       }
@@ -34,22 +35,49 @@ angular.module('pl2NodeYoApp')
           progressColor: 'purple',
         });
         wavesurfer.load(url);
-        $scope.rotItemsToMarkup[index].wavesurfer = wavesurfer;
+        $scope.rotationItemsToMarkup[index].wavesurfer = wavesurfer;
+
+        // set up the marking regions
+        wavesurfer.on('ready', function () {
+          var markups = secsFromMarkup($scope.rotationItemsToMarkup[index].eoi);
+          wavesurfer.addRegion({ start: markups.start,
+                                  end: markups.end,
+                                  color: "rgb(0,0,150)",
+                                  loop: false,
+                                  resize: false,
+                                  id: 'eoi' })
+
+          markups = secsFromMarkup($scope.rotationItemsToMarkup[index].boo);
+          wavesurfer.addRegion({ start: markups.start,
+                                  end: markups.end,
+                                  color: "rgb(0,150,0)",
+                                  loop: false,
+                                  resize: false,
+                                  id: 'boo' })
+          markups = secsFromMarkup($scope.rotationItemsToMarkup[index].eom);
+          wavesurfer.addRegion({ start: markups.start,
+                                  end: markups.end,
+                                  color: "rgb(150,0,0)",
+                                  loop: false,
+                                  resize: false,
+                                  id: 'eom' })
+        })
+
       }, 1000);
     };
 
     $scope.markBOO = function (index) {
-      $scope.rotItemsToMarkup[index].boo = Math.round($scope.rotItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotationItemsToMarkup[index].boo = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
     };
     $scope.markEOI = function (index) {
-      $scope.rotItemsToMarkup[index].eoi = Math.round($scope.rotItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotationItemsToMarkup[index].eoi = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
     };
     $scope.markEOM = function (index) {
-      $scope.rotItemsToMarkup[index].eom = Math.round($scope.rotItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
+      $scope.rotationItemsToMarkup[index].eom = Math.round($scope.rotationItemsToMarkup[index].wavesurfer.getCurrentTime() * 1000);
     };
 
     $scope.saveMarks = function(index) {
-      var rotationItem = $scope.rotItemsToMarkup[index];
+      var rotationItem = $scope.rotationItemsToMarkup[index];
       
       // if all info is complete
       if ((rotationItem.eoi != null) && rotationItem.boo && rotationItem.eom) {
@@ -59,9 +87,17 @@ angular.module('pl2NodeYoApp')
                           eoi: rotationItem.eoi
                         }, function (err, updatedRotationItems) {
           if (!err) {
-            $scope.rotItemsToMarkup.splice(index, 1);
+            $scope.rotationItemsToMarkup.splice(index, 1);
           }
         });
+      }
+    }
+
+    function secsFromMarkup(markupMS) {
+      if (markupMS === undefined) {
+        return { start: 0, end: 0 };
+      } else {
+        return { start:markupMS/1000.0, end: markupMS/1000.0 + 1 };
       }
     }
   });

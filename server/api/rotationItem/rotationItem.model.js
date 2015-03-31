@@ -20,11 +20,14 @@ var rotationItemSchema = new Schema({
   assignedAt:           { type: Date, default: Date.now() },
   history: [
               { 
-                bin:          { type: String}, 
+                bin:          { type: String},
                 weight:       { type: Number},
                 assignedAt:   { type: Date} 
               }
             ]
+},  {
+  toObject: { getters: true },
+  toJSON: { virtuals: true }
 });
 
 var markerGetGenerator = function(field) {
