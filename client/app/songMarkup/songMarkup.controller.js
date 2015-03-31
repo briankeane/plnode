@@ -5,25 +5,35 @@ angular.module('pl2NodeYoApp')
     $scope.rotationItemsToMarkup = [];
     $scope.currentStation = Auth.getCurrentStation();
     $scope.waveforms;
+    $scope.context = new AudioContext();
+
+    $scope.beep = function () {
+      var source = $scope.context.createOscillator();
+      source.connect($scope.context.destination);
+      source.start(0);
+      $timeout(function () {
+        source.stop()
+      }, 100);
+    }
+
 
 
     $timeout(function () {
+      Auth.getRotationItems($scope.currentStation.id, function (err, rotationItems) {
+        if (err) { console.log(err); }
+        var activeRotationItems = rotationItems.active;
+        for (var i=0;i<activeRotationItems.length;i++) {
+          //if (!activeRotationItems[i].eom || (!activeRotationItems[i].boo) || (!activeRotationItems[i].eoi === undefined)) {
+            $scope.rotationItemsToMarkup.push(activeRotationItems[i]);
+          //}
 
-    Auth.getRotationItems($scope.currentStation.id, function (err, rotationItems) {
-      if (err) { console.log(err); }
-      var activeRotationItems = rotationItems.active;
-      for (var i=0;i<activeRotationItems.length;i++) {
-        //if (!activeRotationItems[i].eom || (!activeRotationItems[i].boo) || (!activeRotationItems[i].eoi === undefined)) {
-          $scope.rotationItemsToMarkup.push(activeRotationItems[i]);
-        //}
-
-        // limit it to 10 songs
-        if ($scope.rotationItemsToMarkup.length >= 10) {
-          break;
+          // limit it to 10 songs
+          if ($scope.rotationItemsToMarkup.length >= 10) {
+            break;
+          }
         }
-      }
-    });
-  }, 1000);
+      });
+    }, 1000);
 
     $scope.loadWaveform = function (index, url) {
       // wait for waveform to exist
@@ -39,6 +49,7 @@ angular.module('pl2NodeYoApp')
 
         // set up the marking regions
         wavesurfer.on('ready', function () {
+          // setup markups
           var markups = secsFromMarkup($scope.rotationItemsToMarkup[index].eoi);
           wavesurfer.addRegion({ start: markups.start,
                                   end: markups.end,
@@ -61,6 +72,10 @@ angular.module('pl2NodeYoApp')
                                   loop: false,
                                   resize: false,
                                   id: 'eom' })
+
+          wavesurfer.on('region-in', function (regionObject) {
+            $scope.beep();
+          });
         })
 
       }, 1000);
@@ -93,6 +108,7 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+    // gives the region width if the markup exists, no width if it doesn't
     function secsFromMarkup(markupMS) {
       if (markupMS === undefined) {
         return { start: 0, end: 0 };
