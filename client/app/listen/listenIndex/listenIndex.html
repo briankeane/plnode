@@ -44,15 +44,15 @@
       <div class="content active" id="all-songs-source-container">
         <div>   <!--  extra container for tab/sortable-ui interaction  -->
           <span for="searchbox">Search Text:</span>
-          <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findStationsByKeywords($root.searchText)">
+          <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="inputs.searchText" ng-model-options="{ debounce: 500 }" ng-change="findStationsByKeywords(inputs.searchText)">
 
 
           <div id="stationSearchList" >
-            <ol class="song-manager-page catalogList" ui-sortable="catalogList" ng-model="catalogSearchResults">
+            <ol class="song-manager-page catalogList">
               <li ng-repeat="user in keywordSearchResults" >
-                <span class="station-twitter">{{ user.twitterHandle }}</span>
-                <span class="station-nowPlayingArtist">{{ user._station.nowPlaying.artist }}</span>
-                <span class="station-nowPlayingTitle">{{ user._station.nowPlaying.title }}</span>
+                <span class="station-twitter">@{{ user.twitterHandle }}</span>
+                <span class="station-nowPlayingArtist">{{ user.program.nowPlaying._audioBlock.artist }}</span>
+                <span class="station-nowPlayingTitle">{{ user.program.nowPlaying._audioBlock.title }}</span>
               </li>
             </ol>
           </div>

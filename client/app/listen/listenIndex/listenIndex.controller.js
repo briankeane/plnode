@@ -7,7 +7,9 @@ angular.module('pl2NodeYoApp')
     $scope.topStations = [];
     $scope.twitterFriends = [];
     $scope.keywordSearchResults = [];
-    $scope.searchText = '';
+    $scope.inputs = { 
+                    searchText: '' 
+                  };
 
     $timeout(function () {
       Auth.getTwitterFriends(function (err, result) {
@@ -33,23 +35,25 @@ angular.module('pl2NodeYoApp')
 
     $scope.playStation = function (stationId) {
       AudioPlayer.loadStation(stationId);
-    }
+    };
 
     $scope.findStationsByKeywords = function (searchString) {
-      alert('looking')
       if (searchString.length <= 3) {
         $scope.keywordSearchResults = [];
       } else {
         Auth.findUsersByKeywords(searchString, function (err, results) {
           if (err) { console.log(err); }
           if (results) {
-            if ($scope.searchText === searchString) {   //IF it was the last request made
+            if ($scope.inputs.searchText === searchString) {   //IF it was the last request made
               $scope.keywordSearchResults = results;
+              for(var i=0;i<$scope.keywordSearchResults.length;i++) {
+                refreshProgramOnce($scope.keywordSearchResults[i]);
+              }
             }
           }
         })
       }
-    }
+    };
 
 
     function refreshStation(station) {
@@ -62,7 +66,13 @@ angular.module('pl2NodeYoApp')
 
         $scope.timeouts.push(newTimeout);
       });
-    }
+    };
+
+    function refreshProgramOnce(user) {
+      Auth.getProgram({ id: user._station._id }, function (err, program) {
+        user.program = program;
+      });
+    };
     
     function refreshProgram(friend) {
       Auth.getProgram({  id: friend._station._id }, function (err, program) {
@@ -74,7 +84,7 @@ angular.module('pl2NodeYoApp')
 
         $scope.timeouts.push(newTimeout);
       });
-    }
+    };
 
     // cancel any pending updates
     $scope.$on('destroy', function (event) {

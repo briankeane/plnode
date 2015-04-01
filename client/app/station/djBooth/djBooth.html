@@ -71,7 +71,7 @@
               <span for="searchbox">Search Text:</span>
               <span id="onlyMySongs-label">My Songs Only</span>
               <input id="onlyMySongs" class="switch" type="checkbox">
-              <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($root.searchText)">
+              <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$parent.inputs.searchText" ng-model-options="{ debounce: 500 }" ng-change="findSongs($parent.inputs.searchText)">
 
 
               <div id="catalog-list" >
