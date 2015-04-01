@@ -48,13 +48,18 @@
 
 
           <div id="stationSearchList" >
-            <ol class="song-manager-page catalogList">
-              <li ng-repeat="user in keywordSearchResults" >
-                <span class="station-twitter">@{{ user.twitterHandle }}</span>
-                <span class="station-nowPlayingArtist">{{ user.program.nowPlaying._audioBlock.artist }}</span>
-                <span class="station-nowPlayingTitle">{{ user.program.nowPlaying._audioBlock.title }}</span>
-              </li>
-            </ol>
+            <div class="container col-md-8 col-md-offset-2"
+              <ol class="song-manager-page stationSearchList">
+                <li ng-repeat="user in keywordSearchResults">
+                  <div ng-click="playStation(user._station._id)">
+                    <img class="searchListPic" src="{{ user.profileImageUrl }}" />
+                    <span class="station-twitterHandle">@{{ user.twitterHandle }}</span>
+                    <span class="station-nowPlayingArtist">{{ user.program.nowPlaying._audioBlock.artist }}</span>
+                    <span class="station-nowPlayingTitle">{{ user.program.nowPlaying._audioBlock.title }}</span>
+                  </div>
+                </li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
