@@ -15,5 +15,12 @@ angular.module('pl2NodeYoApp')
         templateUrl: 'app/station/djBooth/djBooth.html',
         controller: 'djBoothCtrl',
         authenticate: true
+      })
+
+      .state('songMarkup', {
+        url: '/station/songMarkup',
+        templateUrl: 'app/station/songMarkup/songMarkup.html',
+        controller: 'SongMarkupCtrl',
+        authenticat: true
       });
   });
