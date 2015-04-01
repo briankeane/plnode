@@ -12,6 +12,7 @@ module.exports = function(app) {
 
   app.use(multer({dest: process.cwd() + '/server/data/unprocessedAudio'}));
   // Insert routes below
+  app.use('/api/v1/presets', require('./api/preset'));
   app.use('/api/v1/listeningSessions', require('./api/listeningSession'));
   app.use('/api/v1/spins', require('./api/spin'));
   app.use('/api/v1/songs', require('./api/song'));

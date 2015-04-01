@@ -13,8 +13,10 @@ router.get('/findByKeywords', controller.findByKeywords);
 router.put('/:id/password', auth.isAuthenticated(), controller.changePassword);
 router.get('/:id/twitterFriends', auth.isAuthenticated(), controller.twitterFriends);
 router.get('/:id', auth.isAuthenticated(), controller.show);
+router.get('/:id/presets', auth.isAuthenticated(), controller.presets);
 router.post('/', controller.create);
 router.put('/:id/update', auth.isAuthenticated(), controller.update);
 router.put('/:id/setZipcode', auth.isAuthenticated(), controller.setZipcode);
+
 
 module.exports = router;

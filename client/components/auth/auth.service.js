@@ -4,6 +4,7 @@ angular.module('pl2NodeYoApp')
   .factory('Auth', function Auth($location, $rootScope, $http, User, RotationItem, Station, Upload, Song, Spin, ListeningSession, $cookieStore, $q) {
     var currentUser = {};
     var currentStation = {};
+
     if($cookieStore.get('token')) {
       currentUser = User.get()
       currentStation = Station.get();
@@ -137,6 +138,16 @@ angular.module('pl2NodeYoApp')
         var cb = callback || angular.noop;
 
         return User.getTwitterFriends({},{ _id: currentUser._id },function (result) {
+          return cb(null, result);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      getPresets: function (callback) {
+        var cb = callback || angular.noop;
+
+        return User.getPresets({ id: currentUser._id }, { }, function (result) {
           return cb(null, result);
         }, function (err) {
           return cb(err);

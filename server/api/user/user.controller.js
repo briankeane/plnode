@@ -1,5 +1,6 @@
 'use strict';
 
+var Preset = require('../preset/preset.model');
 var User = require('./user.model');
 var passport = require('passport');
 var config = require('../../config/environment');
@@ -146,6 +147,17 @@ exports.setZipcode = function(req, res, next) {
   });
 };
 
+exports.presets = function (req, res) {
+  Preset
+  .find({ follower: req.params._id })
+  .populate('followee')
+  .exec(function (err, presets) {
+    if (err) { return res.send(500, err); }
+    return res.json(200, { users: list })
+  })
+}
+
+
 exports.me = function(req, res, next) {
   var userId = req.user._id;
   User.findOne({ _id: userId })
@@ -164,6 +176,13 @@ exports.search = function (req, res, next) {
     if (err) return next(err);
     if (!list) return res.send(200, { users: [] });
     return res.json(200, { users: list });
+  });
+}
+
+exports.presets = function (req, res) {
+  Preset.find({ follower: req.params._id }, function (err, list) {
+    if (err) { return res.send(500, err); }
+    return res.json(200, list);
   });
 }
 

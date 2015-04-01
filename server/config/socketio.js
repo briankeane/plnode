@@ -18,6 +18,7 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/preset/preset.socket').register(socket);
   require('../api/listeningSession/listeningSession.socket').register(socket);
   require('../api/spin/spin.socket').register(socket);
   require('../api/song/song.socket').register(socket);

@@ -3,6 +3,12 @@
 angular.module('pl2NodeYoApp')
   .controller('AudioPlayerCtrl', function ($scope, $location, Auth, AudioPlayer, $timeout) {
 
+    // wait for loading and grab presets
+    $timeout(function () {
+      $scope.presets = Auth.getPresets(function (err, list) {
+        console.log(list);
+      })
+    }, 1000);
     // grab currenStation
     $scope.currentStation = Auth.getCurrentStation();
 

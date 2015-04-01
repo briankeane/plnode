@@ -42,6 +42,13 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'findByKeywords'
         }
+      },
+      getPresets: {
+        method: 'GET',
+        params: {
+          controller: 'presets',
+          _id: '@_id'
+        }
       }
 	  });
   });
