@@ -127,6 +127,11 @@ angular.module('pl2NodeYoApp')
       CommentaryPreviewPlayer.play($scope.playlist[index-1], $scope.playlist[index], $scope.playlist[index+1]);
     }
 
+    $scope.markupSong = function () {
+      // make a nice modal later
+      alert('This song is not yet marked -- go to the Song Markup page under the Broadcast menu to take care of that');
+    }
+
     $scope.refreshProgramWithoutServer = function () {
       var timeTracker =  moment($scope.playlist[0].airtime);
       var playlistPositionTracker = $scope.playlist[0].playlistPosition;
