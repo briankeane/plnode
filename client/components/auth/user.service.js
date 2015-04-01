@@ -40,8 +40,7 @@ angular.module('pl2NodeYoApp')
       findByKeywords: {
         method: 'GET',
         params: {
-          controller: 'twitterFriends',
-          _id: '@_id'
+          controller: 'findByKeywords'
         }
       }
 	  });

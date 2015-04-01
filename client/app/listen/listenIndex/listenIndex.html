@@ -41,21 +41,22 @@
       </div>
     </tab>
     <tab heading="Search">
-      <div class="content" id="top-stations">
-        <div class="row">
-          <a ng-repeat="station in topStations" ng-href="#" ng-click="playStation(station._id);">
-            <article class="top-station station-square col-sm-6 col-md-3">
-              <img class="twitter-pic" src="{{station._user.profileImageUrl}}" />
-              <div class="overlay">
-              <h3 class="overlay-twitter-handle">@{{station._user.twitterHandle}}</h3>
+      <div class="content active" id="all-songs-source-container">
+        <div>   <!--  extra container for tab/sortable-ui interaction  -->
+          <span for="searchbox">Search Text:</span>
+          <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here" ng-model="$root.searchText" ng-model-options="{ debounce: 500 }" ng-change="findStationsByKeywords($root.searchText)">
 
-              <h3 class="overlay-now-playing-label">Now Playing:</h3>
-              <p class="now-playing-title">{{station.program.nowPlaying._audioBlock.title}}</p>
-              <p class="now-playing-artist">{{station.program.nowPlaying._audioBlock.artist}}</p>
-              </div>
-            </article>
-          </a>
-        </div>      
+
+          <div id="stationSearchList" >
+            <ol class="song-manager-page catalogList" ui-sortable="catalogList" ng-model="catalogSearchResults">
+              <li ng-repeat="user in keywordSearchResults" >
+                <span class="station-twitter">{{ user.twitterHandle }}</span>
+                <span class="station-nowPlayingArtist">{{ user._station.nowPlaying.artist }}</span>
+                <span class="station-nowPlayingTitle">{{ user._station.nowPlaying.title }}</span>
+              </li>
+            </ol>
+          </div>
+        </div>
       </div>
     </tab>
   </tabset>

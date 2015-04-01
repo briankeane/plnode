@@ -6,6 +6,8 @@ angular.module('pl2NodeYoApp')
     $scope.timeouts = [];
     $scope.topStations = [];
     $scope.twitterFriends = [];
+    $scope.keywordSearchResults = [];
+    $scope.searchText = '';
 
     $timeout(function () {
       Auth.getTwitterFriends(function (err, result) {
@@ -31,6 +33,22 @@ angular.module('pl2NodeYoApp')
 
     $scope.playStation = function (stationId) {
       AudioPlayer.loadStation(stationId);
+    }
+
+    $scope.findStationsByKeywords = function (searchString) {
+      alert('looking')
+      if (searchString.length <= 3) {
+        $scope.keywordSearchResults = [];
+      } else {
+        Auth.findUsersByKeywords(searchString, function (err, results) {
+          if (err) { console.log(err); }
+          if (results) {
+            if ($scope.searchText === searchString) {   //IF it was the last request made
+              $scope.keywordSearchResults = results;
+            }
+          }
+        })
+      }
     }
 
 
