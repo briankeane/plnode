@@ -92,8 +92,8 @@ exports.follow = function (req, res) {
       Preset
       .find({ _follower: followerId })
       .populate('_followee')
-      .sort(_followee.twitterHandle)
       .exec(function (err, presets) {
+        // sort the presets
         if (err) { return res.send(err); }
         return res.json(200, presets);
       });

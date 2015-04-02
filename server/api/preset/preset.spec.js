@@ -25,6 +25,7 @@ describe('GET /api/v1/presets', function() {
   var users = [];
   var preset1;
   var preset2;
+  var preset3;
 
   beforeEach(function (done) {
     SpecHelper.clearDatabase(function() {
@@ -38,8 +39,9 @@ describe('GET /api/v1/presets', function() {
       SpecHelper.saveAll(users, function (err, savedUsers) {
         preset1 = new Preset({ _follower: users[1]._id, _followee: users[0]._id });
         preset2 = new Preset({ _follower: users[2]._id, _followee: users[0]._id });
+        preset3 = new Preset({ _follower: users[2]._id, _followee: users[3]._id });
 
-        SpecHelper.saveAll([preset1, preset2], function (err, savedPresets) {
+        SpecHelper.saveAll([preset1, preset2, preset3], function (err, savedPresets) {
           done();
         });
       });
@@ -58,12 +60,21 @@ describe('GET /api/v1/presets', function() {
 
   it('returns a list of followers in order by twitterHandle', function (done) {
     Preset.getFollowers(users[0]._id, function (err, followers) {
-      console.log(followers);
-      console.log(users[0]._id);
       expect(followers.length).to.equal(2);
       expect(followers[0].twitterHandle).to.equal('Cindy');
       expect(followers[1].twitterHandle).to.equal('SamJackson');
       done();
     });
+  });
+
+  it('returns a list of presets for a user', function (done) {
+    Preset.getPresets(users[2]._id, function (err, presets) {
+      expect(presets.length).to.equal(2);
+      expect(presets[0].twitterHandle).to.equal('Bob');
+      expect(presets[1].twitterHandle).to.equal('JohnTravolta');
+      done();
+    })
   })
+
+
 });

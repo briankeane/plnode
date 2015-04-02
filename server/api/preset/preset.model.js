@@ -18,15 +18,28 @@ PresetSchema.statics.getFollowers = function (userId, callback) {
     if (err) {
       callback(err);
     } else {
-      console.log(presets);
       var followers = _.map(presets, function (preset) { return preset._follower });
-      console.log('followers after map:');
-      console.log(followers);
-      var followers = _.sortByAll(followers, ['twitterHandle']);
+
+      followers = _.sortByAll(followers, ['twitterHandle']);
       callback(null, followers);
     }
   });
-} 
+}
+
+PresetSchema.statics.getPresets = function (userId, callback) {
+  Preset
+  .find({ _follower: userId })
+  .populate('_followee')
+  .exec(function (err, presets) {
+    if (err) {
+      callback(err);
+    } else {
+      var followees = _.map(presets, function (preset) { return preset._followee });
+      followees = _.sortByAll(followees, ['twitterHandle'])
+      callback(null, followees);
+    }
+  });
+}
 
 PresetSchema.plugin(timestamps);
 var Preset = mongoose.model('Preset', PresetSchema);
