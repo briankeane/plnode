@@ -78,8 +78,8 @@ exports.twitterFriends = function(req,res) {
 };
 
 exports.follow = function (req, res) {
-  var followerId = req.body._id;
-  var followeeId = req.params.followeeId;
+  var followerId = req.params.id;
+  var followeeId = req.body.followeeId;
 
   // check for already following
   Preset.findOne({ _follower: followerId,
@@ -104,12 +104,7 @@ exports.follow = function (req, res) {
                       _followee: followeeId
                     }, function (err, newPreset) {
         if (err) { return res.send(err); }
-        Preset
-        .find({ _follower: follwerId })
-        .populate('_followee')
-        .sort(_followee.twitterHandle)
-        .exec(function (err, presets) {
-          if (err) { return res.send(err); }
+        Preset.getPresets(followerId, function (err, presets) {
           return res.send(201, { presets: presets });
         });
       });
@@ -188,13 +183,10 @@ exports.setZipcode = function(req, res, next) {
 };
 
 exports.presets = function (req, res) {
-  Preset
-  .find({ follower: req.params._id })
-  .populate('followee')
-  .exec(function (err, presets) {
+  Preset.getPresets(req.params._id, function (err, presets) {
     if (err) { return res.send(500, err); }
     return res.json(200, { presets: presets })
-  })
+  });
 }
 
 

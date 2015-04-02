@@ -4,42 +4,69 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 var _ = require('lodash');
 var timestamps = require('mongoose-timestamp');
+var User = require('../user/user.model');
+var Station = require('../station/station.model');
 
 var PresetSchema = new Schema({
-  _follower:    { type: Schema.ObjectId, ref: 'User' },
-  _followee:    { type: Schema.ObjectId, ref: 'User' }
+  _user:        { type: Schema.ObjectId, ref: 'User' },  // following user
+  _station:     { type: Schema.ObjectId, ref: 'User' }   // followed station
 });
 
-PresetSchema.statics.getFollowers = function (userId, callback) {
+PresetSchema.statics.getFollowers = function (stationId, callback) {
   Preset
-  .find({ _followee: userId })
-  .populate('_follower')
+  .find({ _station: stationId })
   .exec(function (err, presets) {
     if (err) {
       callback(err);
     } else {
-      var followers = _.map(presets, function (preset) { return preset._follower });
+      // grab all those followers and populate them
+      var userIds = _.map(presets, function (preset) { return preset._user });
 
-      followers = _.sortByAll(followers, ['twitterHandle']);
-      callback(null, followers);
+      // build the user query
+      var query = { $or: [] }
+      for (var i=0;i<userIds.length;i++) {
+        query['$or'].push({ _id: userIds[i] });
+      }
+
+      // make the call
+      User
+      .find(query)
+      .populate('_station')
+      .sort('twitterHandle')
+      .exec(callback);
     }
   });
 }
 
 PresetSchema.statics.getPresets = function (userId, callback) {
   Preset
-  .find({ _follower: userId })
-  .populate('_followee')
+  .find({ _user: userId })
   .exec(function (err, presets) {
     if (err) {
       callback(err);
     } else {
-      var followees = _.map(presets, function (preset) { return preset._followee });
-      followees = _.sortByAll(followees, ['twitterHandle'])
-      callback(null, followees);
+      var stations = _.map(presets, function (preset) { return preset._station });
+
+      // build the station query
+      var query = { $or: [] }
+      for (var i=0;i<stations.length;i++) {
+        query['$or'].push({ _id: stations[i] })
+      }
+
+      Station
+      .find(query)
+      .populate('_user')
+      .exec(function (err, stations) {
+        if (err) {
+          callback(err);
+        } else {
+          stations = _.sortByAll(stations, ['user.twitterHandle']);
+          callback(null, stations);
+        }
+      });
     }
   });
-}
+};
 
 PresetSchema.plugin(timestamps);
 var Preset = mongoose.model('Preset', PresetSchema);

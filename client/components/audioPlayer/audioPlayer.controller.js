@@ -9,7 +9,7 @@ angular.module('pl2NodeYoApp')
     $timeout(function () {
       Auth.getPresets(function (err, result) {
         $scope.presets = result.presets;
-        console.log(list);
+        console.log(result);
       })
     }, 1000);
     // grab currenStation
