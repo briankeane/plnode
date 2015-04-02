@@ -20,6 +20,7 @@ angular.module('pl2NodeYoApp')
     self.stationId;
     self.isPlaying = false;
     self.compressor;
+    self.stationPlaying;
 
     // set up audio context and audio nodes
     if (!self.context) {
@@ -70,6 +71,7 @@ angular.module('pl2NodeYoApp')
 
         self.nowPlaying = program.nowPlaying;
         self.playlist = [program.playlist[0]];
+        self.stationPlaying = program._station;
 
         loadAudio([self.nowPlaying], function (err) {
           if (err) console.log(err);

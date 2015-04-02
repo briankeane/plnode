@@ -8,6 +8,7 @@ var Song = require('../../api/song/song.model');
 var Spin = require('../../api/spin/spin.model');
 var Station = require('../../api/station/station.model');
 var User = require('../../api/user/user.model');
+var Preset = require('../../api/preset/preset.model');
 var _ = require('lodash');
 
 function Helper() {
@@ -39,7 +40,8 @@ function Helper() {
               Spin, 
               Station, 
               User,
-              LogEntry
+              LogEntry,
+              Preset
               ]
 
     var functions = [];

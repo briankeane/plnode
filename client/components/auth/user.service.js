@@ -49,6 +49,12 @@ angular.module('pl2NodeYoApp')
           controller: 'presets',
           _id: '@_id'
         }
+      },
+      follow: {
+        method: 'PUT',
+        params: {
+          controller: 'follow'
+        }
       }
 	  });
   });

@@ -19,7 +19,7 @@
     "fast-csv": "^0.5.5",
     "fluent-ffmpeg": "^2.0.0-rc3",
     "jsonwebtoken": "^0.3.0",
-    "lodash": "~2.4.1",
+    "lodash": "~3.6.0",
     "method-override": "~1.0.0",
     "moment": "^2.9.0",
     "moment-timezone": "^0.3.0",

@@ -134,11 +134,21 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
+      follow: function (followeeId, callback) {
+        var cb = callback || angular.noop;
+
+        return User.follow({ id: currentUser._id }, { followeeId: followeeId }, function (presets) {
+          return cb(null, presets);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
       getTwitterFriends: function (callback) {
         var cb = callback || angular.noop;
 
         return User.getTwitterFriends({},{ _id: currentUser._id },function (result) {
-          return cb(null, result);
+          return cb(null, result.presets);
         }, function (err) {
           return cb(err);
         }).$promise;

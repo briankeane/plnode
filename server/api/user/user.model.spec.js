@@ -229,7 +229,14 @@ describe('more user CRUD', function () {
   xit ('returns a list of twitter friends', function (done) {
     // to do
   });
+
+  describe('user.controller tests', function () {
+    xit('follows a user', function (done) {
+      done();
+    });
+  });
 });
+
 // loads the db with x number of records
 function loadUsers (desiredLength, callback) {
   var newUsers = [];
