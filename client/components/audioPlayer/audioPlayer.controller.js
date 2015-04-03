@@ -4,6 +4,8 @@ angular.module('pl2NodeYoApp')
   .controller('AudioPlayerCtrl', function ($scope, $location, Auth, AudioPlayer, $timeout) {
 
     $scope.presets = [];
+    $scope.selectedPresetId = '';
+
     
     // wait for loading and grab presets
     $timeout(function () {
@@ -36,6 +38,10 @@ angular.module('pl2NodeYoApp')
       });
     };
 
+    $scope.formatPresetListItem = function (station) {
+      return station._user.twitterHandle;
+    }
+    
     $scope.checkForRotation = function (audioBlockId) {
       return ($scope.rotationItemAudioBlockIds.indexOf(audioBlockId) > -1);
     };
