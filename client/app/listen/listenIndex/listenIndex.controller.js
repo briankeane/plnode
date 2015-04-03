@@ -12,8 +12,8 @@ angular.module('pl2NodeYoApp')
                   };
 
     $timeout(function () {
-      Auth.getTwitterFriends(function (err, result) {
-        $scope.twitterFriends = result.friends;
+      Auth.getTwitterFriends(function (err, friends) {
+        $scope.twitterFriends = friends;
 
         // grab the program for each station
         for(var i=0;i<$scope.twitterFriends.length;i++) {
@@ -54,7 +54,6 @@ angular.module('pl2NodeYoApp')
         })
       }
     };
-
 
     function refreshStation(station) {
       Auth.getProgram({ id: station._id }, function (err, program) {

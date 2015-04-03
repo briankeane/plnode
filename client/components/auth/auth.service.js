@@ -137,8 +137,8 @@ angular.module('pl2NodeYoApp')
       follow: function (stationId, callback) {
         var cb = callback || angular.noop;
 
-        return User.follow({ id: currentUser._id }, { stationId: stationId }, function (presets) {
-          return cb(null, presets);
+        return User.follow({ id: currentUser._id }, { stationId: stationId }, function (result) {
+          return cb(null, result);
         }, function (err) {
           return cb(err);
         }).$promise;
@@ -158,7 +158,7 @@ angular.module('pl2NodeYoApp')
         var cb = callback || angular.noop;
 
         return User.getTwitterFriends({},{ _id: currentUser._id },function (result) {
-          return cb(null, result.presets);
+          return cb(null, result);
         }, function (err) {
           return cb(err);
         }).$promise;

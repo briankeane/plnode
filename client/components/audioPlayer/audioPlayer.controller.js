@@ -5,15 +5,24 @@ angular.module('pl2NodeYoApp')
 
     $scope.presets = [];
     $scope.selectedPresetId = '';
+    $scope.timeouts = [];
+
 
     
     // wait for loading and grab presets
     $timeout(function () {
       Auth.getPresets(function (err, result) {
         $scope.presets = result.presets;
+
+        // grab the program
+        for (var i=0;i<$scope.presets.length;i++) {
+          refreshStation($scope.presets[i]);
+        }
+
         console.log(result);
       })
     }, 1000);
+
     // grab currenStation
     $scope.currentStation = Auth.getCurrentStation();
 
@@ -29,6 +38,10 @@ angular.module('pl2NodeYoApp')
     $scope.player = AudioPlayer;
     $scope.volume;
 
+    $scope.$on('stationChanged', function (newStation) {
+
+    })
+
     $scope.addToMyStation = function(songId) {
       alert('hi' + songId);
       Auth.createRotationItem({ weight: 17,
@@ -38,15 +51,28 @@ angular.module('pl2NodeYoApp')
       });
     };
 
-    $scope.formatPresetListItem = function (station) {
-      return station._user.twitterHandle;
-    }
-    
+
     $scope.checkForRotation = function (audioBlockId) {
       return ($scope.rotationItemAudioBlockIds.indexOf(audioBlockId) > -1);
     };
+    
+    // ***************************************************************************************
+    // **************************************** Presets **************************************
+    // ***************************************************************************************
 
-    // checks to see if the station is already in the presets
+
+    // format Presets for display in preset option list
+    $scope.formatPresetListItem = function (station) {
+      if (station.program) {
+        return station._user.twitterHandle + ' | Now Playing: ' +
+                                              station.program.nowPlaying._audioBlock.title + ' | ' +
+                                              (station.program.nowPlaying._audioBlock.artist || '');
+      } else {
+        return station._user.twitterHandle;
+      }
+    }
+    
+    // check to see if the station is already in the presets
     $scope.isInPresets = function (id) {
       // if it's the user's own station, return true
       if (id === $scope.currentStation._id) {
@@ -63,6 +89,7 @@ angular.module('pl2NodeYoApp')
       return false;
     }
 
+    // text/disabled/inPresets
     $scope.presetButtonInfo = function (stationId) {
       if ($scope.currentStation._id === stationId) {
         return { text: 'Add Station to Presets',
@@ -78,11 +105,14 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+    // adds or removes a station from the preset list
     $scope.togglePreset = function (station) {
       // if it's already in the presets, take it out
       if ($scope.isInPresets(station._id)) {
         Auth.unfollow(station._id, function (err, result) {
-          $scope.presets = result.presets;
+          if (err) {
+            // later error handling... put it back in?
+          }
         });
 
         // find the selected in the presets array and remove it
@@ -97,14 +127,30 @@ angular.module('pl2NodeYoApp')
       } else {
 
         Auth.follow(station._id, function (err, result) {
-          console.log(result);
-          $scope.presets = result.presets;
+          for(var i=0;i<$scope.presets.length;i++) {
+            if ($scope.presets[i]._id === result.newPreset._id) {
+              $scope.presets[i] = result.newPreset;
+              refreshStation($scope.presets[i]);
+              break;
+            }
+          }
         });
 
         // temporarily include it until the response comes back
-        $scope.presets.push({ _station: station });
+        var inserted = false;
+        for (var i=0;i<$scope.presets;i++) {
+          if ($scope.presets[i]._user.twitterHandle < station._user.twitterHandle) {
+            inserted = true;
+            $scope.presets.splice(i,0,station);
+            break;
+          }
+        }
+
+        // if it wasn't inserted it should be last
+        $scope.presets.push(station);
       }
     }
+
 
     function getRotationItems() {
       if ($scope.currentStation._id) {
@@ -121,5 +167,33 @@ angular.module('pl2NodeYoApp')
       }
     }
 
+    function refreshStation(station) {
+      Auth.getProgram({ id: station._id }, function (err, program) {
+        station.program = program;
+
+        var newTimeout = $timeout(function () {
+          refreshStation(station);
+        }, new Date(program.nowPlaying.endTime).getTime() - Date.now() + 2000);   // add 2 secs to make sure nowPlaying has actually changed
+
+        $scope.timeouts.push(newTimeout);
+      });
+    };
+
+    // cancel any pending updates
+    $scope.$on('destroy', function (event) {
+      for (var i=0;i<$scope.timeouts.length;i++) {
+        $timeout.cancel($scope.timeouts[i]);
+      }
+    });
+
+    // if a preset is selected, change to that station
+    $scope.$watch(function (scope) { 
+      return scope.selectedPresetId 
+    }, function (newValue, oldValue) {
+      // if it's a new, legit value
+      if (newValue) {
+        AudioPlayer.loadStation(newValue);
+      }
+    });
 
   });

@@ -40,10 +40,12 @@ angular.module('pl2NodeYoApp')
     self.compressor.attack.value = 0;
     self.compressor.release.value = 0.25;
 
-    // connect context/gain/destination into chain
+    // connect context/gain/muteGain/destination into chain
     self.gainNode = this.context.createGain();
+    self.muteGain = this.context.createGain();
     self.compressor.connect(self.gainNode);
-    self.gainNode.connect(this.context.destination);
+    self.gainNode.connect(self.muteGain);
+    self.muteGain.connect(this.context.destination);
 
     // *************************************************
     // *         loadStation(stationId)                *
@@ -53,6 +55,13 @@ angular.module('pl2NodeYoApp')
     // *   loads the new info                          *
     // ************************************************* 
     this.loadStation = function (stationId) {
+      
+      // if the station is already playing the one requested, do nothing
+      if (self.isPlaying && (self.stationId === stationId)) {
+        return;
+      }
+
+
       self.clearPlayer();
 
       self.isLoading = true;
@@ -111,6 +120,18 @@ angular.module('pl2NodeYoApp')
       if (!self.muted) {
         self.gainNode.gain.value = self.volume;
       }
+    }
+
+    this.mute = function () {
+      self.muteGain.gain.exponentialRampToValueAtTime(self.muteGain.gain.value, self.context.currentTime);
+      self.muteGain.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + 2);
+      self.muted = true;
+    }
+
+    this.unmute = function () {
+      self.muteGain.gain.exponentialRampToValueAtTime(self.muteGain.gain.value, self.context.currentTime);
+      self.muteGain.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + 2);
+      self.muted = false;
     }
     
     this.clearPlayer = function () {

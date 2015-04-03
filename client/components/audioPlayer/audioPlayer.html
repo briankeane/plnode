@@ -15,7 +15,7 @@
         <button class="btn btn-default" type="button" 
         ng-click="togglePreset(player.stationPlaying);"
         ng-disabled="presetButtonInfo(player.stationPlaying._id).disabled">{{ presetButtonInfo(player.stationPlaying._id).text }}</button>
-      <select class="form-control" ng-change="test2(preset);" ng-options= " p._id as formatPresetListItem(p) for p in presets" ng-model="preset">
+      <select class="form-control" ng-change="test2(preset);" ng-options= " p._id as formatPresetListItem(p) for p in presets" ng-model="selectedPresetId">
 
       </select>
       </div>

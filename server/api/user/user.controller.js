@@ -98,10 +98,19 @@ exports.follow = function (req, res) {
     } else {
       Preset.create({ _user: userId,
                       _station: stationId
-                    }, function (err, newPreset) {
+                    }, function (err, newPresetItem) {
         if (err) { return res.send(err); }
         Preset.getPresets(userId, function (err, presets) {
-          return res.send(201, { presets: presets });
+
+          // grab the new preset to include separately, too
+          var newPreset;
+          for (var i=0;i<presets.length;i++) {
+            if (presets[i]._id.equals(newPresetItem._station)) {
+              newPreset = presets[i];
+            }
+          }
+          return res.send(201, { presets: presets,
+                                newPreset: newPreset });
         });
       });
     } // endIF

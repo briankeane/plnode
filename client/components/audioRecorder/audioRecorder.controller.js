@@ -1,5 +1,5 @@
 angular.module('pl2NodeYoApp')
-  .controller('AudioRecorderCtrl', function ($scope, $location, Auth, $sce, FileUploader) {
+  .controller('AudioRecorderCtrl', function ($scope, $location, Auth, $sce, FileUploader, AudioPlayer) {
 
     $scope.refreshProgramFromServer;      // filled with reference when needed
     
@@ -9,6 +9,7 @@ angular.module('pl2NodeYoApp')
     $scope.recordings = [];
     $scope.blobs = [];
     $scope.recordingCounter = 0;
+    $scope.wasMuted;
 
 
 
@@ -64,6 +65,12 @@ angular.module('pl2NodeYoApp')
       startRecording();
       $scope.recordButtonDisabled = true;
       $scope.stopDisabled = false;
+      if (AudioPlayer.muted) {
+        wasMuted = true;
+      } else {
+        AudioPlayer.mute();
+        wasMuted = false;
+      }
       $(document).trigger('recordingStarted');
     };
 
@@ -72,6 +79,9 @@ angular.module('pl2NodeYoApp')
       $(document).trigger('recordingStopped');
       $scope.stopDisabled = true;
       $scope.recordButtonDisabled = true;
+      if (!wasMuted) {
+        AudioPlayer.unmute();
+      }
     };
 
     var audio_context;
