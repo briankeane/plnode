@@ -76,12 +76,12 @@ angular.module('pl2NodeYoApp')
       // if it's already in the presets, take it out
       if ($scope.isInPresets(station._id)) {
         Auth.unfollow(station._id, function (err, result) {
-
+          $scope.presets = result.presets;
         });
 
         // find the selected in the presets array and remove it
         for (var i=0;i<$scope.presets.length;i++) {
-          if ($scope.presets[i]._station._id === station._id) {
+          if ($scope.presets[i]._id === station._id) {
             $scope.presets.splice(i,1);
             break;
           }

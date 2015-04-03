@@ -114,7 +114,7 @@ exports.unfollow = function (req, res) {
 
   // Find the station 
   Preset.findOneAndRemove({ _user: userId, _station: stationId }, function (err, removed) {
-    if (err) { return res.send(err); }
+    if (!removed) { return res.send(401); }
     Preset.getPresets(userId, function (err, presets) {
       return res.send(201, { presets: presets });
     });
