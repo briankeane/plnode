@@ -124,13 +124,13 @@ angular.module('pl2NodeYoApp')
 
     this.mute = function () {
       self.muteGain.gain.exponentialRampToValueAtTime(self.muteGain.gain.value, self.context.currentTime);
-      self.muteGain.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + 2);
+      self.muteGain.gain.exponentialRampToValueAtTime(0.000001, self.context.currentTime + 0.5);
       self.muted = true;
     }
 
     this.unmute = function () {
       self.muteGain.gain.exponentialRampToValueAtTime(self.muteGain.gain.value, self.context.currentTime);
-      self.muteGain.gain.exponentialRampToValueAtTime(0.01, self.context.currentTime + 2);
+      self.muteGain.gain.exponentialRampToValueAtTime(1, self.context.currentTime + 0.5);
       self.muted = false;
     }
     
