@@ -22,6 +22,11 @@ PresetSchema.statics.getFollowers = function (stationId, callback) {
       // grab all those followers and populate them
       var userIds = _.map(presets, function (preset) { return preset._user });
 
+      // IF userIds is empty, just do the callback with an empty array
+      if (!userIds.length) {
+        callback(null, []);
+        return;
+      }
       // build the user query
       var query = { $or: [] }
       for (var i=0;i<userIds.length;i++) {
@@ -46,6 +51,12 @@ PresetSchema.statics.getPresets = function (userId, callback) {
       callback(err);
     } else {
       var stations = _.map(presets, function (preset) { return preset._station });
+
+      // IF stations is empty, just do the callback with an empty array
+      if (!stations.length) {
+        callback(null, []);
+        return;
+      }
 
       // build the station query
       var query = { $or: [] }

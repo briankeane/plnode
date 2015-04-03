@@ -97,11 +97,7 @@ angular.module('pl2NodeYoApp')
 
         // temporarily include it until the response comes back
         $scope.presets.push({ _station: station });
-
-
-
       }
-
     }
 
     function getRotationItems() {

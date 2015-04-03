@@ -78,39 +78,48 @@ exports.twitterFriends = function(req,res) {
 };
 
 exports.follow = function (req, res) {
-  var followerId = req.params.id;
-  var followeeId = req.body.followeeId;
+  var userId = req.params.id;
+  var stationId = req.body.stationId;
 
   // check for already following
-  Preset.findOne({ _follower: followerId,
-                _followee: followeeId 
+  Preset.findOne({ _user: userId,
+                _station: stationId 
               }, function (err, preset) {
     if (err) { return res.send(err); }
     
     // IF already following, just get the list of presets and send it with 200
     if (preset) { 
-      Preset
-      .find({ _follower: followerId })
-      .populate('_followee')
-      .exec(function (err, presets) {
-        // sort the presets
+      Preset.getPresets(userId, function (err, presets) {
         if (err) { return res.send(err); }
         return res.json(200, presets);
       });
 
     // otherwise, create the preset and return a new current preset list
     } else {
-      Preset.create({ _follower: followerId,
-                      _followee: followeeId
+      Preset.create({ _user: userId,
+                      _station: stationId
                     }, function (err, newPreset) {
         if (err) { return res.send(err); }
-        Preset.getPresets(followerId, function (err, presets) {
+        Preset.getPresets(userId, function (err, presets) {
           return res.send(201, { presets: presets });
         });
       });
     } // endIF
   });
 }
+
+exports.unfollow = function (req, res) {
+  var userId = req.params.id;
+  var stationId = req.body.stationId;
+
+  // Find the station 
+  Preset.findOneAndRemove({ _user: userId, _station: stationId }, function (err, removed) {
+    if (err) { return res.send(err); }
+    Preset.getPresets(userId, function (err, presets) {
+      return res.send(201, { presets: presets });
+    });
+  });
+};
 
 // Updates an existing user in the DB.
 exports.update = function(req, res) {
@@ -183,7 +192,7 @@ exports.setZipcode = function(req, res, next) {
 };
 
 exports.presets = function (req, res) {
-  Preset.getPresets(req.params._id, function (err, presets) {
+  Preset.getPresets(req.params.id, function (err, presets) {
     if (err) { return res.send(500, err); }
     return res.json(200, { presets: presets })
   });

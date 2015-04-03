@@ -55,6 +55,12 @@ angular.module('pl2NodeYoApp')
         params: {
           controller: 'follow'
         }
+      },
+      unfollow: {
+        method: 'PUT',
+        params: {
+          controller: 'unfollow'
+        }
       }
 	  });
   });

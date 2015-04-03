@@ -134,10 +134,20 @@ angular.module('pl2NodeYoApp')
         }).$promise;
       },
 
-      follow: function (followeeId, callback) {
+      follow: function (stationId, callback) {
         var cb = callback || angular.noop;
 
-        return User.follow({ id: currentUser._id }, { followeeId: followeeId }, function (presets) {
+        return User.follow({ id: currentUser._id }, { stationId: stationId }, function (presets) {
+          return cb(null, presets);
+        }, function (err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      unfollow: function (stationId, callback) {
+        var cb = callback || angular.noop;
+
+        return User.unfollow({ id: currentUser._id }, { stationId: stationId }, function (presets) {
           return cb(null, presets);
         }, function (err) {
           return cb(err);
