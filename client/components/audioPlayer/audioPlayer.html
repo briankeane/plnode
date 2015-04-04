@@ -11,7 +11,7 @@
       <div class="btn-group-vertical" role="group">
         <button class="btn btn-default" type="button" 
         ng-click="addToMyStation(player.nowPlaying._audioBlock._id)"
-        ng-disabled="checkForRotation(player.nowPlaying._audioBlock.id)">Add Song to My Station</button>
+        ng-disabled="checkForRotation(player.nowPlaying._audioBlock)">Add Song to My Station</button>
         <button class="btn btn-default" type="button" 
         ng-click="togglePreset(player.stationPlaying);"
         ng-disabled="presetButtonInfo(player.stationPlaying._id).disabled">{{ presetButtonInfo(player.stationPlaying._id).text }}</button>

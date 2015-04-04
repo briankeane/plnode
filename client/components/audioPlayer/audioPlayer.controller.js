@@ -52,8 +52,19 @@ angular.module('pl2NodeYoApp')
     };
 
 
-    $scope.checkForRotation = function (audioBlockId) {
-      return ($scope.rotationItemAudioBlockIds.indexOf(audioBlockId) > -1);
+    $scope.checkForRotation = function (audioBlock) {
+      // IF the station has not been started yet, disable
+      if (!audioBlock) {
+        return false;
+
+      // ELSE IF it's a song, see if it's already been added
+      } else if (audioBlock._type === 'Song') {
+        return ($scope.rotationItemAudioBlockIds.indexOf(audioBlock._id) > -1);
+
+      // ELSE (It's a commentary or commercial)
+      } else {
+        return false;
+      }
     };
     
     // ***************************************************************************************

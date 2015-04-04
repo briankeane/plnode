@@ -22,7 +22,7 @@ describe('audioFileStorageHandler', function (done) {
   });
 
   afterEach(function (done) {  
-    this.timeout(5000);
+    this.timeout(10000);
     audioSH.clearBucket('playolasongstest', function () {
       audioSH.clearBucket('playolacommentariestest', function () {
         audioSH.clearBucket('playolaunprocessedsongstest', function () {
@@ -107,6 +107,9 @@ describe('audioFileStorageHandler', function (done) {
       expect(err).to.equal(null);
       expect(key).to.equal('lookTest.mp3');
       s3.headObject({ Bucket: 'playolaunprocessedsongstest', Key: key }, function (err, data) {
+        console.log(key);
+        console.log(err);
+        console.log(data);
         expect(data.ContentLength).to.equal('71970');
         done();
       });

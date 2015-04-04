@@ -113,17 +113,31 @@ function Handler() {
 
       var uploader = s3HighLevel.uploadFile({ localFile: attrs.filepath,
                                               s3Params: { 
-                                                Bucket: config["s3Buckets"].SONGS_BUCKET,
+                                                Bucket: config["s3Buckets"].UNPROCESSED_SONGS_BUCKET,
                                                 Key: key,
                                                 ContentType: 'audio/mpeg',
                                                 Metadata: metadata
                                               }
                                             });
       uploader.on('end', function (data) {
-console.log('store song end');
         callback(null, key);
       });
     });    
+  };
+
+this.storeUnprocessedSong = function (filepath, callback) {
+    var key = self.cleanFilename(filepath.split('/').pop());
+
+    var uploader = s3HighLevel.uploadFile({ localFile: filepath,
+                                            s3Params: { 
+                                              Bucket: config["s3Buckets"].UNPROCESSED_SONGS_BUCKET,
+                                              Key: key,
+                                              ContentType: 'audio/mpeg'
+                                            }
+                                          });
+    uploader.on('end', function (data) {
+      callback(null, key);
+    });
   };
 
   this.storeCommentary = function (attrs, callback) {
@@ -167,7 +181,7 @@ console.log('store song end');
   this.getUnprocessedSong = function (key, callback) {
     var filepath = process.cwd() + '/server/data/' + key
     var downloader = s3HighLevel.downloadFile({   localFile: filepath,
-                                                  s3Params: { Bucket: config["s3Buckets"].UNPROCESSED_SONGS,
+                                                  s3Params: { Bucket: config["s3Buckets"].UNPROCESSED_SONGS_BUCKET,
                                                                Key: key } });
     downloader.on('end', function () {
       callback(null, filepath);
@@ -175,7 +189,7 @@ console.log('store song end');
   }
 
   this.deleteUnprocessedSong = function (key, callback) {
-    s3.deleteObject({ Bucket: config["s3Buckets"].UNPROCESSED_SONGS,
+    s3.deleteObject({ Bucket: config["s3Buckets"].UNPROCESSED_SONGS_BUCKET,
                       Key: key }, function (err, data) {
       callback(err, data);
     });

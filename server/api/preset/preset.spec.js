@@ -59,16 +59,6 @@ describe('Presets', function() {
     });
   });
 
-  xit('follows someone', function (done) {
-
-  });
-
-  xit('does not duplicate a follow', function (done) {
-  });
-
-  xit('unfollows someone', function (done) {
-  });
-
   it('returns a list of followers in order by twitterHandle', function (done) {
     Preset.getFollowers(stations[0]._id, function (err, followers) {
       expect(followers.length).to.equal(2);
@@ -86,6 +76,4 @@ describe('Presets', function() {
       done();
     })
   })
-
-
 });

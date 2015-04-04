@@ -12,7 +12,7 @@ module.exports = {
     SONGS_BUCKET: 'playolasongstest',
     COMMERCIALS_BUCKET: 'playolacommercialstest',
     COMMENTARIES_BUCKET: 'playolacommentariestest',
-    UNPROCESSED_SONGS: 'playolaunprocessedsongstest'
+    UNPROCESSED_SONGS_BUCKET: 'playolaunprocessedsongstest'
   },
 
   ECHONEST_TASTE_PROFILE_ID: 'CAIQEUO1473A654C51'

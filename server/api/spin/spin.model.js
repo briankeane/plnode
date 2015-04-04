@@ -80,7 +80,7 @@ spinSchema.virtual('commercialsFollow').get(function () {
 spinSchema.statics.getFullPlaylist = function (stationId, callback) {
   Spin
   .find({ _station: stationId })
-  .populate('_audioBlock ')
+  .populate('_audioBlock')
   .sort('playlistPosition')
   .exec(callback);
 };

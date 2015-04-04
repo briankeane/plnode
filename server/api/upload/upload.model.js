@@ -8,7 +8,8 @@ var UploadSchema = new Schema({
   filename: String,
   tags: {},
   possibleMatches: [{}],
-  status: String
+  status: String,
+  key: String
 });
 
 UploadSchema.plugin(timestamps);

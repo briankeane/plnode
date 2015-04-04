@@ -14,7 +14,7 @@ module.exports = {
     SONGS_BUCKET: 'playolasongsdevelopment',
     COMMERCIALS_BUCKET: 'playolacommercialblocks',
     COMMENTARIES_BUCKET: 'playolacommentariesdevelopment',
-    UNPROCESSED_SONGS: 'playolaunprocessedsongsdevelopment'
+    UNPROCESSED_SONGS_BUCKET: 'playolaunprocessedsongsdevelopment'
   },
 
   ECHONEST_TASTE_PROFILE_ID: 'CAMCWVM14BECED787C'
