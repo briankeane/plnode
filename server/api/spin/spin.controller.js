@@ -69,6 +69,7 @@ exports.move = function(req,res) {
 exports.remove = function(req,res) {
   Spin.findById(req.params.id, function (err, spin) {
     if (err) return res.send(500, err);
+    if (!spin) return res.send(404);
     Scheduler.removeSpin(spin, function (err, results) {
       if (err) return res.send(500,err);
       Scheduler.getProgram({ stationId: spin._station }, function (err, program) {

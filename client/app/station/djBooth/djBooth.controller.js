@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('pl2NodeYoApp')
-  .controller('djBoothCtrl', function (CommentaryPreviewPlayer, AudioPlayer, $scope, FileUploader, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
+  .controller('djBoothCtrl', function ($rootScope, CommentaryPreviewPlayer, AudioPlayer, $scope, FileUploader, Auth, $location, $window, $timeout, moment, $interval, $modal, $sce) {
     $scope.user = {};
     $scope.station = {};
     $scope.errors = {};
@@ -17,6 +17,7 @@ angular.module('pl2NodeYoApp')
     var playlistSet = false;
     var progressUpdater;
     var lastUpdateIndex = 0;
+    var wasMuted;
 
     // create the commentary uploader
     $scope.FileUploader = FileUploader;
@@ -115,6 +116,37 @@ angular.module('pl2NodeYoApp')
       return moment(time).format("MMM Do, h:mm:ss a")
     };
 
+    $scope.formatSongTimerFromMS = function (milliseconds) {
+      var totalSeconds = milliseconds/1000;
+      var secs = Math.floor(totalSeconds % 60) ;
+      var mins = Math.floor((totalSeconds - secs)/60);
+      var hrs = Math.floor(((totalSeconds - secs - (mins * 60))/60));
+
+      if (secs < 10) {
+        secs = "0" + secs;
+      }
+
+      if (hrs > 0) {
+        return '' + hrs + ':' + mins + ':' + secs;
+      } else {
+        return '' + mins + ':' + secs;
+      }
+    }
+    
+    // for now disable 1st element
+    $scope.determineDisable = function (spin, index) {
+      if ($scope.playlist[0].commercialsFollow || AudioPlayer.nowPlaying.commercialsFollow) {
+        if (index < 1) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (index < 2) {
+        return true;
+      } else {
+        return false;
+      }
+    }
     $scope.removable = function (spin, index) {
       if (index === 0) {
         return false;
@@ -127,10 +159,29 @@ angular.module('pl2NodeYoApp')
       CommentaryPreviewPlayer.play($scope.playlist[index-1], $scope.playlist[index], $scope.playlist[index+1]);
     }
 
+    $rootScope.$on('previewPlayerFinishedLoading', function () {
+      wasMuted = AudioPlayer.muted;
+      if (!wasMuted) {
+        AudioPlayer.mute();
+      }
+    });
+
+    $rootScope.$on('previewFinishedPlaying', function () {
+      if (!wasMuted) {
+        $timeout(function () {
+          AudioPlayer.unmute();
+        }, 750);
+      }
+    })
+
     $scope.markupSong = function () {
       // make a nice modal later
       alert('This song is not yet marked -- go to the Song Markup page under the Broadcast menu to take care of that');
     }
+
+    // *************************************************************************************
+    // ********************************** Playlist Functions *******************************
+    // *************************************************************************************
 
     $scope.refreshProgramWithoutServer = function () {
       var timeTracker =  moment($scope.playlist[0].airtime);
@@ -180,37 +231,6 @@ angular.module('pl2NodeYoApp')
       }
     }
 
-    $scope.formatSongTimerFromMS = function (milliseconds) {
-      var totalSeconds = milliseconds/1000;
-      var secs = Math.floor(totalSeconds % 60) ;
-      var mins = Math.floor((totalSeconds - secs)/60);
-      var hrs = Math.floor(((totalSeconds - secs - (mins * 60))/60));
-
-      if (secs < 10) {
-        secs = "0" + secs;
-      }
-
-      if (hrs > 0) {
-        return '' + hrs + ':' + mins + ':' + secs;
-      } else {
-        return '' + mins + ':' + secs;
-      }
-    }
-    
-    // for now disable 1st element
-    $scope.determineDisable = function (spin, index) {
-      if ($scope.playlist[0].commercialsFollow || AudioPlayer.nowPlaying.commercialsFollow) {
-        if (index < 1) {
-          return true;
-        } else {
-          return false;
-        }
-      } else if (index < 2) {
-        return true;
-      } else {
-        return false;
-      }
-    }
 
     $scope.$on('spinAdvanced', function () {
       $scope.playlist.shift();
@@ -327,7 +347,6 @@ angular.module('pl2NodeYoApp')
         $scope.playlist = newProgram.playlist;
       })
     }
-
 
     // if there's not a  currentStation yet, wait for it
     if (!$scope.currentStation._id) {

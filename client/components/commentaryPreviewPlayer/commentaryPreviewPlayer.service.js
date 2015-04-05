@@ -44,49 +44,56 @@ angular.module('pl2NodeYoApp')
         // if all 3 are loaded...
         loadedCounter++;
         if (loadedCounter == 3) {
-          // set the gain node just in case it's a replay
-          self.gainNode.gain.setValueAtTime(1, self.context.currentTime);
-          
-          // get all airtimes in ms
-          var previousSpinAirtimeMS = new Date(previousSpin.airtime).getTime();
-          var commentarySpinAirtimeMS = new Date(commentarySpin.airtime).getTime();
-          var followingSpinAirtimeMS = new Date(followingSpin.airtime).getTime();
+          // tell that we're loaded.
+          $rootScope.$emit('previewPlayerFinishedLoading');
 
-          // get place in first spin to start (previousSpinMS) (3 secs before 1st changeover);
-          var previousSpinStartSecs = (commentarySpinAirtimeMS - previousSpinAirtimeMS - 3000)/1000;
-          var scheduledSpinStartTimeMS = new Date(previousSpin.airtime).getTime() + previousSpinStartSecs*1000;
+          // wait 750ms, then set up all plays
+          $timeout(function() {
 
-
-          // grab timeOffset
-          var timeOffsetMS = scheduledSpinStartTimeMS - new Date().getTime();
-
-          // start the first spin
-          previousSpin.source.start(0, previousSpinStartSecs);
-
-          // schedule the next spins
-          $timeout(function () {
-            commentarySpin.source.start(0);
-          }, 3000);
-
-          console.log('ms till next start time: ' + new Date(new Date(followingSpinAirtimeMS).getTime() - timeOffsetMS).getTime());
-
-          $timeout(function () {
-            followingSpin.source.start(0);
-          }, (followingSpinAirtimeMS - commentarySpinAirtimeMS + 3000));
-
-          // schedule fadeout after finished
-          $timeout(function () {
-            self.gainNode.gain.linearRampToValueAtTime(0, self.context.currentTime + 2);
+            // set the gain node just in case it's a replay
+            self.gainNode.gain.setValueAtTime(1, self.context.currentTime);
             
-            // wait a couple seconds... then remove the sources
+            // get all airtimes in ms
+            var previousSpinAirtimeMS = new Date(previousSpin.airtime).getTime();
+            var commentarySpinAirtimeMS = new Date(commentarySpin.airtime).getTime();
+            var followingSpinAirtimeMS = new Date(followingSpin.airtime).getTime();
+
+            // get place in first spin to start (previousSpinMS) (3 secs before 1st changeover);
+            var previousSpinStartSecs = (commentarySpinAirtimeMS - previousSpinAirtimeMS - 3000)/1000;
+            var scheduledSpinStartTimeMS = new Date(previousSpin.airtime).getTime() + previousSpinStartSecs*1000;
+
+
+            // grab timeOffset
+            var timeOffsetMS = scheduledSpinStartTimeMS - new Date().getTime();
+
+            // start the first spin
+            $rootScope.$emit('previewStartedPlaying');
+            previousSpin.source.start(0, previousSpinStartSecs);
+
+            // schedule the next spins
             $timeout(function () {
+              commentarySpin.source.start(0);
+            }, 3000);
+
+            console.log('ms till next start time: ' + new Date(new Date(followingSpinAirtimeMS).getTime() - timeOffsetMS).getTime());
+
+            $timeout(function () {
+              followingSpin.source.start(0);
+            }, (followingSpinAirtimeMS - commentarySpinAirtimeMS + 3000));
+
+            // schedule fadeout and reset for 3 secs after commentary is finished
+            $timeout(function() {
+              self.gainNode.gain.linearRampToValueAtTime(0.00001, self.context.currentTime + 2);
+              
               followingSpin.source.stop();
               previousSpin.source = null;
               commentarySpin.source = null;
               followingSpin.source = null;
-            }, 2000)  
-          }, commentarySpin._audioBlock.duration + 3000);
 
+              $rootScope.$emit('previewFinishedPlaying');
+            }, (followingSpinAirtimeMS - commentarySpinAirtimeMS + commentarySpin._audioBlock.duration + 1000));
+
+        }, 750);
         }
       });
     }
