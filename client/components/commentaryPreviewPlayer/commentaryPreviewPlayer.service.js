@@ -8,6 +8,10 @@ angular.module('pl2NodeYoApp')
     self.currentUser = Auth.getCurrentUser();
     self.muted = false;
 
+    var previousSpinAudio = {};
+    var commentarySpinAudio = {};
+    var followingSpinAudio = {};
+
     // set up audio context and audio nodes
     if (!self.context) {
       if ('webkitAudioContext' in window) {
@@ -27,20 +31,22 @@ angular.module('pl2NodeYoApp')
     self.compressor.release.value = 0.25;
 
     // connect context/gain/destination into chain
-    self.gainNode = this.context.createGain();
+    self.gainNode = self.context.createGain();
     self.compressor.connect(self.gainNode);
-    self.gainNode.connect(this.context.destination);
+    self.gainNode.connect(self.context.destination);
 
     this.play = function (previousSpin, commentarySpin, followingSpin) {
       // load all audioBlocks
-      // set the gain node just in case it's a replay
-      //self.gainNode.gain.value = 1;
+
       var loadedCounter = 0;
       loadAudio([previousSpin, commentarySpin, followingSpin], function () {
         
         // if all 3 are loaded...
         loadedCounter++;
         if (loadedCounter == 3) {
+          // set the gain node just in case it's a replay
+          self.gainNode.gain.setValueAtTime(1, self.context.currentTime);
+          
           // get all airtimes in ms
           var previousSpinAirtimeMS = new Date(previousSpin.airtime).getTime();
           var commentarySpinAirtimeMS = new Date(commentarySpin.airtime).getTime();
@@ -74,6 +80,7 @@ angular.module('pl2NodeYoApp')
             
             // wait a couple seconds... then remove the sources
             $timeout(function () {
+              followingSpin.source.stop();
               previousSpin.source = null;
               commentarySpin.source = null;
               followingSpin.source = null;
@@ -107,8 +114,10 @@ angular.module('pl2NodeYoApp')
               context.decodeAudioData(spin.request.response, function (buffer) {
                 var source = context.createBufferSource();
                 source.buffer = buffer;
-                source.connect(self.gainNode);
 
+                spin.gainNode = context.createGain();
+                source.connect(spin.gainNode);
+                spin.gainNode.connect(self.gainNode);
                 spin.source = source;
                 cb();
               });
