@@ -676,9 +676,11 @@ module.exports = function (grunt) {
     ]);
   })
   grunt.registerTask('loadDB:prod', function () {
+    return grunt.task.run([
     'env:all',
     'env:prod',
     'loadDatabase'
+    ]);
   })
   grunt.registerTask('loadDBTest', function() {
     return grunt.task.run([
@@ -695,9 +697,11 @@ module.exports = function (grunt) {
     ]);
   })
   grunt.registerTask('loadEchonest:prod', function () {
+    return grunt.task.run([
     'env:all',
     'env:prod',
     'loadEchonestFromDB'  
+    ]);
   })
   grunt.registerTask('updateItunes:dev', function () {
     return grunt.task.run([
