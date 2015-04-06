@@ -20,7 +20,6 @@
     "moment-timezone": "~0.3.0",
     "angular-file-upload": "~1.1.5",
     "angular-ui-tree": "2.1.5",
-    "wavesurfer.js": "~1.0.22",
     "angular-ui-sortable": "~0.13.3"
   },
   "devDependencies": {
