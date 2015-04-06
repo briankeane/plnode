@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var Upload = require('./upload.model');
-var SongProcessor = require('../../utilities/songProcessor/SongProcessor');
+var SongProcessor = require('../../utilities/songProcessor/songProcessor');
 var Song = require('../song/song.model');
 
 // Get list of things
