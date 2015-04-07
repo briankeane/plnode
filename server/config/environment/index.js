@@ -2,6 +2,8 @@
 
 var path = require('path');
 var _ = require('lodash');
+  console.log('domain');
+  console.log(process.env.DOMAIN);
 
 function requiredProcessEnv(name) {
   if(!process.env[name]) {
@@ -54,7 +56,6 @@ var all = {
       // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Config.html#constructor-property 
     },
   },
-
   twitter: {
     clientID:     process.env.TWITTER_ID || 'id',
     clientSecret: process.env.TWITTER_SECRET || 'secret',
