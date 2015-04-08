@@ -14,13 +14,6 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/trusty64"
 
-  config.berkshelf.enabled = true
-
-  config.vm.provision "chef_solo" do |chef|
-    chef.cookbooks_path = "../playolaChefDevelop"
-    chef.run_list = ["playola::default"]
-  end
-
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.

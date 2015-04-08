@@ -1,4 +1,3 @@
-console.log(process.cwd() + '/server/api/user');
 var config = require('../server/config/environment');
 var User = require('../server/api/user/user.model');
 var Song = require('../server/api/song/song.model');

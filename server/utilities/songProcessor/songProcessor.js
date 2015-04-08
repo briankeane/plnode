@@ -113,18 +113,36 @@ function SongProcessor() {
           return;
         }
 
-        // if a suitable match was not found, callback with not found error
+        // if a suitable match was not found, store the file for future use
         if ((match.titleMatchRating < 0.75) || (match.artistMatchRating < 0.75)) {
+          
+          // convert the song
+          Converter.convertFile(originalFilepath, function (err, filepath) {
+            if (err) {
+              callback(err);
+              return;
+            }
+
+            // store it on s3
+            
+
+
+          })
+
+
           var err = new Error('Song info not found');
           err.tags = tags;
+
+          // convert the song and store it on 
+
           callback(err);
           return;
         }
 
         // if the song already exists, callback with song exists error
-        Song.findAllByTitleAndArtist({ title: match.title,
-                                    artist: match.artist 
-                                  }, function (err, songs) {
+        Song.findAllByTitleAndArtist( { title: match.title,
+                                      artist: match.artist 
+                                      }, function (err, songs) {
           if (err) {
             callback(err);
             return;
