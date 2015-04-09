@@ -1,0 +1,407 @@
+<link rel="stylesheet" href="allCSS.css" />
+
+<!-- NAVBAR TEMPLATE -->
+
+<div class="navbar navbar-default navbar-fixed-top" ng-controller="NavbarCtrl">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggle" type="button" ng-click="isCollapsed = !isCollapsed">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="/" class="navbar-brand">Playola</a>
+    </div>
+    <div collapse="isCollapsed" class="navbar-collapse collapse" id="navbar-main">
+      <ul class="nav navbar-nav">
+        <li ng-repeat="item in menu" ng-class="{active: isActive(item.link)}">
+            <a ng-href="#">Item</a>
+        </li>
+        <li ng-show="isAdmin()" ng-class="{active: isActive('/admin')}"><a href="/admin">Admin</a></li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Listen</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Broadcast <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">DJ Booth</a></li>
+            <li><a href="#">Song Manager</a></li>
+            <li><a href="#">Song Markup</a></li>
+          </ul>
+        </li>
+
+
+        <li ng-show="isLoggedIn()" class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="buttton" aria-expanded="false">@BrianKeaneTunes<span class="caret"></span> </a>
+          <ul class="dropdown-menu" role="menu">
+            <li ng-class="{active: isActive('/settings')}"><a href="#"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+            <li ng-class="{active: isActive('/settings')}"><a href="#"><span class="glyphicon glyphicon-cog"></span> StationCreator</a></li>
+            <li><a href="#" ng-click="logout()">Logout</a></li>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- END NAVBAR TEMPLATE -->
+
+
+<div class="mic-image-inverse">
+  <div class="row top-row">
+    <h1 class="headline">Your Station</h1>
+    <p class="sub-headline">Here's What You're Broadcasting Right Now...</p>
+
+    <div class="container col-sm-12 col-md-7">
+      <h4 class="small-headline">Now Playing</h4>
+      <p class="sub-headline">Streaming to your Listeners Right Now:</p>
+      <ul id="nowPlayingList">
+        <li ng-model="player.nowPlaying" class='nowPlaying song'>
+          <span class='title'>Bigger One</span>
+          <span class='artist'>Rachel Loy</span>
+
+          <progressbar class="progress meter" type="dynamic" animate="false" value="songPercentComplete">
+            <span class="meter"></span>
+          </progressbar>
+
+          <div class='nowPlayingTimes'>
+            <div class='elapsedTime'>1:42</div>
+            <a class='muteButton' href='#'></a>
+            <div ng-show="nowPlayingRemainingString" class='timeRemaining'>-1:56</div>
+          </div>
+
+        </li>  
+      </ul> 
+
+
+      <ul id="station-list">
+        <div  ui-sortable="playlistOptions" class="stationList" ng-model="playlist">
+          <div  ng-repeat="spin in playlist track by spin._id">
+            <div class="dragGroup">
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+
+              <li class='commentary' ng-show="(spin._audioBlock._type==='Commentary')">
+                <span class="songlist-title">Commentary</span>
+                <span class="songlist-artist"><button class="btn btn-default" ng-click="previewCommentary($index)">Preview</button></span>
+                <span class="songlist-airtime">April 8th, 2:10:53 pm</span>
+                <a href="#" class="close" title="delete" ng-show="removable(spin, $index);" ng-click="removeSpin(spin, $index);">×</a>
+              </li>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+
+              <li class='commercialBlock disabled' ng-show="(spin._audioBlock._type === 'CommercialBlock')">
+                <span class="songlist-title">Commercial Block</span>
+                <span class="songlist-airtime">April 8th, 2:25:32 pm</span>
+              </li>
+
+
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete">×</a>
+              </li>
+
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+              <li class='song' ng-show="(spin._audioBlock._type === 'Song')">
+                <span class="songlist-title">Kiss Me In The Dark</span>
+                <span class="songlist-artist">Randy Rogers Band</span>
+                <span class="songlist-airtime" ng-show="spin.airtime">April 8th, 1:57:00 pm</span>
+                <a class="editSong fa fa-wrench" ng-click="markupSong()" ng-show="needsMarkup(spin._audioBlock);"></a>
+                <a class="close" title="delete" ng-click="removeSpin(spin, $index);" ng-show="removable(spin, $index);">×</a>
+              </li>
+
+            </div>
+          </div>
+        </div>   
+      </ul>
+    </div>
+        
+    <div class="col-sm-12 col-md-5">
+      <h4 class="small-headline">Content</h4>
+      <p class="sub-headline">Add Songs or Your Own Commentary</p>
+      
+      <tabset id="catalogAndRecordPanel" justified="true">
+        <tab heading="Add Songs">
+          <div class="content active" id="all-songs-source-container">
+          
+            <div>   <!--  extra container for tab/sortable-ui interaction  -->
+              <span for="searchbox">Search Text:</span>
+              <span id="onlyMySongs-label">My Songs Only</span>
+              <input id="onlyMySongs" class="switch" type="checkbox">
+              <input type="text" id="searchbox" placeholder="Enter Title and/or Artist Here">
+
+              <div id="catalog-list" >
+                <ol class="song-manager-page catalogList">
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">Cold Cold Heart</span>
+                    <span class="songlist-artist">Rachel Loy</span>
+                  </li>
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">Cold Cold Heart</span>
+                    <span class="songlist-artist">Rachel Loy</span>
+                  </li>
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">Cold Cold Heart</span>
+                    <span class="songlist-artist">Rachel Loy</span>
+                  </li>
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">Cold Cold Heart</span>
+                    <span class="songlist-artist">Rachel Loy</span>
+                  </li>
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">Cold Cold Heart</span>
+                    <span class="songlist-artist">Rachel Loy</span>
+                  </li>
+                  <li ng-repeat="song in catalogSearchResults" >
+                    <span class="songlist-title">Cold Cold Heart</span>
+                    <span class="songlist-artist">Rachel Loy</span>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </tab>
+
+
+
+        <tab heading="Record">
+          <div class="content" id="record">
+            <div> <!-- extra container for tab/sortable-ui interaction  -->
+              <div ng-include="'components/audioRecorder/audioRecorder.html'" >
+
+
+
+                <!-- THIS GETS INCLUDED BUT IS IN A SEPARATE TEMPLATE FILE    DELETE THIS ARROW TO HIDE
+
+
+                <div ng-controller="AudioRecorderCtrl">
+                  <h4>Record</h4>
+                  <button id="startRecording"  class="glyphicon glyphicon-">record</button>
+                  <button id="stopRecording">stop</button>
+                  <canvas id="volumeMeter"></canvas>
+
+                  <div id="recording-tree">
+                    <ol id="recordings">
+                      <li class="commentary" opacity="0.3">
+                        <audio controls type="audio/mpeg" src="http://songs.playola.fm/-pl-0000099-Miranda-Lambert-I-Wanna-Die.mp3" />
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+                <!-- END SEPARATE TEMPLATE FILE -->
+
+
+
+              </div>
+            </div>
+          </div>
+        </tab>
+        <tab heading="Upload">
+          <div class="content" id="uploader">
+            <div ng-include="'components/uploader/uploader.html'"></div>
+
+
+              <!-- THIS ALSO GETS INCLUDED AND IS IN A SEPARATE TEMPLATE FILE    DELETE THIS ARROW TO HIDE
+
+              <div ng-controller="uploaderCtrl">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="drop-zone" nv-file-over="" uploader="uploader">
+                      Drop Songs Here
+                    </div>
+                  </div>
+                </div>
+
+                <h3>Upload queue</h3>
+                <p>Queue length: 5 Songs</p>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th width="50%">Name</th>
+                            <th ng-show="uploader.isHTML5">Progress</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in uploader.queue">
+                            <td><strong>testing.mp3</strong></td>
+                            <td ng-show="uploader.isHTML5">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="{ 'width': '70%' }"></div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-xs">
+                                  <span class="glyphicon glyphicon-plus"></span>
+                                  Add to Station
+                                </button>
+                            </td>
+                            <td nowrap>
+                                <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove
+                                </button>
+                            </td>
+                        </tr>
+
+
+
+
+                        <tr ng-repeat="item in uploader.queue">
+                            <td><strong>testing2.mp3</strong></td>
+                            <td ng-show="uploader.isHTML5">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="{ 'width': '70%' }"></div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span ng-show="item.isNeedInfo"><button class="btn btn-xs" ng-click="getSongMatch(item);"><span class="glyphicon glyphicon-info-sign"></span> More Info Needed</button></span>
+                            </td>
+                            <td nowrap>
+                                <button ng-show="!item.isSuccess" type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+                                    <span class="glyphicon glyphicon-ban-circle"></span> Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove
+                                </button>
+                            </td>
+                        </tr>
+
+
+
+
+                        <tr ng-repeat="item in uploader.queue">
+                            <td><strong>testing3.mp3</strong></td>
+                            <td ng-show="uploader.isHTML5">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="{ 'width': '70%' }"></div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+
+                                <span ng-show="item.isNeedInfo"><button class="btn btn-xs" ng-click="getSongMatch(item);"><span class="glyphicon glyphicon-info-sign"></span> More Info Needed</button></span>
+                            </td>
+                            <td nowrap>
+                                <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                 <div>
+                    Queue progress:
+                    <div class="progress" style="">
+                        <div class="progress-bar" role="progressbar" style="{ 'width': '30%' }"></div>
+                    </div>
+                </div>
+              </div>
+          
+          <!-- END UPLOAD TEMPLATE -->
+
+          </div>
+         </tab>
+      </tabset>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- AUDIOPLAYER TEMPLATE -->
+
+<div class="audioPlayer navbar-fixed-bottom">
+  <div class="row"
+        ng-controller="AudioPlayerCtrl"
+        ng-show="!isCollapsed && player.isPlaying">
+    <div class="row controls">
+      <img class="album-cover col-sm-2" src="http://is5.mzstatic.com/image/pf/us/r30/Music/a2/0c/02/mzi.cozatvuk.100x100-75.jpg">"/>
+      <h4 class="title col-sm-2">One More Goodbye</h4>
+      <h4 class="artist col-sm-2">Randy Rogers Band</h4>
+     <!--  <div class="fa fa-compress fa-lg" ng-click="isCollapsed=true;"></div> -->
+     <label>volume: <input min="0" max="1" step="0.01" type="range"/></label>
+      <div class="btn-group-vertical" role="group">
+        <button class="btn btn-default" type="button" 
+        ng-click="addToMyStation(player.nowPlaying._audioBlock._id)"
+        ng-disabled="checkForRotation(player.nowPlaying._audioBlock)">Add Song to My Station</button>
+        <button class="btn btn-default" type="button" 
+        ng-click="togglePreset(player.stationPlaying);"
+        ng-disabled="presetButtonInfo(player.stationPlaying._id).disabled">Add Station To Presets</button>
+      <select class="form-control">
+        <option>Presets</option>
+        <option>@BrianKeaneTunes -- Now Playing: One More Goodbye | Randy Rogers Band</option>
+        <option>@BrianKeaneTunes -- Now Playing: One More Goodbye | Randy Rogers Band</option>
+        <option>@BrianKeaneTunes -- Now Playing: One More Goodbye | Randy Rogers Band</option>
+      </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END AUDIOPLAYER TEMPLATE -->

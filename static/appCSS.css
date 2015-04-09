@@ -1,0 +1,576 @@
+.listens-station img {
+  height: 100px;
+  width: 100px;
+}
+#twitter-friends li,
+#top-stations-list li,
+#presets li {
+  margin: 2px 0 2px 0;
+  background-color: #e9d4c3;
+  overflow-x: hidden;
+  list-style-type: none;
+  border: 1px solid #756a61;
+  font-size: 0.8em;
+}
+#twitter-friends li select,
+#top-stations-list li select,
+#presets li select {
+  height: 100%;
+  width: 65px;
+  border: 0;
+  padding: 0;
+  margin: 0 3px 0 0;
+  float: right;
+  background-color: #f1eae2;
+  font-size: 0.7em;
+}
+#twitter-friends li .twitter-pic,
+#top-stations-list li .twitter-pic,
+#presets li .twitter-pic {
+  float: left;
+  overflow-x: hidden;
+  width: 75px;
+  height: 75px;
+}
+#twitter-friends li .twitter-handle,
+#top-stations-list li .twitter-handle,
+#presets li .twitter-handle {
+  float: left;
+  width: 25%;
+  overflow-x: hidden;
+  text-align: center;
+}
+#twitter-friends li .twitter-now-playing,
+#top-stations-list li .twitter-now-playing,
+#presets li .twitter-now-playing {
+  float: right;
+  overflow-x: hidden;
+  width: 60%;
+  margin-left: 14px;
+  text-align: center;
+}
+#twitter-friends li .twitter-now-playing .now-playing-label,
+#top-stations-list li .twitter-now-playing .now-playing-label,
+#presets li .twitter-now-playing .now-playing-label {
+  height: 50%;
+  width: 100%;
+  float: left;
+}
+#twitter-friends li .twitter-now-playing .now-playing-title,
+#top-stations-list li .twitter-now-playing .now-playing-title,
+#presets li .twitter-now-playing .now-playing-title {
+  float: left;
+  width: 50%;
+}
+#twitter-friends li .twitter-now-playing .now-playing-artist,
+#top-stations-list li .twitter-now-playing .now-playing-artist,
+#presets li .twitter-now-playing .now-playing-artist {
+  float: left;
+}
+.station-square {
+  position: relative;
+  overflow: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  display: inline-block;
+  margin-top: 45px;
+}
+.station-square.medium-3 {
+  width: 24%;
+}
+.station-square::before {
+  content: ' ';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: transparent;
+  transition: background 0.35s ease-out;
+}
+.station-square:hover::before {
+  background: rgba(0, 0, 0, 0.5);
+}
+.station-square img {
+  display: block;
+  min-width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+.station-square .overlay {
+  text-align: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  color: white;
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+  transition: -webkit-transform 0.35s ease-out;
+  transition: transform 0.35s ease-out;
+}
+.station-square .overlay .overlay-twitter-handle {
+  overflow: hidden;
+  color: white;
+  font-family: "roboto";
+  font-size: 24px;
+  -webkit-transform: translateY(calc(-110%));
+  transform: translateY(calc(-110%));
+  transition: -webkit-transform 0.35s ease-out;
+  transition: transform 0.35s ease-out;
+}
+.station-square .overlay .overlay-twitter-handle:hover {
+  -webkit-transform: translateY(calc(-110%));
+  transform: translateY(calc(-110%));
+  transition: -webkit-transform 0.35s ease-out;
+  transition: transform 0.35s ease-out;
+}
+.station-square .overlay .overlay-now-playing-label {
+  color: white;
+}
+.station-square:hover .overlay {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+}
+#stationSearchList {
+  background: rgba(0, 0, 0, 0);
+  font-size: 2.5rem;
+  height: 360px;
+  overflow-y: scroll;
+  margin: 0;
+}
+#stationSearchList .container {
+  background-color: white;
+}
+#stationSearchList li {
+  list-style-type: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#stationSearchList li .searchListPic {
+  width: 150px;
+  height: 150px;
+  float: left;
+}
+#stationSearchList li .station-twitterHandle {
+  float: left;
+  overflow-x: hidden;
+  width: 30%;
+}
+#stationSearchList li .songlist-nowPlayingArtist {
+  float: left;
+  width: 40%;
+  overflow-x: hidden;
+}
+.thing-form {
+  margin: 20px 0;
+}
+#banner {
+  border-bottom: none;
+  margin-top: -20px;
+}
+#banner h1 {
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.hero-unit {
+  position: relative;
+  padding: 30px 15px;
+  color: #F5F5F5;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  background: #4393B9;
+}
+.footer {
+  text-align: center;
+  padding: 30px 0;
+  margin-top: 70px;
+  border-top: 1px solid #E5E5E5;
+}
+body {
+  padding-top: 40px;
+}
+@media screen and (max-width: 768px) {
+  body {
+    padding-top: 0px;
+  }
+}
+.navbar-fixed-top {
+  background-color: black;
+}
+.navbar-nav > li > a,
+.navbar-default .navbar-nav > li > a,
+.navbar-default .navbar-nav > li > a,
+.navbar-header .navbar-brand {
+  color: white;
+}
+.navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-header .navbar-brand:hover {
+  color: gray;
+}
+.navbar-nav > li > a:active,
+.navbar-default .navbar-nav > li > a:active,
+.navbar-default .navbar-nav > li > a:active,
+.navbar-header .navbar-brand:active {
+  color: gray;
+}
+.navbar-nav > li > a:focus,
+.navbar-default .navbar-nav > li > a:focus,
+.navbar-default .navbar-nav > li > a:focus,
+.navbar-header .navbar-brand:focus {
+  color: gray;
+}
+body .mic-image {
+  height: 100%;
+  width: 100%;
+  background-image: url('http://static.playola.fm/red_mic_green_background.jpg');
+  background-size: cover;
+  background-repeat: none;
+}
+.playola-logo {
+  padding-top: 20px;
+  color: #ED002A;
+  font-family: verdana;
+  font-style: bold;
+  font-size: 5em;
+}
+.vertical-center {
+  min-height: 100%;
+  min-height: 100vh;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+.nowPlaying .progress .meter {
+  background-color: #0E5050;
+  background-image: none;
+}
+.nowPlaying .timeRemaining {
+  float: right;
+}
+.nowPlaying .elapsedTime {
+  float: left;
+}
+.drop-zone {
+  border: dotted 3px grey;
+  height: 80px;
+}
+.angular-ui-tree-placeholder {
+  color: brown;
+  background-color: brown;
+}
+#catalog-list {
+  height: 323px;
+}
+#catalog-list li {
+  list-style-type: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#catalog-list .disabled {
+  opacity: 0.5;
+}
+.dndPlaceholder {
+  background-color: #ddd !important;
+  min-height: 42px;
+  display: block;
+  position: relative;
+}
+.dropzone li {
+  display: block;
+}
+.angular-ui-tree-placeholder {
+  background: #f0f9ff;
+  border: 2px dashed #bed2db;
+  box-sizing: border-box;
+}
+.angular-ui-tree-handle {
+  background: #f8faff;
+  border: 1px solid #dae2ea;
+  color: #7c9eb2;
+  padding: 10px 10px;
+}
+.angular-ui-tree-handle:hover {
+  color: #438eb9;
+  background: #f4f6f7;
+  border-color: #dce2e8;
+}
+#station-list {
+  height: 340px;
+  background: rgba(0, 0, 0, 0);
+  font-size: 0.9rem;
+  height: 360px;
+  overflow-y: scroll;
+  margin: 0;
+}
+#station-list li {
+  margin: 2px 0 2px 0;
+  background-color: #e9d4c3;
+  overflow-x: hidden;
+  list-style-type: none;
+  box-sizing: border-box;
+  padding: 9px 15px;
+}
+#station-list li select {
+  height: 100%;
+  width: 65px;
+  border: 0;
+  padding: 0;
+  margin: 0 3px 0 0;
+  float: right;
+  background-color: #f1eae2;
+  font-size: 0.7em;
+}
+#station-list li .songlist-artist {
+  float: left;
+  overflow-x: hidden;
+  width: 30%;
+}
+#station-list li .songlist-title {
+  float: left;
+  width: 40%;
+  overflow-x: hidden;
+}
+#station-list li .songlist-airtime {
+  float: left;
+  overflow-x: hidden;
+  width: 23%;
+  margin-left: 14px;
+}
+#station-list li .processing-icon {
+  height: 15px;
+  width: 15px;
+  margin-left: 70px;
+}
+#station-list li li .close {
+  width: 5%;
+  float: left;
+}
+#station-list .commercialBlock {
+  background-color: #ed6b6f;
+}
+#station-list .commercialBlock .songlist-title {
+  float: left;
+  width: 70%;
+}
+#station-list .commentary {
+  background-color: #c7897a;
+}
+#station-list .commentary .songlist-title {
+  float: left;
+  width: 20%;
+}
+#station-list .commentary .songlist-artist {
+  width: 50%;
+  float: left;
+}
+#station-list .commentary .songlist-airtime {
+  width: 25%;
+  float: left;
+  margin-left: 14px;
+}
+#station-list li {
+  -ms-user-select: none;
+  /* IE 10+ */
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#nowPlayingList {
+  list-style: none;
+  overflow: hidden;
+}
+#nowPlayingList .nowPlaying {
+  background-color: #e9d4c3;
+  min-height: 77px;
+  border: black solid 1px;
+  padding-left: 6px;
+  padding-right: 6px;
+  display: table;
+  width: 85%;
+  margin-right: auto;
+  margin-left: auto;
+}
+#nowPlayingList .title {
+  color: black;
+  font-size: .9em;
+  float: left;
+  width: 50%;
+  font-weight: bold;
+  line-height: 100%;
+  padding: 5px;
+  vertical-align: center;
+}
+#nowPlayingList .artist {
+  float: right;
+  width: 50%;
+  text-align: right;
+  line-height: 100%;
+  padding: 5px;
+  vertical-align: center;
+}
+#nowPlayingList .progress {
+  float: right;
+  width: 100%;
+  margin-bottom: 0;
+}
+body .mic-image-inverse {
+  height: 100%;
+  width: 100%;
+  background-image: url('http://static.playola.fm/green_background.jpg');
+  background-size: cover;
+  background-repeat: repeat-y;
+  display: inline-table;
+}
+.brown-background {
+  background-image: url('http://static.playola.fm/brown_background.jpg');
+}
+.rotation-bin {
+  height: 200px;
+  border: 2px solid #ed002a;
+}
+#catalog-list {
+  overflow-y: scroll;
+  height: 307px;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.05);
+  margin-bottom: 33px;
+  padding: 0;
+}
+#catalog-list li {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-size: .9rem;
+  list-style-type: none;
+  position: relative;
+  width: 100%;
+  float: left;
+  clear: both;
+  margin: 0 0 2px 0;
+  background-color: white;
+  box-sizing: border-box;
+  padding: 9px 15px;
+}
+#catalog-list .disabled {
+  opacity: 0.5;
+}
+#catalog-list .songlist-title {
+  display: inline-block;
+  width: 60%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 2px;
+  vertical-align: middle;
+  line-height: 100%;
+}
+#catalog-list .songlist-artist {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: right;
+  display: inline-block;
+  width: 40%;
+  padding: 2px;
+  vertical-align: middle;
+}
+#spinsPerWeekList {
+  background: rgba(0, 0, 0, 0);
+  font-size: 0.9rem;
+  height: 360px;
+  overflow-y: scroll;
+  margin: 0;
+  line-height: 100%;
+}
+#spinsPerWeekList li {
+  background-color: #e9d4c3;
+  font-size: .9rem;
+  list-style-type: none;
+  position: relative;
+  width: 100%;
+  float: left;
+  clear: both;
+  margin: 0 0 2px 0;
+  box-sizing: border-box;
+  padding: 9px 15px;
+}
+#spinsPerWeekList li select {
+  height: 100%;
+  width: 90px;
+  border: 0;
+  padding: 0;
+  margin: 5px 3px 0 0;
+  float: left;
+  background-color: #f1eae2;
+  font-size: 0.7em;
+}
+#spinsPerWeekList li .songlist-artist {
+  float: left;
+  width: 35%;
+}
+#spinsPerWeekList li .songlist-title {
+  float: left;
+  width: 35%;
+}
+#spinsPerWeekList li .close {
+  width: 5%;
+  float: right;
+}
+msDisplay {
+  width: 30%;
+}
+.markupRow {
+  margin-bottom: 20px;
+  margin-top: 20px;
+  border: 5px Solid;
+  padding: 10px, 10px, 10px, 10px;
+}
+.audioPlayer {
+  background-color: black;
+  color: white;
+  position: fixed;
+  bottom: 0;
+  margin-top: 75px;
+  padding: 0 40px 0 40px;
+}
+.audioPlayer .controls {
+  width: 70%;
+  margin-right: auto;
+  margin-left: auto;
+}
+.audioPlayer .controls .title {
+  width: 30%;
+  float: left;
+  padding-right: 50px;
+}
+.audioPlayer .controls .album-cover {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.audioPlayer .controls .fa-compress,
+.audioPlayer .controls .fa-expand {
+  float: left;
+  margin-right: 20px;
+  margin-top: 5px;
+}
