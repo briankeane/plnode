@@ -4,6 +4,8 @@
 ## Installation
 
 To install playola in a local dev environment:
+
+
 1. Download and Install [Vagrant](https://www.vagrantup.com/downloads.html)
 2. Clone this repo
 ```
