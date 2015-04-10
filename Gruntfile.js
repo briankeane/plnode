@@ -572,10 +572,7 @@ module.exports = function (grunt) {
         'clean:server',
         'env:all',
         'injector:less', 
-        //'concurrent:server' -- replacements,
-        'nodemon',
-        'node-inspector',
-        // end concurrent:server replacements
+        'concurrent:server',
         'injector',
         'wiredep',
         'autoprefixer'
@@ -587,8 +584,7 @@ module.exports = function (grunt) {
       'clean:server',
       'env:all',
       'injector:less', 
-      //'concurrent:server',  -- replace
-      'less',        // replaces concurrent:server
+      'concurrent:server',
       'injector',
       'wiredep',
       'autoprefixer',
@@ -618,8 +614,7 @@ module.exports = function (grunt) {
         'clean:server',
         'env:all',
         'injector:less', 
-        //'concurrent:test',
-        'less',    // replaces concurrent:test
+        'concurrent:test',
         'injector',
         'autoprefixer',
         'karma'
@@ -632,8 +627,7 @@ module.exports = function (grunt) {
         'env:all',
         'env:test',
         'injector:less', 
-        //'concurrent:test',
-        'less',    // replaces concurrent:test
+        'concurrent:test',
         'injector',
         'wiredep',
         'autoprefixer',
@@ -651,11 +645,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'injector:less', 
-    //'concurrent:dist', -- replace
-    'less',
-    'imagemin',
-    'svgmin',
-    // end concurrent:dist replacements
+    'concurrent:dist',
     'injector',
     'wiredep',
     'useminPrepare',

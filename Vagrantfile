@@ -9,11 +9,14 @@ Vagrant.configure(2) do |config|
 
   config.vm.box = "ubuntu/trusty64"
 
+
   config.vm.network "forwarded_port", guest: 9000, host: 9000, auto_correct: true
   config.vm.network "forwarded_port", guest: 5858, host: 5858, auto_correct: true
   config.ssh.forward_agent = true
 
-  config.vm.synced_folder ".", "/home/vagrant/www", create: true, group: "vagrant", owner: "vagrant"
+  config.vm.network :public_network
+  #config.vm.network "private_network", type: "dhcp"
+  config.vm.synced_folder ".", "/home/vagrant/www", create: true, type: "nfs"
 
   config.vm.provider "virtualbox" do |vb|
     vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root","1"]
@@ -43,6 +46,7 @@ Vagrant.configure(2) do |config|
   # https://github.com/SocialGeeks/vagrant-openstack/commit/d3ea0695e64ea2e905a67c1b7e12d794a1a29b97
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
+  config.vm.provision :shell, path: "vagrant/increaseSwap.sh"
   config.vm.provision :shell, path: "vagrant/rootScript.sh"
   config.vm.provision :shell, privileged: false, path: "vagrant/userScript.sh" 
 end
