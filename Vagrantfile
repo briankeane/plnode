@@ -14,8 +14,8 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 5858, host: 5858, auto_correct: true
   config.ssh.forward_agent = true
 
-  config.vm.network :public_network
-  #config.vm.network "private_network", type: "dhcp"
+  config.vm.network "public_network", bridge: 'en1: Wi-Fi (AirPort)'
+
   config.vm.synced_folder ".", "/home/vagrant/www", create: true, type: "nfs"
 
   config.vm.provider "virtualbox" do |vb|
